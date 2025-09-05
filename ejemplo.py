@@ -12,7 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 # Inicializo mi aplicación Flask.
 # El parámetro __name__ le dice a Flask que tome el nombre del módulo actual,
 # y con eso puede saber dónde están los recursos como las plantillas y los archivos estáticos.
-# En pocas palabras, aquí arranca oficialmente mi aplicación web.
+# En pocas palabras, aquí arranca oficialmente mi aplicación web...
 app = Flask(__name__)
 
 # Configuración de la base de datos en la aplicación Flask
