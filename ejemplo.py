@@ -19,7 +19,7 @@ app = Flask(__name__)
 
 # Aquí le indico a Flask dónde está mi base de datos y qué motor usar.
 # En este caso uso SQLite y le paso la ruta completa del archivo .db que generé en DB Browser.
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/JuanCarlos/Desktop/Ejemplo/DBSeleniosHPE.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DBSeleniosHPE.db'
 
 # Desactivo el seguimiento de modificaciones de SQLAlchemy porque no lo necesito
 # y además consume memoria de manera innecesaria si lo dejo activo.
