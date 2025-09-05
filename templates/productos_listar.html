@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Productos</title>
+</head>
+<body>
+    <h2>Lista de Productos (Equipment)</h2>
+    <a href="/productos/nuevo">➕ Crear producto</a><br><br>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <thead>
+            <tr>
+                <th>SolutionId</th>
+                <th>HPERepId</th>
+                <th>ProductNumberEquipment</th>
+                <th>ProductDescription</th>
+                <th>CompanyProgram</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p.SolutionId }}</td>
+                <td>{{ p.HPERepId }}</td>
+                <td>{{ p.ProductNumberEquipment }}</td>
+                <td>{{ p.ProductDescription }}</td>
+                <td>{{ p.CompanyProgram }}</td>
+                <td>{{ p.Price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
