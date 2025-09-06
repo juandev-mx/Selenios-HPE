@@ -57,6 +57,12 @@ class Equipment(db.Model):
 # RUTAS
 # -------------------------------
 
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
 @app.route('/usuarios/nuevo', methods=['GET', 'POST'])
 def crear_usuario_form():
     if request.method == 'POST':
