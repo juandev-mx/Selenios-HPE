@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+        /* HP Enterprise POCs Page Styles */
+:root {
+    --text-primary: #0D1C17;
+    --text-data: #479E85;
+    --bg-light-green: #F7FCFA;
+    --bg-search: #E8F5F0;
+    --border-light: #CFE8E0;
+    --border-gray: #E5E8EB;
+    --white: #FFFFFF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-light-green);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* Header Styles */
+.site-header {
+    border-bottom: 1px solid var(--border-gray);
+    background: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex: 1;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    width: 108px;
+    height: 22px;
+}
+
+.logo {
+    height: 39px;
+    width: auto;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+}
+
+.nav-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text-data);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.notification-container {
+    display: flex;
+    height: 40px;
+    max-width: 480px;
+    padding: 0 10px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background: var(--bg-search);
+}
+
+.notification-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: url('https://api.builder.io/api/v1/image/assets/TEMP/3ba04b51fa2ad41c991be7f858428b9f26277b70?width=80') lightgray 50% / cover no-repeat;
+}
+
+.avatar-img {
+    width: 40px;
+    height: 53px;
+    object-fit: cover;
+}
+
+/* Main Content */
+.main-content {
+    padding: 20px 160px;
+    flex: 1;
+}
+
+.content-container {
+    max-width: 960px;
+    margin: 0 auto;
+    height: 695px;
+}
+
+/* Page Header */
+.page-header {
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.header-info {
+    min-width: 288px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 40px;
+    color: var(--text-primary);
+}
+
+.page-subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    color: var(--text-data);
+    width: 402px;
+}
+
+/* Table Styles */
+.table-section {
+    padding: 12px 16px;
+}
+
+.table-container {
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-light-green);
+    overflow: hidden;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-light-green);
+}
+
+.table-header {
+    background: var(--bg-light-green);
+}
+
+.header-cell {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 21px;
+    color: var(--text-primary);
+    text-align: left;
+    border: none;
+}
+
+.poc-name {
+    width: 195px;
+}
+
+.poc-status {
+    width: 168px;
+}
+
+.poc-client {
+    width: 211px;
+}
+
+.poc-equipment {
+    width: 208px;
+}
+
+.poc-actions {
+    width: 144px;
+    color: var(--text-data);
+}
+
+.table-row {
+    border-top: 1px solid var(--border-gray);
+}
+
+.table-row:first-child {
+    border-top: 1px solid var(--border-gray);
+}
+
+.table-cell {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+    color: var(--text-primary);
+    text-align: left;
+    height: 72px;
+    vertical-align: middle;
+}
+
+.data-cell {
+    color: var(--text-data);
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    height: 32px;
+    min-width: 84px;
+    max-width: 480px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background: var(--bg-search);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 21px;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.status-approved {
+    /* Same styling for both approved and denied */
+}
+
+.status-denied {
+    /* Same styling for both approved and denied */
+}
+
+/* Action Button */
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--text-data);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 21px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: rgba(71, 158, 133, 0.1);
+}
+
+.action-btn:focus {
+    outline: 2px solid var(--text-data);
+    outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .main-content {
+        padding: 20px 40px;
+    }
+    
+    .header-container {
+        padding: 12px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px 20px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+    }
+    
+    .main-nav {
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .header-right {
+        justify-content: center;
+        gap: 16px;
+    }
+    
+    .main-content {
+        padding: 20px 16px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+        line-height: 32px;
+    }
+    
+    .page-subtitle {
+        width: 100%;
+        max-width: 402px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .data-table {
+        min-width: 800px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-nav {
+        gap: 12px;
+        font-size: 12px;
+    }
+    
+    .page-title {
+        font-size: 20px;
+        line-height: 28px;
+    }
+    
+    .header-right {
+        gap: 12px;
+    }
+    
+    .status-badge {
+        min-width: 70px;
+        padding: 0 8px;
+        font-size: 12px;
+    }
+    
+    .action-btn {
+        font-size: 12px;
+    }
+}
+
+/* Focus and interaction states */
+.nav-link:focus {
+    outline: 2px solid var(--text-data);
+    outline-offset: 2px;
+}
+
+.table-row:hover {
+    background-color: rgba(71, 158, 133, 0.05);
+}
+
+/* Print styles */
+@media print {
+    .site-header {
+        position: static;
+    }
+    
+    .notification-container,
+    .profile-avatar {
+        display: none;
+    }
+    
+    body {
+        background-color: var(--white);
+    }
+    
+    .main-content {
+        padding: 20px;
+    }
+}
+
+    </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proof of Concepts (POCs) - Hewlett Packard Enterprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pocs.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="site-header">
+        <div class="header-container">
+            <!-- Navigation items in proper order -->
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="https://api.builder.io/api/v1/image/assets/TEMP/27bd09ef4f03575d08ed87cbcd47d57ae76bc55e?width=186" alt="Hewlett Packard Enterprise" class="logo">
+                </div>
+                
+                <nav class="main-nav">
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <a href="#" class="nav-link">Solutions</a>
+                    <a href="#" class="nav-link">Products</a>
+                    <a href="#" class="nav-link">Clients</a>
+                    <a href="#" class="nav-link active">POCs</a>
+                </nav>
+            </div>
+            
+            <!-- Right side: Notifications and Profile -->
+            <div class="header-right">
+                <div class="notification-container">
+                    <svg class="notification-icon" width="16" height="18" viewBox="0 0 16 18" fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.3281 12.7453C14.8945 11.9984 14.25 9.88516 14.25 7.125C14.25 3.67322 11.4518 0.875 8 0.875C4.54822 0.875 1.75 3.67322 1.75 7.125C1.75 9.88594 1.10469 11.9984 0.671094 12.7453C0.445722 13.1318 0.444082 13.6092 0.666796 13.9973C0.889509 14.3853 1.30261 14.6247 1.75 14.625H4.93828C5.23556 16.0796 6.51529 17.1243 8 17.1243C9.48471 17.1243 10.7644 16.0796 11.0617 14.625H14.25C14.6972 14.6244 15.1101 14.3849 15.3326 13.9969C15.5551 13.609 15.5534 13.1317 15.3281 12.7453ZM8 15.875C7.20562 15.8748 6.49761 15.3739 6.23281 14.625H9.76719C9.50239 15.3739 8.79438 15.8748 8 15.875ZM1.75 13.375C2.35156 12.3406 3 9.94375 3 7.125C3 4.36358 5.23858 2.125 8 2.125C10.7614 2.125 13 4.36358 13 7.125C13 9.94141 13.6469 12.3383 14.25 13.375H1.75Z" fill="#0D1C17"/>
+                    </svg>
+                </div>
+                
+                <div class="profile-avatar">
+                    <img src="https://api.builder.io/api/v1/image/assets/TEMP/82040195d4fa5d39f8c0f473fda3d9cae104caf4?width=80" alt="Profile" class="avatar-img">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="header-info">
+                    <h1 class="page-title">Proof of Concepts (POCs)</h1>
+                    <p class="page-subtitle">Manage and track all POCs for equipment deployments.</p>
+                </div>
+            </div>
+
+            <!-- POCs Table -->
+            <div class="table-section">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr class="table-header">
+                                <th class="table-cell header-cell poc-name">POC Name</th>
+                                <th class="table-cell header-cell poc-status">Status</th>
+                                <th class="table-cell header-cell poc-client">Client</th>
+                                <th class="table-cell header-cell poc-equipment">Equipment Product</th>
+                                <th class="table-cell header-cell poc-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="table-cell">POC Alpha</td>
+                                <td class="table-cell">
+                                    <span class="status-badge status-approved">Approved</span>
+                                </td>
+                                <td class="table-cell data-cell">Tech Solutions Inc.</td>
+                                <td class="table-cell data-cell">Model X500</td>
+                                <td class="table-cell">
+                                    <button class="action-btn">Approve</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell">POC Beta</td>
+                                <td class="table-cell">
+                                    <span class="status-badge status-denied">Denied</span>
+                                </td>
+                                <td class="table-cell data-cell">Global Innovations Ltd.</td>
+                                <td class="table-cell data-cell">Model Y700</td>
+                                <td class="table-cell">
+                                    <button class="action-btn">Approve</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell">POC Gamma</td>
+                                <td class="table-cell">
+                                    <span class="status-badge status-approved">Approved</span>
+                                </td>
+                                <td class="table-cell data-cell">Future Systems Corp.</td>
+                                <td class="table-cell data-cell">Model Z900</td>
+                                <td class="table-cell">
+                                    <button class="action-btn">Approve</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell">POC Delta</td>
+                                <td class="table-cell">
+                                    <span class="status-badge status-denied">Denied</span>
+                                </td>
+                                <td class="table-cell data-cell">Pioneer Industries</td>
+                                <td class="table-cell data-cell">Model A100</td>
+                                <td class="table-cell">
+                                    <button class="action-btn">Approve</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="table-cell">POC Epsilon</td>
+                                <td class="table-cell">
+                                    <span class="status-badge status-approved">Approved</span>
+                                </td>
+                                <td class="table-cell data-cell">Summit Enterprises</td>
+                                <td class="table-cell data-cell">Model B200</td>
+                                <td class="table-cell">
+                                    <button class="action-btn">Approve</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
