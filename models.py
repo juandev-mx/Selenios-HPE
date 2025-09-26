@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
+# este es un comentario de prueba
 db = SQLAlchemy()
 
 class ClientCompany(db.Model):
