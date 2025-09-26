@@ -79,7 +79,7 @@ def create_client_company():
 
     return jsonify({"created": created, "errors": errors}), 201
 
-
+#este conentario no es de chat joaquin
 #Nada
 @app.route('/client_company/<int:id>', methods=['PUT'])
 def update_client_company(id):
