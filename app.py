@@ -12,19 +12,19 @@ with app.app_context():
     db.create_all()
 
 # ---------------- CLIENT_COMPANY ----------------
-@app.route('/client_companies', methods=['GET'])
+@app.route('/client_company', methods=['GET'])
 def get_client_companies():
     companies = ClientCompany.query.all()
     return jsonify([{'id': c.client_company_id, 'name': c.company_name, 'manager': c.manager_client_name} for c in companies])
 
-@app.route('/client_companies/<int:id>', methods=['GET'])
+@app.route('/client_company/<int:id>', methods=['GET'])
 def obtener_company(id):
     companies = ClientCompany.query.get(id)
     if not companies:
         return jsonify({"error": "Usuario no encontrado"}), 404
     return jsonify({'id': companies.client_company_id, 'name': companies.company_name, 'manager': companies.manager_client_name})
 
-@app.route('/client_companies', methods=['POST'])
+@app.route('/client_company', methods=['POST'])
 def create_client_company():
     data = request.get_json()
     if data is None:
@@ -81,7 +81,7 @@ def create_client_company():
 
 
 
-@app.route('/client_companies/<int:id>', methods=['PUT'])
+@app.route('/client_company/<int:id>', methods=['PUT'])
 def update_client_company(id):
     company = ClientCompany.query.get_or_404(id)
     data = request.json
@@ -91,7 +91,7 @@ def update_client_company(id):
     db.session.commit()
     return jsonify({'message': 'Company updated'})
 
-@app.route('/client_companies/<int:id>', methods=['DELETE'])
+@app.route('/client_company/<int:id>', methods=['DELETE'])
 def delete_client_company(id):
     company = ClientCompany.query.get_or_404(id)
     db.session.delete(company)
