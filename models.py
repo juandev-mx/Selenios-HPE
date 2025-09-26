@@ -16,7 +16,7 @@ class User(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True)
     client_company_id = db.Column(db.Integer, db.ForeignKey('client_company.client_company_id'), nullable=False)
-    reports_to = db.Column(db.Integer)  # podría ser otro user_id
+    reports_to = db.Column(db.Integer)  
     mail = db.Column(db.String(255))
     password = db.Column(db.String(255))
     role = db.Column(db.String(100))
