@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from models import db, ClientCompany, User, Equipment, EquipmentItem, POC, POCEquipment
+import re
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DBSeleniosHPE.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DBSelenios2.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
@@ -13,17 +15,71 @@ with app.app_context():
 @app.route('/client_companies', methods=['GET'])
 def get_client_companies():
     companies = ClientCompany.query.all()
-    return jsonify([{'id': c.client_company_id, 'name': c.company_name} for c in companies])
+    return jsonify([{'id': c.client_company_id, 'name': c.company_name, 'manager': c.manager_client_name} for c in companies])
+
+@app.route('/client_companies/<int:id>', methods=['GET'])
+def obtener_company(id):
+    companies = ClientCompany.query.get(id)
+    if not companies:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+    return jsonify({'id': companies.client_company_id, 'name': companies.company_name, 'manager': companies.manager_client_name})
 
 @app.route('/client_companies', methods=['POST'])
 def create_client_company():
-    data = request.json
-    company = ClientCompany(company_name=data['company_name'],
-                            manager_client_name=data.get('manager_client_name'),
-                            hpe_rep_id=data.get('hpe_rep_id'))
-    db.session.add(company)
-    db.session.commit()
-    return jsonify({'message': 'Company created', 'id': company.client_company_id}), 201
+    data = request.get_json()
+    if data is None:
+        return jsonify({"error": "JSON inválido o body vacío"}), 400
+
+    # normalizar a lista
+    if not isinstance(data, list):
+        data = [data]
+
+    created = []
+    errors = []
+
+    for index, comp_data in enumerate(data):
+        if not isinstance(comp_data, dict):
+            errors.append({"index": index, "error": "Cada item debe ser un objeto JSON"})
+            continue
+
+        # validaciones
+        name = comp_data.get('company_name')
+        if not name or not re.match(r'^[A-Za-z0-9ÁÉÍÓÚÑáéíóú\s]+$', name):
+            errors.append({"index": index, "error": "company_name inválido"})
+            continue
+
+        manager = comp_data.get('manager_client_name')
+        if not manager and not re.match(r'^[A-Za-zÁÉÍÓÚÑáéíóú\s]+$', manager):
+            errors.append({"index": index, "error": "manager_client_name inválido"})
+            continue
+
+        hpe = comp_data.get('hpe_rep_id')
+        if hpe is not None:
+            try:
+                hpe = int(hpe)
+            except (ValueError, TypeError):
+                errors.append({"index": index, "error": "hpe_rep_id debe ser numérico"})
+                continue
+
+        # creación
+        company = ClientCompany(
+            company_name=name,
+            manager_client_name=manager,
+            hpe_rep_id=hpe
+        )
+        db.session.add(company)
+        db.session.flush()   # opcional: hace INSERT ahora y nos da el id
+        created.append({"index": index, "id": company.client_company_id, "company_name": name})
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Error al guardar en BD", "detail": str(e)}), 500
+
+    return jsonify({"created": created, "errors": errors}), 201
+
+
 
 @app.route('/client_companies/<int:id>', methods=['PUT'])
 def update_client_company(id):
@@ -40,7 +96,7 @@ def delete_client_company(id):
     company = ClientCompany.query.get_or_404(id)
     db.session.delete(company)
     db.session.commit()
-    return jsonify({'message': 'Company deleted'})
+    return jsonify({'message': 'Compañia Eliminada'})
 
 # ---------------- USERS ----------------
 @app.route('/users', methods=['GET'])
@@ -55,22 +111,72 @@ def obtener_usuario(id):
         return jsonify({"error": "Usuario no encontrado"}), 404
     return jsonify({'id': users.user_id, 'name': users.name, 'role': users.role})
 
+#crear usuarios validados
 @app.route('/users', methods=['POST'])
-def create_user():
+def create_users():
     data = request.json
-    user = User(
-        client_company_id=data.get('client_company_id',False),
-        reports_to=data.get('reports_to'),
-        mail=data.get('mail'),
-        password=data.get('password'),
-        role=data.get('role'),
-        name=data.get('name'),
-        session_started=data.get('session_started', False)
-    )
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'message': 'User created', 'id': user.user_id}), 201
 
+    # Asegurarnos de que siempre sea lista
+    if not isinstance(data, list):
+        data = [data]  # si el cliente manda solo un objeto, lo convertimos a lista
+
+    created_users = []
+    errors = []
+
+    for index, user_data in enumerate(data):
+        # Validaciones 
+        # name
+        if not user_data.get('name') or not re.match(r'^[A-ZÁÉÍÓÚa-záéíóú\s]+$', user_data['name']):
+            errors.append({"index": index, "error": "Nombre inválido (solo letras y espacios)."})
+            continue
+
+        # mail
+        if not user_data.get('mail') or not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
+            errors.append({"index": index, "error": "Correo inválido."})
+            continue
+
+        # password
+        if not user_data.get('password') or len(user_data['password']) < 6:
+            errors.append({"index": index, "error": "La contraseña debe tener mínimo 6 caracteres."})
+            continue
+
+        # role
+        if not user_data.get('role'):
+            errors.append({"index": index, "error": "El rol es obligatorio."})
+            continue
+
+        # client_company_id
+        if user_data.get('client_company_id') is not None:
+            try:
+                int(user_data.get('client_company_id'))
+            except ValueError:
+                errors.append({"index": index, "error": "El client_company_id debe ser un número."})
+                continue
+
+        # Si todo está bien, creamos el usuario
+        user = User(
+            client_company_id=user_data.get('client_company_id'),
+            reports_to=user_data.get('reports_to'),
+            mail=user_data.get('mail'),
+            password=user_data.get('password'),
+            role=user_data.get('role'),
+            name=user_data.get('name'),
+            session_started=user_data.get('session_started', False)
+        )
+        db.session.add(user)
+        db.session.flush()  # para obtener el ID antes del commit
+        created_users.append({"id": user.user_id, "name": user.name})
+
+    db.session.commit()
+
+    return jsonify({
+        "message": f"{len(created_users)} usuarios creados",
+        "usuarios": created_users,
+        "errores": errors
+    }), 200
+
+
+#
 @app.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get_or_404(id)
@@ -124,6 +230,14 @@ def delete_equipment(id):
     db.session.delete(e)
     db.session.commit()
     return jsonify({'message': 'Equipment deleted'})
+
+
+# ---------------- EQUIPMENT ITEMS----------------
+@app.route('/equipment_items', methods=['GET'])
+def get_equipment_items():
+    equipment_items = EquipmentItem.query.all()
+    return jsonify([{'solution_id': e.solution_id, 'product_number': e.product_number, 'product_name': e.product_name} for e in equipment_items])
+
 
 # ---------------- POC ----------------
 @app.route('/pocs', methods=['GET'])
@@ -181,11 +295,5 @@ def delete_poc_equipment(poc_id, solution_id):
     db.session.commit()
     return jsonify({'message': 'POCEquipment deleted'})
 
-# ---------------- EQUIPMENT ITEMS----------------
-@app.route('/equipment_items', methods=['GET'])
-def get_equipment_items():
-    equipment_items = EquipmentItem.query.all()
-    return jsonify([{'solution_id': e.solution_id, 'product_number': e.product_number, 'product_name': e.product_name} for e in equipment_items])
-    
 if __name__ == '__main__':
     app.run(debug=True)
