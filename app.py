@@ -102,14 +102,14 @@ def delete_client_company(id):
 @app.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
-    return jsonify([{'id': u.user_id, 'name': u.name, 'role': u.role} for u in users])
+    return jsonify([{'id': u.user_id, 'name': u.name, 'role': u.role, 'mail':u.mail} for u in users])
 
 @app.route('/users/<int:id>', methods=['GET'])
 def obtener_usuario(id):
     users = User.query.get(id)
     if not users:
         return jsonify({"error": "Usuario no encontrado"}), 404
-    return jsonify({'id': users.user_id, 'name': users.name, 'role': users.role})
+    return jsonify({'id': users.user_id, 'name': users.name, 'role': users.role, 'mail':users.mail})
 
 #crear usuarios validados
 @app.route('/users', methods=['POST'])
