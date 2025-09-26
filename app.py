@@ -126,6 +126,7 @@ def create_users():
     for index, user_data in enumerate(data):
         # Validaciones 
         # name
+        #Este comentario no es de chat joaquin
         if not user_data.get('name') or not re.match(r'^[A-ZÁÉÍÓÚa-záéíóú\s]+$', user_data['name']):
             errors.append({"index": index, "error": "Nombre inválido (solo letras y espacios)."})
             continue
