@@ -28,7 +28,7 @@ def obtener_company(id):
 def create_client_company():
     data = request.get_json()
     if data is None:
-        return jsonify({"error": "JSON inválido o body vacío"}), 400
+        return jsonify({"error": "Faltan datos"}), 400
 
     # normalizar a lista
     if not isinstance(data, list):
@@ -111,10 +111,13 @@ def obtener_usuario(id):
         return jsonify({"error": "Usuario no encontrado"}), 404
     return jsonify({'id': users.user_id, 'name': users.name, 'role': users.role, 'mail':users.mail})
 
-#crear usuarios validados
+# Crear usuarios validados
 @app.route('/users', methods=['POST'])
 def create_users():
     data = request.json
+
+    # Lista de roles permitidos
+    ROLES = ['HPE_REP', 'HPE_MANAGER', 'CLIENT']
 
     # Asegurarnos de que siempre sea lista
     if not isinstance(data, list):
@@ -126,7 +129,6 @@ def create_users():
     for index, user_data in enumerate(data):
         # Validaciones 
         # name
-        #Este comentario no es de chat joaquin
         if not user_data.get('name') or not re.match(r'^[A-ZÁÉÍÓÚa-záéíóú\s]+$', user_data['name']):
             errors.append({"index": index, "error": "Nombre inválido (solo letras y espacios)."})
             continue
@@ -142,8 +144,13 @@ def create_users():
             continue
 
         # role
-        if not user_data.get('role'):
+        role = user_data.get('role')
+        if not role:
             errors.append({"index": index, "error": "El rol es obligatorio."})
+            continue
+
+        if role not in ROLES:
+            errors.append({"index": index, "error": f"Rol inválido. Solo se permiten: {', '.join(ROLES)}."})
             continue
 
         # client_company_id
@@ -160,7 +167,7 @@ def create_users():
             reports_to=user_data.get('reports_to'),
             mail=user_data.get('mail'),
             password=user_data.get('password'),
-            role=user_data.get('role'),
+            role=role,
             name=user_data.get('name'),
             session_started=user_data.get('session_started', False)
         )
