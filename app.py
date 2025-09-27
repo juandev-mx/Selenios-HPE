@@ -240,11 +240,42 @@ def delete_equipment(id):
     return jsonify({'message': 'Equipment deleted'})
 
 
-# ---------------- EQUIPMENT ITEMS----------------
+# ---------------- EQUIPMENT ITEMS ----------------
 @app.route('/equipment_items', methods=['GET'])
 def get_equipment_items():
     equipment_items = EquipmentItem.query.all()
-    return jsonify([{'solution_id': e.solution_id, 'product_number': e.product_number, 'product_name': e.product_name} for e in equipment_items])
+    return jsonify([{'item_id': e.item_id, 'solution_id': e.solution_id, 'product_number': e.product_number, 'product_name': e.product_name, 'qty': e.qty, 'unit_price': e.unit_price} for e in equipment_items])
+
+@app.route('/equipment_items', methods=['POST'])
+def create_equipment_item():
+    data = request.json
+    equipment_item = EquipmentItem(
+        solution_id=data['solution_id'],
+        product_number=data.get('product_number'),
+        product_name=data.get('product_name'),
+        qty=data.get('qty', 1),
+        unit_price=data.get('unit_price', 0.0)
+    )
+    db.session.add(equipment_item)
+    db.session.commit()
+    return jsonify({'message': 'Equipment item created', 'item_id': equipment_item.item_id}), 201
+
+@app.route('/equipment_items/<int:id>', methods=['PUT'])
+def update_equipment_item(id):
+    equipment_item = EquipmentItem.query.get_or_404(id)
+    data = request.json
+    for field in ['solution_id', 'product_number', 'product_name', 'qty', 'unit_price']:
+        if field in data:
+            setattr(equipment_item, field, data[field])
+    db.session.commit()
+    return jsonify({'message': 'Equipment item updated'})
+
+@app.route('/equipment_items/<int:id>', methods=['DELETE'])
+def delete_equipment_item(id):
+    equipment_item = EquipmentItem.query.get_or_404(id)
+    db.session.delete(equipment_item)
+    db.session.commit()
+    return jsonify({'message': 'Equipment item deleted'})
 
 
 # ---------------- POC ----------------
