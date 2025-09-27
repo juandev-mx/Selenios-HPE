@@ -129,17 +129,28 @@ def create_users():
     for index, user_data in enumerate(data):
         # Validaciones 
         # name
-        if not user_data.get('name') or not re.match(r'^[A-ZÁÉÍÓÚa-záéíóú\s]+$', user_data['name']):
+        if not user_data.get('name'):
+            errors.append({"index": index, "error": "Nombre vacio..."})
+            continue
+        elif not re.match(r'^[A-ZÁÉÍÓÚa-záéíóú\s]+$', user_data['name']):
             errors.append({"index": index, "error": "Nombre inválido (solo letras y espacios)."})
             continue
 
         # mail
-        if not user_data.get('mail') or not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
+        if not user_data.get('mail'):
+            errors.append({"index": index, "error": "Correo vacio..."})
+            continue
+        
+        elif not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
             errors.append({"index": index, "error": "Correo inválido."})
             continue
 
         # password
-        if not user_data.get('password') or len(user_data['password']) < 6:
+        if not user_data.get('password'):
+            errors.append({"index": index, "error": "Contraseña vacía..."})
+            continue 
+        
+        elif len(user_data['password']) < 6:
             errors.append({"index": index, "error": "La contraseña debe tener mínimo 6 caracteres."})
             continue
 
