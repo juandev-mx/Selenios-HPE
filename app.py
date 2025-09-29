@@ -22,21 +22,38 @@ with app.app_context():
 # ---------------- CLIENT_COMPANY ----------------
 @app.route('/client_company', methods=['GET'])
 def get_client_companies():
-    companies = ClientCompany.query.all()
+    
+    min_id = request.args.get('min_id', type=int)
+    max_id = request.args.get('max_id', type=int)
+    company_name = request.args.get('company_name', type=str)
+    
+    query = ClientCompany.query
+    
+    if min_id is not None:
+        query = query.filter(ClientCompany.client_company_id >= min_id)
+    
+    if max_id is not None:
+        query = query.filter(ClientCompany.client_company_id <= max_id)
+        
+    if company_name:
+        query = query.filter(ClientCompany.company_name.ilike(f"%{company_name}%"))
+    
+    companies = query.all()
+    
     return jsonify([{'id': c.client_company_id, 'name': c.company_name, 'manager': c.manager_client_name} for c in companies])
 
 @app.route('/client_company/<int:id>', methods=['GET'])
 def obtener_company(id):
     companies = ClientCompany.query.get(id)
     if not companies:
-        return jsonify({"error": "Usuario no encontrado"}), 404
+        return jsonify({"error": "Compañia no encontrada"}), 404
     return jsonify({'id': companies.client_company_id, 'name': companies.company_name, 'manager': companies.manager_client_name})
 
 @app.route('/client_company', methods=['POST'])
 def create_client_company():
     data = request.get_json()
     if data is None:
-        return jsonify({"error": "JSON inválido o body vacío"}), 400
+        return jsonify({"error": "Faltan datos"}), 400
 
     # normalizar a lista
     if not isinstance(data, list):
@@ -109,8 +126,27 @@ def delete_client_company(id):
 # ---------------- USERS ----------------
 @app.route('/users', methods=['GET'])
 def get_users():
-    users = User.query.all()
-    return jsonify([{'id': u.user_id, 'name': u.name, 'role': u.role, 'mail':u.mail} for u in users])
+    min_id = request.args.get('min_id', type=int)
+    max_id = request.args.get('max_id', type=int)
+    name = request.args.get('name', type=str)
+
+    query = User.query
+
+    if min_id is not None:
+        query = query.filter(User.user_id >= min_id)
+
+    if max_id is not None:
+        query = query.filter(User.user_id <= max_id)
+
+    if name:
+        query = query.filter(User.name.ilike(f"%{name}%"))
+
+    users = query.all()
+
+    return jsonify([
+        {'id': u.user_id, 'name': u.name, 'role': u.role, 'mail': u.mail}
+        for u in users
+    ])
 
 @app.route('/users/<int:id>', methods=['GET'])
 def obtener_usuario(id):
@@ -119,61 +155,76 @@ def obtener_usuario(id):
         return jsonify({"error": "Usuario no encontrado"}), 404
     return jsonify({'id': users.user_id, 'name': users.name, 'role': users.role, 'mail':users.mail})
 
-#crear usuarios validados
+
+ROLES = ['HPE_REP', 'HPE_MANAGER', 'CLIENT']
+#Funcion de validacion de datos
+def validar_usuario(user_data, index=0):
+
+
+    # name
+    if not user_data.get('name'):
+        return {"index": index, "error": "Nombre vacío."}
+    elif not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', user_data['name']):
+        return {"index": index, "error": "Nombre inválido (solo letras y espacios)."}
+
+    # mail
+    if not user_data.get('mail'):
+        return {"index": index, "error": "Correo vacío."}
+    elif not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
+        return {"index": index, "error": "Correo inválido."}
+
+    # password
+    if not user_data.get('password'):
+        return {"index": index, "error": "Contraseña vacía."}
+    elif len(user_data['password']) < 6:
+        return {"index": index, "error": "La contraseña debe tener mínimo 6 caracteres."}
+
+    # role
+    role = user_data.get('role')
+    if not role:
+        return {"index": index, "error": "El rol es obligatorio."}
+    if role not in ROLES:
+        return {"index": index, "error": f"Rol inválido. Solo se permiten: {', '.join(ROLES)}."}
+
+    # client_company_id
+    if user_data.get('client_company_id') is not None:
+        try:
+            int(user_data.get('client_company_id'))
+        except ValueError:
+            return {"index": index, "error": "El client_company_id debe ser un número."}
+
+    # Si todo está bien, devolver datos limpios
+    return {
+        "client_company_id": user_data.get('client_company_id'),
+        "reports_to": user_data.get('reports_to'),
+        "mail": user_data.get('mail'),
+        "password": user_data.get('password'),
+        "role": role,
+        "name": user_data.get('name'),
+        "session_started": user_data.get('session_started', False)
+    }
+
+
+# Crear usuarios validados
 @app.route('/users', methods=['POST'])
 def create_users():
     data = request.json
-
-    # Asegurarnos de que siempre sea lista
     if not isinstance(data, list):
-        data = [data]  # si el cliente manda solo un objeto, lo convertimos a lista
+        data = [data]
 
     created_users = []
     errors = []
 
     for index, user_data in enumerate(data):
-        # Validaciones 
-        # name
-        #Este comentario no es de chat joaquin
-        if not user_data.get('name') or not re.match(r'^[A-ZÁÉÍÓÚa-záéíóú\s]+$', user_data['name']):
-            errors.append({"index": index, "error": "Nombre inválido (solo letras y espacios)."})
+        resultado = validar_usuario(user_data, index)
+        if isinstance(resultado, dict) and "error" in resultado:
+            errors.append(resultado)
             continue
 
-        # mail
-        if not user_data.get('mail') or not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
-            errors.append({"index": index, "error": "Correo inválido."})
-            continue
-
-        # password
-        if not user_data.get('password') or len(user_data['password']) < 6:
-            errors.append({"index": index, "error": "La contraseña debe tener mínimo 6 caracteres."})
-            continue
-
-        # role
-        if not user_data.get('role'):
-            errors.append({"index": index, "error": "El rol es obligatorio."})
-            continue
-
-        # client_company_id
-        if user_data.get('client_company_id') is not None:
-            try:
-                int(user_data.get('client_company_id'))
-            except ValueError:
-                errors.append({"index": index, "error": "El client_company_id debe ser un número."})
-                continue
-
-        # Si todo está bien, creamos el usuario
-        user = User(
-            client_company_id=user_data.get('client_company_id'),
-            reports_to=user_data.get('reports_to'),
-            mail=user_data.get('mail'),
-            password=user_data.get('password'),
-            role=user_data.get('role'),
-            name=user_data.get('name'),
-            session_started=user_data.get('session_started', False)
-        )
+        # Si pasó validaciones, crear usuario
+        user = User(**resultado)
         db.session.add(user)
-        db.session.flush()  # para obtener el ID antes del commit
+        db.session.flush()
         created_users.append({"id": user.user_id, "name": user.name})
 
     db.session.commit()
@@ -184,24 +235,37 @@ def create_users():
         "errores": errors
     }), 200
 
-
 #
 @app.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
-    user = User.query.get_or_404(id)
+    user = User.query.get(id)
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
     data = request.json
-    for field in ['client_company_id', 'reports_to', 'mail', 'password', 'role', 'name', 'session_started']:
-        if field in data:
-            setattr(user, field, data[field])
+
+    # Validar que venga un objeto JSON y no una lista
+    if not isinstance(data, dict):
+        return jsonify({"error": "Ingresa un diccionario para aceptarlo..."}), 400
+
+    # Validar datos usando la función de validación
+    resultado = validar_usuario(data)
+    if isinstance(resultado, dict) and "error" in resultado:
+        return jsonify(resultado), 400
+
+    # Actualizamos atributos del usuario
+    for key, value in resultado.items():
+        setattr(user, key, value)
+
     db.session.commit()
-    return jsonify({'message': 'User updated'})
+    return jsonify({"message": "Usuario actualizado", "id": user.user_id})
 
 @app.route('/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
     user = User.query.get_or_404(id)
     db.session.delete(user)
     db.session.commit()
-    return jsonify({'message': 'User deleted'})
+    return jsonify({'message': 'Usuario eliminado...'})
 
 # ---------------- EQUIPMENT ----------------
 @app.route('/equipment', methods=['GET'])
@@ -241,11 +305,42 @@ def delete_equipment(id):
     return jsonify({'message': 'Equipment deleted'})
 
 
-# ---------------- EQUIPMENT ITEMS----------------
+# ---------------- EQUIPMENT ITEMS ----------------
 @app.route('/equipment_items', methods=['GET'])
 def get_equipment_items():
     equipment_items = EquipmentItem.query.all()
-    return jsonify([{'solution_id': e.solution_id, 'product_number': e.product_number, 'product_name': e.product_name} for e in equipment_items])
+    return jsonify([{'item_id': e.item_id, 'solution_id': e.solution_id, 'product_number': e.product_number, 'product_name': e.product_name, 'qty': e.qty, 'unit_price': e.unit_price} for e in equipment_items])
+
+@app.route('/equipment_items', methods=['POST'])
+def create_equipment_item():
+    data = request.json
+    equipment_item = EquipmentItem(
+        solution_id=data['solution_id'],
+        product_number=data.get('product_number'),
+        product_name=data.get('product_name'),
+        qty=data.get('qty', 1),
+        unit_price=data.get('unit_price', 0.0)
+    )
+    db.session.add(equipment_item)
+    db.session.commit()
+    return jsonify({'message': 'Equipment item created', 'item_id': equipment_item.item_id}), 201
+
+@app.route('/equipment_items/<int:id>', methods=['PUT'])
+def update_equipment_item(id):
+    equipment_item = EquipmentItem.query.get_or_404(id)
+    data = request.json
+    for field in ['solution_id', 'product_number', 'product_name', 'qty', 'unit_price']:
+        if field in data:
+            setattr(equipment_item, field, data[field])
+    db.session.commit()
+    return jsonify({'message': 'Equipment item updated'})
+
+@app.route('/equipment_items/<int:id>', methods=['DELETE'])
+def delete_equipment_item(id):
+    equipment_item = EquipmentItem.query.get_or_404(id)
+    db.session.delete(equipment_item)
+    db.session.commit()
+    return jsonify({'message': 'Equipment item deleted'})
 
 
 # ---------------- POC ----------------
