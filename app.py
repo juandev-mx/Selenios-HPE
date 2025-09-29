@@ -101,8 +101,27 @@ def delete_client_company(id):
 # ---------------- USERS ----------------
 @app.route('/users', methods=['GET'])
 def get_users():
-    users = User.query.all()
-    return jsonify([{'id': u.user_id, 'name': u.name, 'role': u.role, 'mail':u.mail} for u in users])
+    min_id = request.args.get('min_id', type=int)
+    max_id = request.args.get('max_id', type=int)
+    name = request.args.get('name', type=str)
+
+    query = User.query
+
+    if min_id is not None:
+        query = query.filter(User.user_id >= min_id)
+
+    if max_id is not None:
+        query = query.filter(User.user_id <= max_id)
+
+    if name:
+        query = query.filter(User.name.ilike(f"%{name}%"))
+
+    users = query.all()
+
+    return jsonify([
+        {'id': u.user_id, 'name': u.name, 'role': u.role, 'mail': u.mail}
+        for u in users
+    ])
 
 @app.route('/users/<int:id>', methods=['GET'])
 def obtener_usuario(id):
@@ -111,14 +130,16 @@ def obtener_usuario(id):
         return jsonify({"error": "Usuario no encontrado"}), 404
     return jsonify({'id': users.user_id, 'name': users.name, 'role': users.role, 'mail':users.mail})
 
-#Funcion de validacion de datos
+
 ROLES = ['HPE_REP', 'HPE_MANAGER', 'CLIENT']
+#Funcion de validacion de datos
 def validar_usuario(user_data, index=0):
+
 
     # name
     if not user_data.get('name'):
         return {"index": index, "error": "Nombre vacío."}
-    elif not re.match(r'^[A-ZÁÉÍÓÚa-záéíóú\s]+$', user_data['name']):
+    elif not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', user_data['name']):
         return {"index": index, "error": "Nombre inválido (solo letras y espacios)."}
 
     # mail
@@ -200,14 +221,14 @@ def update_user(id):
 
     # Validar que venga un objeto JSON y no una lista
     if not isinstance(data, dict):
-        return jsonify({"error": "El cuerpo de la solicitud debe ser un objeto JSON, no una lista"}), 400
+        return jsonify({"error": "Ingresa un diccionario para aceptarlo..."}), 400
 
-    # Validar datos usando tu función de validación
-    resultado = validar_usuario(data)  # aquí no hay índice porque es uno solo
+    # Validar datos usando la función de validación
+    resultado = validar_usuario(data)
     if isinstance(resultado, dict) and "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizamos atributos del usuario (solo las claves que vengan)
+    # Actualizamos atributos del usuario
     for key, value in resultado.items():
         setattr(user, key, value)
 
@@ -219,7 +240,7 @@ def delete_user(id):
     user = User.query.get_or_404(id)
     db.session.delete(user)
     db.session.commit()
-    return jsonify({'message': 'User deleted'})
+    return jsonify({'message': 'Usuario eliminado...'})
 
 # ---------------- EQUIPMENT ----------------
 @app.route('/equipment', methods=['GET'])
