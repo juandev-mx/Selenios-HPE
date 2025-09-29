@@ -14,14 +14,31 @@ with app.app_context():
 # ---------------- CLIENT_COMPANY ----------------
 @app.route('/client_company', methods=['GET'])
 def get_client_companies():
-    companies = ClientCompany.query.all()
+    
+    min_id = request.args.get('min_id', type=int)
+    max_id = request.args.get('max_id', type=int)
+    company_name = request.args.get('company_name', type=str)
+    
+    query = ClientCompany.query
+    
+    if min_id is not None:
+        query = query.filter(ClientCompany.client_company_id >= min_id)
+    
+    if max_id is not None:
+        query = query.filter(ClientCompany.client_company_id <= max_id)
+        
+    if company_name:
+        query = query.filter(ClientCompany.company_name.ilike(f"%{company_name}%"))
+    
+    companies = query.all()
+    
     return jsonify([{'id': c.client_company_id, 'name': c.company_name, 'manager': c.manager_client_name} for c in companies])
 
 @app.route('/client_company/<int:id>', methods=['GET'])
 def obtener_company(id):
     companies = ClientCompany.query.get(id)
     if not companies:
-        return jsonify({"error": "Usuario no encontrado"}), 404
+        return jsonify({"error": "Compañia no encontrada"}), 404
     return jsonify({'id': companies.client_company_id, 'name': companies.company_name, 'manager': companies.manager_client_name})
 
 @app.route('/client_company', methods=['POST'])
