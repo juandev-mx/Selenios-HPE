@@ -54,12 +54,14 @@ def obtener_company(id):
     return jsonify({'id': companies.client_company_id, 'name': companies.company_name, 'manager': companies.manager_client_name})
 
 
-def validar_client_company(comp_data, index=None, is_update=False):
+def validar_client_company(comp_data, index=None, is_update=False, current_id=None):
     """
-    is_update: True si es para PUT valida datos ya existentes.
+    Valida los datos de client_company.
+    - is_update: True si es para PUT (actualización).
+    - current_id: id de la compañía que se está actualizando (solo en PUT).
     """
 
-    # company_name 
+    # company_name
     name = comp_data.get('company_name')
     if not is_update:  # En POST es obligatorio
         if not name:
@@ -75,17 +77,21 @@ def validar_client_company(comp_data, index=None, is_update=False):
         if name:
             if not re.match(r'^[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]+$', name):
                 return {"index": index, "error": "company_name inválido (solo letras, números y espacios)."}
-            # No checar unicidad en PUT a menos que lo cambien
+            # Checar unicidad solo si pertenece a otra compañía
             existing = ClientCompany.query.filter_by(company_name=name).first()
-            if existing:
+            if existing and existing.client_company_id != current_id:
                 return {"index": index, "error": f"company_name '{name}' ya existe."}
+        else:
+            # Si no mandan company_name en PUT, mantener el existente
+            name = None
 
     # manager_client_name
     manager = comp_data.get('manager_client_name')
-    if not manager:
-        return jsonify({"index": index, "error":"Necesita ingresar el nombre del manager..."})
-    elif not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', manager):
-        return {"index": index, "error": "manager_client_name inválido (solo letras y espacios)."}
+    if not is_update or manager is not None:  # En POST obligatorio, en PUT si viene debe validarse
+        if not manager:
+            return {"index": index, "error": "manager_client_name vacío."}
+        elif not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', manager):
+            return {"index": index, "error": "manager_client_name inválido (solo letras y espacios)."}
 
     # hpe_rep_id
     hpe = comp_data.get('hpe_rep_id')
@@ -129,7 +135,11 @@ def create_client_company():
         company = ClientCompany(**resultado)
         db.session.add(company)
         db.session.flush()  # para obtener id
-        created.append({"index": index, "id": company.client_company_id, "company_name": resultado["company_name"]})
+        created.append({
+            "index": index,
+            "id": company.client_company_id,
+            "company_name": resultado["company_name"]
+        })
 
     try:
         db.session.commit()
@@ -138,7 +148,6 @@ def create_client_company():
         return jsonify({"error": "Error al guardar en BD", "detail": str(e)}), 500
 
     return jsonify({"created": created, "errors": errors}), 201
-
 
 
 @app.route('/client_company/<int:id>', methods=['PUT'])
@@ -151,7 +160,7 @@ def update_client_company(id):
     if not isinstance(data, dict):
         return jsonify({"error": "Debe enviar un objeto JSON"}), 400
 
-    resultado = validar_client_company(data, index=0, is_update=True)
+    resultado = validar_client_company(data, index=0, is_update=True, current_id=id)
     if "error" in resultado:
         return jsonify(resultado), 400
 
@@ -161,7 +170,7 @@ def update_client_company(id):
             setattr(company, key, value)
 
     db.session.commit()
-    return jsonify({"message": "Compañia actualizada", "id": company.client_company_id})
+    return jsonify({"message": "Compañía actualizada", "id": company.client_company_id, "company":company.company_name})
 
 
 @app.route('/client_company/<int:id>', methods=['DELETE'])
