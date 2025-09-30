@@ -437,7 +437,31 @@ def delete_poc(id):
     db.session.commit()
     return jsonify({'message': 'POC deleted'})
 
+
 # ---------------- POC_EQUIPMENT ----------------
+@app.route('/poc_equipment', methods=['GET'])
+def get_poc_equipment():
+    poc_equipment = POCEquipment.query.all()
+    return jsonify([
+        {
+            'poc_id': pe.poc_id,
+            'solution_id': pe.solution_id
+        } for pe in poc_equipment
+    ])
+
+@app.route('/poc_equipment/<int:poc_id>', methods=['GET'])
+def get_poc_equipment_by_poc(poc_id):
+    poc_equipment = POCEquipment.query.filter_by(poc_id=poc_id).all()
+    if not poc_equipment:
+        return jsonify({'message': 'No equipment found for this POC'}), 404
+    
+    return jsonify([
+        {
+            'poc_id': pe.poc_id,
+            'solution_id': pe.solution_id
+        } for pe in poc_equipment
+    ])
+
 @app.route('/poc_equipment', methods=['POST'])
 def create_poc_equipment():
     data = request.json
@@ -455,6 +479,7 @@ def delete_poc_equipment(poc_id, solution_id):
     db.session.delete(pe)
     db.session.commit()
     return jsonify({'message': 'POCEquipment deleted'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
