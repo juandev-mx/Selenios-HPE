@@ -220,10 +220,10 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
     result = {}
 
     # name
-    if not is_update:  # en POST es obligatorio
+    if not is_update:  
         if not user_data.get('name'):
             return {"index": index, "error": "Nombre vacío."}
-    if user_data.get('name'):  # validar solo si viene
+    if user_data.get('name'):  
         if not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', user_data['name']):
             return {"index": index, "error": "Nombre inválido (solo letras y espacios)."}
         result["name"] = user_data['name']
@@ -235,7 +235,6 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
     if user_data.get('mail'):
         if not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
             return {"index": index, "error": "Correo inválido."}
-        # Checar unicidad de mail
         existing = User.query.filter_by(mail=user_data['mail']).first()
         if existing and (not current_id or existing.user_id != current_id):
             return {"index": index, "error": f"Correo '{user_data['mail']}' ya está en uso."}
@@ -267,7 +266,6 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
         except ValueError:
             return {"index": index, "error": "El client_company_id debe ser un número."}
 
-    # reports_to y session_started no requieren validación estricta
     if "reports_to" in user_data:
         result["reports_to"] = user_data.get("reports_to")
 
@@ -320,7 +318,6 @@ def update_user(id):
     if "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizar solo los campos enviados
     for key, value in resultado.items():
         setattr(user, key, value)
 
