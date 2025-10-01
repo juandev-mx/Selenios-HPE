@@ -606,8 +606,109 @@ def delete_equipment_item(id):
 # ---------------- POC ----------------
 @app.route('/pocs', methods=['GET'])
 def get_pocs():
-    pocs = POC.query.all()
-    return jsonify([{'poc_id': p.poc_id, 'business_justification': p.business_justification} for p in pocs])
+    from sqlalchemy import cast, Date
+
+    allowed_filters = {
+        "client_user_id", "business_justification", "is_approved",
+        "completion_date", "created_date",
+        "min_completion_date", "max_completion_date",
+        "min_created_date", "max_created_date",
+        "sort_by", "order"
+    }
+
+    allowed_sort_fields = {
+        "client_user_id": POC.client_user_id,
+        "business_justification": POC.business_justification,
+        "is_approved": POC.is_approved,
+        "completion_date": POC.completion_date,
+        "created_date": POC.created_date
+    }
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+
+
+    client_user_id = request.args.get('client_user_id', type=int)
+    business_justification = request.args.get('business_justification', type=str)
+    is_approved = request.args.get('is_approved', type=lambda v: v.lower() in ['true', '1', 'yes'])
+    completion_date = request.args.get('completion_date', type=str)
+    created_date = request.args.get('created_date', type=str)
+    min_completion_date = request.args.get('min_completion_date', type=str)
+    max_completion_date = request.args.get('max_completion_date', type=str)
+    min_created_date = request.args.get('min_created_date', type=str)
+    max_created_date = request.args.get('max_created_date', type=str)
+
+    sort_by = request.args.get('sort_by', type=str)
+    order = request.args.get('order', type=str, default="asc").lower()
+
+    if sort_by and sort_by not in allowed_sort_fields:
+        return jsonify({"error": f"Campo para ordenamiento no permitido: {sort_by}"}), 400
+
+    query = POC.query
+
+    if client_user_id is not None:
+        query = query.filter(POC.client_user_id == client_user_id)
+
+    if business_justification:
+        query = query.filter(POC.business_justification.ilike(f"%{business_justification}%"))
+
+    if is_approved is not None:
+        query = query.filter(POC.is_approved == is_approved)
+
+    if completion_date:
+        query = query.filter(cast(POC.completion_date, Date) == completion_date)
+
+    if created_date:
+        query = query.filter(cast(POC.created_date, Date) == created_date)
+
+    if min_completion_date:
+        query = query.filter(cast(POC.completion_date, Date) >= min_completion_date)
+
+    if max_completion_date:
+        query = query.filter(cast(POC.completion_date, Date) <= max_completion_date)
+
+    if min_created_date:
+        query = query.filter(cast(POC.created_date, Date) >= min_created_date)
+
+    if max_created_date:
+        query = query.filter(cast(POC.created_date, Date) <= max_created_date)
+
+    if sort_by:
+        column = allowed_sort_fields[sort_by]
+        query = query.order_by(column.desc() if order == "desc" else column.asc())
+
+    pocs = query.all()
+
+    return jsonify([
+        {
+            'poc_id': p.poc_id,
+            'client_user_id': p.client_user_id,
+            'business_justification': p.business_justification,
+            'is_approved': p.is_approved,
+            'completion_date': p.completion_date.isoformat() if p.completion_date else None,
+            'created_date': p.created_date.isoformat() if p.created_date else None
+        }
+        for p in pocs
+    ])
+
+
+@app.route('/pocs/<int:id>', methods=['GET'])
+def get_poc_by_id(id):
+    poc = POC.query.get(id)
+
+    if poc is None:
+        return jsonify({"error": "POC no encontrado"}), 404
+
+    return jsonify({
+        'poc_id': poc.poc_id,
+        'client_user_id': poc.client_user_id,
+        'business_justification': poc.business_justification,
+        'is_approved': poc.is_approved,
+        'completion_date': poc.completion_date.isoformat() if poc.completion_date else None,
+        'created_date': poc.created_date.isoformat() if poc.created_date else None
+    })
+
 
 @app.route('/pocs', methods=['POST'])
 def create_poc():
@@ -644,26 +745,34 @@ def delete_poc(id):
 # ---------------- POC_EQUIPMENT ----------------
 @app.route('/poc_equipment', methods=['GET'])
 def get_poc_equipment():
-    poc_equipment = POCEquipment.query.all()
+
+    allowed_filters = {"poc_id", "solution_id"}
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+
+    poc_id = request.args.get('poc_id', type=int)
+    solution_id = request.args.get('solution_id', type=int)
+
+    query = POCEquipment.query
+
+    if poc_id is not None:
+        query = query.filter(POCEquipment.poc_id == poc_id)
+
+    if solution_id is not None:
+        query = query.filter(POCEquipment.solution_id == solution_id)
+
+    poc_equipment = query.all()
+
     return jsonify([
         {
             'poc_id': pe.poc_id,
             'solution_id': pe.solution_id
-        } for pe in poc_equipment
+        }
+        for pe in poc_equipment
     ])
 
-@app.route('/poc_equipment/<int:poc_id>', methods=['GET'])
-def get_poc_equipment_by_poc(poc_id):
-    poc_equipment = POCEquipment.query.filter_by(poc_id=poc_id).all()
-    if not poc_equipment:
-        return jsonify({'message': 'Equipment no encontrado para esta POC'}), 404
-    
-    return jsonify([
-        {
-            'poc_id': pe.poc_id,
-            'solution_id': pe.solution_id
-        } for pe in poc_equipment
-    ])
 
 @app.route('/poc_equipment', methods=['POST'])
 def create_poc_equipment():
