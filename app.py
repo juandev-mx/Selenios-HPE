@@ -337,7 +337,7 @@ def create_equipment():
     )
     db.session.add(e)
     db.session.commit()
-    return jsonify({'message': 'Equipment created', 'solution_id': e.solution_id}), 201
+    return jsonify({'message': 'Equipment creado', 'solution_id': e.solution_id}), 201
 
 @app.route('/equipment/<int:id>', methods=['PUT'])
 def update_equipment(id):
@@ -347,14 +347,14 @@ def update_equipment(id):
         if field in data:
             setattr(e, field, data[field])
     db.session.commit()
-    return jsonify({'message': 'Equipment updated'})
+    return jsonify({'message': 'Equipment actualizado'})
 
 @app.route('/equipment/<int:id>', methods=['DELETE'])
 def delete_equipment(id):
     e = Equipment.query.get_or_404(id)
     db.session.delete(e)
     db.session.commit()
-    return jsonify({'message': 'Equipment deleted'})
+    return jsonify({'message': 'Equipment eliminado'})
 
 
 # ---------------- EQUIPMENT ITEMS ----------------
@@ -375,7 +375,7 @@ def create_equipment_item():
     )
     db.session.add(equipment_item)
     db.session.commit()
-    return jsonify({'message': 'Equipment item created', 'item_id': equipment_item.item_id}), 201
+    return jsonify({'message': 'Equipment item creado', 'item_id': equipment_item.item_id}), 201
 
 @app.route('/equipment_items/<int:id>', methods=['PUT'])
 def update_equipment_item(id):
@@ -392,7 +392,7 @@ def delete_equipment_item(id):
     equipment_item = EquipmentItem.query.get_or_404(id)
     db.session.delete(equipment_item)
     db.session.commit()
-    return jsonify({'message': 'Equipment item eeliminado'})
+    return jsonify({'message': 'Equipment item eliminado'})
 
 
 # ---------------- POC ----------------
@@ -413,7 +413,7 @@ def create_poc():
     )
     db.session.add(poc)
     db.session.commit()
-    return jsonify({'message': 'POC created', 'poc_id': poc.poc_id}), 201
+    return jsonify({'message': 'POC creada', 'poc_id': poc.poc_id}), 201
 
 @app.route('/pocs/<int:id>', methods=['PUT'])
 def update_poc(id):
@@ -423,7 +423,7 @@ def update_poc(id):
         if field in data:
             setattr(poc, field, data[field])
     db.session.commit()
-    return jsonify({'message': 'POC updated'})
+    return jsonify({'message': 'POC actualizada'})
 
 @app.route('/pocs/<int:id>', methods=['DELETE'])
 def delete_poc(id):
@@ -466,7 +466,7 @@ def create_poc_equipment():
     )
     db.session.add(pe)
     db.session.commit()
-    return jsonify({'message': 'poc_equipment creada'}), 201
+    return jsonify({'message': 'POC Equipment creada'}), 201
 
 @app.route('/poc_equipment/<int:poc_id>/<int:solution_id>', methods=['DELETE'])
 def delete_poc_equipment(poc_id, solution_id):
