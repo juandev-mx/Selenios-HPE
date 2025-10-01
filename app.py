@@ -313,16 +313,29 @@ def update_user(id):
         return jsonify({"error": "Usuario no encontrado"}), 404
 
     data = request.json
+
     if not isinstance(data, dict):
         return jsonify({"error": "Ingresa un diccionario para aceptarlo..."}), 400
 
-    resultado = validar_usuario(data, index=0, is_update=True, current_id=id)
-    if "error" in resultado:
+    # Lista de atributos 
+    allowed_fields = {
+        "client_company_id", "reports_to", "mail", "password",
+        "role", "name", "session_started"
+    }
+
+    invalid_keys = [k for k in data.keys() if k not in allowed_fields]
+    if invalid_keys:
+        return jsonify({
+            "error": f"Atributo incorrecto: '{', '.join(invalid_keys)}'"
+        }), 400
+
+    resultado = validar_usuario(data, is_update=True)
+    if isinstance(resultado, dict) and "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizar solo los campos enviados
     for key, value in resultado.items():
-        setattr(user, key, value)
+        if value is not None: 
+            setattr(user, key, value)
 
     db.session.commit()
     return jsonify({"message": "Usuario actualizado", "id": user.user_id})
