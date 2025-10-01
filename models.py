@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-# este es un comentario de prueba
+
 db = SQLAlchemy()
 
 class ClientCompany(db.Model):
@@ -64,5 +64,6 @@ class POC(db.Model):
 
 class POCEquipment(db.Model):
     __tablename__ = 'poc_equipment'
-    poc_id = db.Column(db.Integer, db.ForeignKey('pocs.poc_id'), primary_key=True)
-    solution_id = db.Column(db.Integer, db.ForeignKey('equipment.solution_id'), primary_key=True)
+    poc_equipment_id = db.Column(db.Integer, primary_key=True)
+    poc_id = db.Column(db.Integer, db.ForeignKey('pocs.poc_id'))
+    solution_id = db.Column(db.Integer, db.ForeignKey('equipment.solution_id'))
