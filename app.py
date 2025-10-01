@@ -231,7 +231,6 @@ def obtener_usuario(id):
 ROLES = ['HPE_REP', 'HPE_MANAGER', 'CLIENT']
 
 def validar_usuario(user_data, index=0, is_update=False, current_id=None):
-
     result = {}
 
     # name
@@ -277,12 +276,28 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
     # client_company_id
     if user_data.get('client_company_id') is not None:
         try:
-            result["client_company_id"] = int(user_data['client_company_id'])
+            client_company_id = int(user_data['client_company_id'])
         except ValueError:
             return {"index": index, "error": "El client_company_id debe ser un número."}
 
-    if "reports_to" in user_data:
-        result["reports_to"] = user_data.get("reports_to")
+        # validar existencia en tabla ClientCompany
+        company = ClientCompany.query.get(client_company_id)
+        if not company:
+            return {"index": index, "error": f"El client_company_id {client_company_id} no existe."}
+        result["client_company_id"] = client_company_id
+
+    # reports_to
+    if user_data.get('reports_to') is not None:
+        try:
+            reports_to = int(user_data['reports_to'])
+        except ValueError:
+            return {"index": index, "error": "El reports_to debe ser un número."}
+
+        # validar existencia en tabla User
+        report_user = User.query.get(reports_to)
+        if not report_user:
+            return {"index": index, "error": f"El reports_to {reports_to} no existe."}
+        result["reports_to"] = reports_to
 
     if "session_started" in user_data:
         result["session_started"] = user_data.get("session_started", False)
