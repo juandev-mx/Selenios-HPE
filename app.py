@@ -390,14 +390,14 @@ def update_equipment_item(id):
         if field in data:
             setattr(equipment_item, field, data[field])
     db.session.commit()
-    return jsonify({'message': 'Equipment item updated'})
+    return jsonify({'message': 'Equipment item actualizado'})
 
 @app.route('/equipment_items/<int:id>', methods=['DELETE'])
 def delete_equipment_item(id):
     equipment_item = EquipmentItem.query.get_or_404(id)
     db.session.delete(equipment_item)
     db.session.commit()
-    return jsonify({'message': 'Equipment item deleted'})
+    return jsonify({'message': 'Equipment item eeliminado'})
 
 
 # ---------------- POC ----------------
@@ -435,7 +435,7 @@ def delete_poc(id):
     poc = POC.query.get_or_404(id)
     db.session.delete(poc)
     db.session.commit()
-    return jsonify({'message': 'POC deleted'})
+    return jsonify({'message': 'POC eliminado'})
 
 
 # ---------------- POC_EQUIPMENT ----------------
@@ -453,7 +453,7 @@ def get_poc_equipment():
 def get_poc_equipment_by_poc(poc_id):
     poc_equipment = POCEquipment.query.filter_by(poc_id=poc_id).all()
     if not poc_equipment:
-        return jsonify({'message': 'No equipment found for this POC'}), 404
+        return jsonify({'message': 'Equipment no encontrado para esta POC'}), 404
     
     return jsonify([
         {
@@ -471,14 +471,14 @@ def create_poc_equipment():
     )
     db.session.add(pe)
     db.session.commit()
-    return jsonify({'message': 'POCEquipment created'}), 201
+    return jsonify({'message': 'poc_equipment creada'}), 201
 
 @app.route('/poc_equipment/<int:poc_id>/<int:solution_id>', methods=['DELETE'])
 def delete_poc_equipment(poc_id, solution_id):
     pe = POCEquipment.query.filter_by(poc_id=poc_id, solution_id=solution_id).first_or_404()
     db.session.delete(pe)
     db.session.commit()
-    return jsonify({'message': 'POCEquipment deleted'})
+    return jsonify({'message': 'POC Equipment eliminada'})
 
 
 if __name__ == '__main__':
