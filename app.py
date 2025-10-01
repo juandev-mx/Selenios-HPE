@@ -183,10 +183,19 @@ def delete_client_company(id):
 # ---------------- USERS ----------------
 @app.route('/users', methods=['GET'])
 def get_users():
+    
+    allowed_filters = {"min_id", "max_id", "name", "mail", "role"}
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+    
     min_id = request.args.get('min_id', type=int)
     max_id = request.args.get('max_id', type=int)
     name = request.args.get('name', type=str)
-
+    mail = request.args.get('mail', type=str)
+    role = request.args.get('role', type=str)
+    
     query = User.query
 
     if min_id is not None:
@@ -198,6 +207,12 @@ def get_users():
     if name:
         query = query.filter(User.name.ilike(f"%{name}%"))
 
+    if mail:
+        query = query.filter(User.mail.ilike(f"%{mail}%"))
+    
+    if role:
+        query = query.filter(User.role.ilike(f"%{role}%"))
+    
     users = query.all()
 
     return jsonify([
