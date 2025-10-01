@@ -304,7 +304,7 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
 
     return result
 
-
+#Comentario prueba
 @app.route('/users', methods=['POST'])
 def create_users():
     data = request.json
