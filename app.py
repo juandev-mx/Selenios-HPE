@@ -17,29 +17,46 @@ db.init_app(app)
 # ---------------- CLIENT_COMPANY ----------------
 @app.route('/client_company', methods=['GET'])
 def get_client_companies():
-    
+
+    allowed_filters = {"min_id", "max_id", "company_name", "manager", "hpe_rep_id"}
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+
     min_id = request.args.get('min_id', type=int)
     max_id = request.args.get('max_id', type=int)
+    hpe_rep_id = request.args.get('hpe_rep_id', type=int)
     company_name = request.args.get('company_name', type=str)
     manager = request.args.get('manager', type=str)
-    
+
     query = ClientCompany.query
-    
+
     if min_id is not None:
         query = query.filter(ClientCompany.client_company_id >= min_id)
-    
+
     if max_id is not None:
         query = query.filter(ClientCompany.client_company_id <= max_id)
-        
+
+    if hpe_rep_id is not None:
+        query = query.filter(ClientCompany.hpe_rep_id == hpe_rep_id)
+
     if company_name:
         query = query.filter(ClientCompany.company_name.ilike(f"%{company_name}%"))
-    
+
     if manager:
         query = query.filter(ClientCompany.manager_client_name.ilike(f"%{manager}%"))
-    
+
     companies = query.all()
-    
-    return jsonify([{'id': c.client_company_id, 'name': c.company_name, 'manager': c.manager_client_name} for c in companies])
+
+    return jsonify([
+        {
+            'id': c.client_company_id,
+            'name': c.company_name,
+            'manager': c.manager_client_name,
+            'hpe_rep_id' : c.hpe_rep_id
+        } for c in companies
+    ])
 
 @app.route('/client_company/<int:id>', methods=['GET'])
 def obtener_company(id):
@@ -52,39 +69,32 @@ def obtener_company(id):
 def validar_client_company(comp_data, index=None, is_update=False, current_id=None):
  
 
-    # company_name
     name = comp_data.get('company_name')
-    if not is_update:  # En POST es obligatorio
+    if not is_update:
         if not name:
             return {"index": index, "error": "company_name vacío."}
         elif not re.match(r'^[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]+$', name):
             return {"index": index, "error": "company_name inválido (solo letras, números y espacios)."}
-        # Checar unicidad
         existing = ClientCompany.query.filter_by(company_name=name).first()
         if existing:
             return {"index": index, "error": f"company_name '{name}' ya existe."}
     else:
-        # En PUT puede ser opcional
         if name:
             if not re.match(r'^[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]+$', name):
                 return {"index": index, "error": "company_name inválido (solo letras, números y espacios)."}
-            # Checar unicidad solo si pertenece a otra compañía
             existing = ClientCompany.query.filter_by(company_name=name).first()
             if existing and existing.client_company_id != current_id:
                 return {"index": index, "error": f"company_name '{name}' ya existe."}
         else:
-            # Si no mandan company_name en PUT, mantener el existente
             name = None
 
-    # manager_client_name
     manager = comp_data.get('manager_client_name')
-    if not is_update or manager is not None:  # En POST obligatorio, en PUT si viene debe validarse
+    if not is_update or manager is not None:
         if not manager:
             return {"index": index, "error": "manager_client_name vacío."}
         elif not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', manager):
             return {"index": index, "error": "manager_client_name inválido (solo letras y espacios)."}
 
-    # hpe_rep_id
     hpe = comp_data.get('hpe_rep_id')
     if hpe not in (None, ""):
         try:
@@ -125,7 +135,7 @@ def create_client_company():
 
         company = ClientCompany(**resultado)
         db.session.add(company)
-        db.session.flush()  # para obtener id
+        db.session.flush()
         created.append({
             "index": index,
             "id": company.client_company_id,
@@ -155,7 +165,6 @@ def update_client_company(id):
     if "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizamos solo campos enviados
     for key, value in resultado.items():
         if value is not None:
             setattr(company, key, value)
@@ -263,16 +272,19 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
         except ValueError:
             return {"index": index, "error": "El client_company_id debe ser un número."}
 
-    # reports_to y session_started no requieren validación estricta
-    if "reports_to" in user_data:
-        result["reports_to"] = user_data.get("reports_to")
+    # Si todo está bien, devolver datos limpios
+    return {
+        "client_company_id": user_data.get('client_company_id'),
+        "reports_to": user_data.get('reports_to'),
+        "mail": user_data.get('mail'),
+        "password": user_data.get('password'),
+        "role": role,
+        "name": user_data.get('name'),
+        "session_started": user_data.get('session_started', False)
+    }
 
-    if "session_started" in user_data:
-        result["session_started"] = user_data.get("session_started", False)
 
-    return result
-
-
+# Crear usuarios validados
 @app.route('/users', methods=['POST'])
 def create_users():
     data = request.json
@@ -301,7 +313,6 @@ def create_users():
         "errores": errors
     }), 200
 
-#
 @app.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get(id)
@@ -309,14 +320,17 @@ def update_user(id):
         return jsonify({"error": "Usuario no encontrado"}), 404
 
     data = request.json
+
+    # Validar que venga un objeto JSON y no una lista
     if not isinstance(data, dict):
         return jsonify({"error": "Ingresa un diccionario para aceptarlo..."}), 400
 
-    resultado = validar_usuario(data, index=0, is_update=True, current_id=id)
-    if "error" in resultado:
+    # Validar datos usando la función de validación
+    resultado = validar_usuario(data)
+    if isinstance(resultado, dict) and "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizar solo los campos enviados
+    # Actualizamos atributos del usuario
     for key, value in resultado.items():
         setattr(user, key, value)
 
@@ -334,8 +348,80 @@ def delete_user(id):
 # ---------------- EQUIPMENT ----------------
 @app.route('/equipment', methods=['GET'])
 def get_equipment():
-    equipment = Equipment.query.all()
-    return jsonify([{'solution_id': e.solution_id, 'product_number': e.product_number} for e in equipment])
+
+    allowed_filters = {
+        "product_number", "product_description", "company_program",
+        "price", "created_by", "min_price", "max_price"
+    }
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+
+
+    product_number = request.args.get('product_number', type=str)
+    product_description = request.args.get('product_description', type=str)
+    company_program = request.args.get('company_program', type=str)
+    price = request.args.get('price', type=float)
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+    created_by = request.args.get('created_by', type=int)
+
+
+    query = Equipment.query
+
+    if product_number:
+        query = query.filter(Equipment.product_number.ilike(f"%{product_number}%"))
+
+    if product_description:
+        query = query.filter(Equipment.product_description.ilike(f"%{product_description}%"))
+
+    if company_program:
+        query = query.filter(Equipment.company_program.ilike(f"%{company_program}%"))
+
+    if price is not None:
+        query = query.filter(Equipment.price == price)
+
+    if min_price is not None:
+        query = query.filter(Equipment.price >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Equipment.price <= max_price)
+
+    if created_by is not None:
+        query = query.filter(Equipment.created_by == created_by)
+
+    equipment = query.all()
+
+    return jsonify([
+        {
+            'solution_id': e.solution_id,
+            'product_number': e.product_number,
+            'product_description': e.product_description,
+            'company_program': e.company_program,
+            'price': e.price,
+            'created_by': e.created_by
+        }
+        for e in equipment
+    ])
+
+
+@app.route('/equipment/<int:id>', methods=['GET'])
+def get_equipment_by_id(id):
+    equipment = Equipment.query.get(id)
+
+    if equipment is None:
+        return jsonify({"error": "Equipo no encontrado"}), 404
+
+    return jsonify({
+        'solution_id': equipment.solution_id,
+        'product_number': equipment.product_number,
+        'product_description': equipment.product_description,
+        'company_program': equipment.company_program,
+        'price': equipment.price,
+        'created_by': equipment.created_by
+    })
+
 
 @app.route('/equipment', methods=['POST'])
 def create_equipment():
