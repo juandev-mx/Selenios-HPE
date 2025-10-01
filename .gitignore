@@ -1,0 +1,18 @@
+# Variables de entorno
+.env
+
+# Archivos de base de datos local
+*.db
+*.sqlite
+
+# Caché de Python
+__pycache__/
+*.pyc
+
+# Entornos virtuales
+venv/
+env/
+
+# Otros
+*.log
+.DS_Store
