@@ -220,10 +220,10 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
     result = {}
 
     # name
-    if not is_update:  # en POST es obligatorio
+    if not is_update:  
         if not user_data.get('name'):
             return {"index": index, "error": "Nombre vacío."}
-    if user_data.get('name'):  # validar solo si viene
+    if user_data.get('name'):  
         if not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', user_data['name']):
             return {"index": index, "error": "Nombre inválido (solo letras y espacios)."}
         result["name"] = user_data['name']
@@ -235,7 +235,6 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
     if user_data.get('mail'):
         if not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
             return {"index": index, "error": "Correo inválido."}
-        # Checar unicidad de mail
         existing = User.query.filter_by(mail=user_data['mail']).first()
         if existing and (not current_id or existing.user_id != current_id):
             return {"index": index, "error": f"Correo '{user_data['mail']}' ya está en uso."}
@@ -267,7 +266,6 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
         except ValueError:
             return {"index": index, "error": "El client_company_id debe ser un número."}
 
-    # reports_to y session_started no requieren validación estricta
     if "reports_to" in user_data:
         result["reports_to"] = user_data.get("reports_to")
 
@@ -354,7 +352,16 @@ def get_equipment():
 
     allowed_filters = {
         "product_number", "product_description", "company_program",
-        "price", "created_by", "min_price", "max_price"
+        "price", "created_by", "min_price", "max_price",
+        "sort_by", "order"
+    }
+
+    allowed_sort_fields = {
+        "product_number": Equipment.product_number,
+        "product_description": Equipment.product_description,
+        "company_program": Equipment.company_program,
+        "price": Equipment.price,
+        "created_by": Equipment.created_by
     }
 
     unexpected_filters = set(request.args.keys()) - allowed_filters
@@ -370,6 +377,12 @@ def get_equipment():
     max_price = request.args.get('max_price', type=float)
     created_by = request.args.get('created_by', type=int)
 
+    sort_by = request.args.get('sort_by', type=str)
+    order = request.args.get('order', type=str, default="asc").lower()
+
+
+    if sort_by and sort_by not in allowed_sort_fields:
+        return jsonify({"error": f"Campo para ordenamiento no permitido: {sort_by}"}), 400
 
     query = Equipment.query
 
@@ -393,6 +406,13 @@ def get_equipment():
 
     if created_by is not None:
         query = query.filter(Equipment.created_by == created_by)
+
+    if sort_by:
+        column = allowed_sort_fields[sort_by]
+        if order == "desc":
+            query = query.order_by(column.desc())
+        else:
+            query = query.order_by(column.asc())
 
     equipment = query.all()
 
@@ -424,6 +444,8 @@ def get_equipment_by_id(id):
         'price': equipment.price,
         'created_by': equipment.created_by
     })
+
+
 
 
 @app.route('/equipment', methods=['POST'])
@@ -461,8 +483,107 @@ def delete_equipment(id):
 # ---------------- EQUIPMENT ITEMS ----------------
 @app.route('/equipment_items', methods=['GET'])
 def get_equipment_items():
-    equipment_items = EquipmentItem.query.all()
-    return jsonify([{'item_id': e.item_id, 'solution_id': e.solution_id, 'product_number': e.product_number, 'product_name': e.product_name, 'qty': e.qty, 'unit_price': e.unit_price} for e in equipment_items])
+
+    allowed_filters = {
+        "solution_id", "product_number", "product_name",
+        "qty", "unit_price", "min_qty", "max_qty",
+        "min_unit_price", "max_unit_price", "sort_by", "order"
+    }
+
+    allowed_sort_fields = {
+        "solution_id": EquipmentItem.solution_id,
+        "product_number": EquipmentItem.product_number,
+        "product_name": EquipmentItem.product_name,
+        "qty": EquipmentItem.qty,
+        "unit_price": EquipmentItem.unit_price
+    }
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+
+    solution_id = request.args.get('solution_id', type=int)
+    product_number = request.args.get('product_number', type=str)
+    product_name = request.args.get('product_name', type=str)
+    qty = request.args.get('qty', type=int)
+    unit_price = request.args.get('unit_price', type=float)
+    min_qty = request.args.get('min_qty', type=int)
+    max_qty = request.args.get('max_qty', type=int)
+    min_unit_price = request.args.get('min_unit_price', type=float)
+    max_unit_price = request.args.get('max_unit_price', type=float)
+    sort_by = request.args.get('sort_by', type=str)
+    order = request.args.get('order', type=str, default="asc").lower()
+
+    query = EquipmentItem.query
+
+    if solution_id is not None:
+        query = query.filter(EquipmentItem.solution_id == solution_id)
+
+    if product_number:
+        query = query.filter(EquipmentItem.product_number.ilike(f"%{product_number}%"))
+
+    if product_name:
+        query = query.filter(EquipmentItem.product_name.ilike(f"%{product_name}%"))
+
+    if qty is not None:
+        query = query.filter(EquipmentItem.qty == qty)
+
+    if unit_price is not None:
+        query = query.filter(EquipmentItem.unit_price == unit_price)
+
+    if min_qty is not None:
+        query = query.filter(EquipmentItem.qty >= min_qty)
+
+    if max_qty is not None:
+        query = query.filter(EquipmentItem.qty <= max_qty)
+
+    if min_unit_price is not None:
+        query = query.filter(EquipmentItem.unit_price >= min_unit_price)
+
+    if max_unit_price is not None:
+        query = query.filter(EquipmentItem.unit_price <= max_unit_price)
+
+    if sort_by:
+        if sort_by not in allowed_sort_fields:
+            return jsonify({"error": f"Campo para ordenamiento no permitido: {sort_by}"}), 400
+
+        column = allowed_sort_fields[sort_by]
+        if order == "desc":
+            query = query.order_by(column.desc())
+        else:
+            query = query.order_by(column.asc())
+
+    equipment_items = query.all()
+
+    return jsonify([
+        {
+            'item_id': e.item_id,
+            'solution_id': e.solution_id,
+            'product_number': e.product_number,
+            'product_name': e.product_name,
+            'qty': e.qty,
+            'unit_price': e.unit_price
+        }
+        for e in equipment_items
+    ])
+
+
+@app.route('/equipment_items/<int:id>', methods=['GET'])
+def get_equipment_item_by_id(id):
+    equipment_item = EquipmentItem.query.get(id)
+
+    if equipment_item is None:
+        return jsonify({"error": "Item de equipo no encontrado"}), 404
+
+    return jsonify({
+        'item_id': equipment_item.item_id,
+        'solution_id': equipment_item.solution_id,
+        'product_number': equipment_item.product_number,
+        'product_name': equipment_item.product_name,
+        'qty': equipment_item.qty,
+        'unit_price': equipment_item.unit_price
+    })
+
 
 @app.route('/equipment_items', methods=['POST'])
 def create_equipment_item():
