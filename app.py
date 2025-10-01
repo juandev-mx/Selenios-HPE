@@ -50,11 +50,7 @@ def obtener_company(id):
 
 
 def validar_client_company(comp_data, index=None, is_update=False, current_id=None):
-    """
-    Valida los datos de client_company.
-    - is_update: True si es para PUT (actualización).
-    - current_id: id de la compañía que se está actualizando (solo en PUT).
-    """
+ 
 
     # company_name
     name = comp_data.get('company_name')
