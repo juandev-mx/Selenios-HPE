@@ -205,55 +205,74 @@ def obtener_usuario(id):
 
 
 ROLES = ['HPE_REP', 'HPE_MANAGER', 'CLIENT']
-#Funcion de validacion de datos
-def validar_usuario(user_data, index=0):
 
+def validar_usuario(user_data, index=0, is_update=False, current_id=None):
+    """
+    Valida datos de usuario para POST y PUT.
+    - is_update=True: para PUT, los campos son opcionales y solo se validan si vienen.
+    - current_id: id del usuario que se está actualizando (para evitar conflicto en unicidad).
+    """
+
+    result = {}
 
     # name
-    if not user_data.get('name'):
-        return {"index": index, "error": "Nombre vacío."}
-    elif not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', user_data['name']):
-        return {"index": index, "error": "Nombre inválido (solo letras y espacios)."}
+    if not is_update:  # en POST es obligatorio
+        if not user_data.get('name'):
+            return {"index": index, "error": "Nombre vacío."}
+    if user_data.get('name'):  # validar solo si viene
+        if not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', user_data['name']):
+            return {"index": index, "error": "Nombre inválido (solo letras y espacios)."}
+        result["name"] = user_data['name']
 
     # mail
-    if not user_data.get('mail'):
-        return {"index": index, "error": "Correo vacío."}
-    elif not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
-        return {"index": index, "error": "Correo inválido."}
+    if not is_update:  
+        if not user_data.get('mail'):
+            return {"index": index, "error": "Correo vacío."}
+    if user_data.get('mail'):
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', user_data['mail']):
+            return {"index": index, "error": "Correo inválido."}
+        # Checar unicidad de mail
+        existing = User.query.filter_by(mail=user_data['mail']).first()
+        if existing and (not current_id or existing.user_id != current_id):
+            return {"index": index, "error": f"Correo '{user_data['mail']}' ya está en uso."}
+        result["mail"] = user_data['mail']
 
     # password
-    if not user_data.get('password'):
-        return {"index": index, "error": "Contraseña vacía."}
-    elif len(user_data['password']) < 6:
-        return {"index": index, "error": "La contraseña debe tener mínimo 6 caracteres."}
+    if not is_update:
+        if not user_data.get('password'):
+            return {"index": index, "error": "Contraseña vacía."}
+    if user_data.get('password'):
+        if len(user_data['password']) < 6:
+            return {"index": index, "error": "La contraseña debe tener mínimo 6 caracteres."}
+        result["password"] = user_data['password']
 
     # role
-    role = user_data.get('role')
-    if not role:
-        return {"index": index, "error": "El rol es obligatorio."}
-    if role not in ROLES:
-        return {"index": index, "error": f"Rol inválido. Solo se permiten: {', '.join(ROLES)}."}
+    if not is_update:
+        if not user_data.get('role'):
+            return {"index": index, "error": "El rol es obligatorio."}
+    if user_data.get('role'):
+        role = user_data['role']
+        if role not in ROLES:
+            return {"index": index, "error": f"Rol inválido. Solo se permiten: {', '.join(ROLES)}."}
+        result["role"] = role
 
     # client_company_id
     if user_data.get('client_company_id') is not None:
         try:
-            int(user_data.get('client_company_id'))
+            result["client_company_id"] = int(user_data['client_company_id'])
         except ValueError:
             return {"index": index, "error": "El client_company_id debe ser un número."}
 
-    # Si todo está bien, devolver datos limpios
-    return {
-        "client_company_id": user_data.get('client_company_id'),
-        "reports_to": user_data.get('reports_to'),
-        "mail": user_data.get('mail'),
-        "password": user_data.get('password'),
-        "role": role,
-        "name": user_data.get('name'),
-        "session_started": user_data.get('session_started', False)
-    }
+    # reports_to y session_started no requieren validación estricta
+    if "reports_to" in user_data:
+        result["reports_to"] = user_data.get("reports_to")
+
+    if "session_started" in user_data:
+        result["session_started"] = user_data.get("session_started", False)
+
+    return result
 
 
-# Crear usuarios validados
 @app.route('/users', methods=['POST'])
 def create_users():
     data = request.json
@@ -264,12 +283,11 @@ def create_users():
     errors = []
 
     for index, user_data in enumerate(data):
-        resultado = validar_usuario(user_data, index)
-        if isinstance(resultado, dict) and "error" in resultado:
+        resultado = validar_usuario(user_data, index=index, is_update=False)
+        if "error" in resultado:
             errors.append(resultado)
             continue
 
-        # Si pasó validaciones, crear usuario
         user = User(**resultado)
         db.session.add(user)
         db.session.flush()
@@ -291,22 +309,20 @@ def update_user(id):
         return jsonify({"error": "Usuario no encontrado"}), 404
 
     data = request.json
-
-    # Validar que venga un objeto JSON y no una lista
     if not isinstance(data, dict):
         return jsonify({"error": "Ingresa un diccionario para aceptarlo..."}), 400
 
-    # Validar datos usando la función de validación
-    resultado = validar_usuario(data)
-    if isinstance(resultado, dict) and "error" in resultado:
+    resultado = validar_usuario(data, index=0, is_update=True, current_id=id)
+    if "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizamos atributos del usuario
+    # Actualizar solo los campos enviados
     for key, value in resultado.items():
         setattr(user, key, value)
 
     db.session.commit()
     return jsonify({"message": "Usuario actualizado", "id": user.user_id})
+
 
 @app.route('/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
