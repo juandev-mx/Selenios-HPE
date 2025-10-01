@@ -740,18 +740,47 @@ def get_poc_by_id(id):
 
 
 @app.route('/pocs', methods=['POST'])
-def create_poc():
-    data = request.json
-    poc = POC(
-        client_user_id=data['client_user_id'],
-        business_justification=data.get('business_justification'),
-        is_approved=data.get('is_approved', False),
-        completion_date=data.get('completion_date'),
-        created_date=data.get('created_date')
-    )
-    db.session.add(poc)
-    db.session.commit()
-    return jsonify({'message': 'POC creada', 'poc_id': poc.poc_id}), 201
+def create_pocs():
+    data = request.get_json()
+    if data is None:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    if not isinstance(data, list):
+        data = [data]
+
+    created = []
+    errors = []
+
+    for index, poc_data in enumerate(data):
+        if not isinstance(poc_data, dict):
+            errors.append({"index": index, "error": "Cada item debe ser un objeto JSON"})
+            continue
+
+        try:
+            poc = POC(
+                client_user_id=poc_data['client_user_id'],
+                business_justification=poc_data.get('business_justification'),
+                is_approved=poc_data.get('is_approved', False),
+                completion_date=poc_data.get('completion_date'),
+                created_date=poc_data.get('created_date')
+            )
+            db.session.add(poc)
+            db.session.flush()
+            created.append({
+                "index": index,
+                "poc_id": poc.poc_id,
+                "client_user_id": poc.client_user_id
+            })
+        except Exception as e:
+            errors.append({"index": index, "error": str(e)})
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Error al guardar en BD", "detail": str(e)}), 500
+
+    return jsonify({"created": created, "errors": errors}), 201
 
 @app.route('/pocs/<int:id>', methods=['PUT'])
 def update_poc(id):
@@ -805,14 +834,50 @@ def get_poc_equipment():
 
 @app.route('/poc_equipment', methods=['POST'])
 def create_poc_equipment():
-    data = request.json
-    pe = POCEquipment(
-        poc_id=data['poc_id'],
-        solution_id=data['solution_id']
-    )
-    db.session.add(pe)
-    db.session.commit()
-    return jsonify({'message': 'POC Equipment creada'}), 201
+    data = request.get_json()
+    if data is None:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    # Si no es lista, lo convertimos a lista para procesarlo uniformemente
+    if not isinstance(data, list):
+        data = [data]
+
+    created = []
+    errors = []
+
+    for index, item in enumerate(data):
+        if not isinstance(item, dict):
+            errors.append({"index": index, "error": "Cada item debe ser un objeto JSON"})
+            continue
+
+        # Validación básica de campos requeridos
+        if 'poc_id' not in item or 'solution_id' not in item:
+            errors.append({"index": index, "error": "Faltan poc_id o solution_id"})
+            continue
+
+        try:
+            pe = POCEquipment(
+                poc_id=item['poc_id'],
+                solution_id=item['solution_id']
+            )
+            db.session.add(pe)
+            db.session.flush()  # Para obtener ID antes del commit
+            created.append({
+                "index": index,
+                "poc_id": pe.poc_id,
+                "solution_id": pe.solution_id
+            })
+        except Exception as e:
+            errors.append({"index": index, "error": str(e)})
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Error al guardar en BD", "detail": str(e)}), 500
+
+    return jsonify({"created": created, "errors": errors}), 201
+
 
 @app.route('/poc_equipment/<int:poc_id>/<int:solution_id>', methods=['DELETE'])
 def delete_poc_equipment(poc_id, solution_id):
