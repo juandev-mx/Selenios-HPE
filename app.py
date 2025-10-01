@@ -5,7 +5,7 @@ import re
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # carga variables de .env
+load_dotenv() 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 app = Flask(__name__)
@@ -273,27 +273,23 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
             return {"index": index, "error": f"Rol inválido. Solo se permiten: {', '.join(ROLES)}."}
         result["role"] = role
 
-    # client_company_id
     if user_data.get('client_company_id') is not None:
         try:
             client_company_id = int(user_data['client_company_id'])
         except ValueError:
             return {"index": index, "error": "El client_company_id debe ser un número."}
 
-        # validar existencia en tabla ClientCompany
         company = ClientCompany.query.get(client_company_id)
         if not company:
             return {"index": index, "error": f"El client_company_id {client_company_id} no existe."}
         result["client_company_id"] = client_company_id
 
-    # reports_to
     if user_data.get('reports_to') is not None:
         try:
             reports_to = int(user_data['reports_to'])
         except ValueError:
             return {"index": index, "error": "El reports_to debe ser un número."}
 
-        # validar existencia en tabla User
         report_user = User.query.get(reports_to)
         if not report_user:
             return {"index": index, "error": f"El reports_to {reports_to} no existe."}
@@ -304,7 +300,6 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
 
     return result
 
-#Comentario prueba
 @app.route('/users', methods=['POST'])
 def create_users():
     data = request.json
@@ -345,7 +340,6 @@ def update_user(id):
     if not isinstance(data, dict):
         return jsonify({"error": "Ingresa un diccionario para aceptarlo..."}), 400
 
-    # Lista de atributos 
     allowed_fields = {
         "client_company_id", "reports_to", "mail", "password",
         "role", "name", "session_started"
@@ -853,7 +847,6 @@ def create_poc_equipment():
     if data is None:
         return jsonify({"error": "Faltan datos"}), 400
 
-    # Si no es lista, lo convertimos a lista para procesarlo uniformemente
     if not isinstance(data, list):
         data = [data]
 
@@ -865,7 +858,6 @@ def create_poc_equipment():
             errors.append({"index": index, "error": "Cada item debe ser un objeto JSON"})
             continue
 
-        # Validación básica de campos requeridos
         if 'poc_id' not in item or 'solution_id' not in item:
             errors.append({"index": index, "error": "Faltan poc_id o solution_id"})
             continue
@@ -876,7 +868,7 @@ def create_poc_equipment():
                 solution_id=item['solution_id']
             )
             db.session.add(pe)
-            db.session.flush()  # Para obtener ID antes del commit
+            db.session.flush()
             created.append({
                 "index": index,
                 "poc_id": pe.poc_id,
