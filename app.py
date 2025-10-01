@@ -17,29 +17,46 @@ db.init_app(app)
 # ---------------- CLIENT_COMPANY ----------------
 @app.route('/client_company', methods=['GET'])
 def get_client_companies():
-    
+
+    allowed_filters = {"min_id", "max_id", "company_name", "manager", "hpe_rep_id"}
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+
     min_id = request.args.get('min_id', type=int)
     max_id = request.args.get('max_id', type=int)
+    hpe_rep_id = request.args.get('hpe_rep_id', type=int)
     company_name = request.args.get('company_name', type=str)
     manager = request.args.get('manager', type=str)
-    
+
     query = ClientCompany.query
-    
+
     if min_id is not None:
         query = query.filter(ClientCompany.client_company_id >= min_id)
-    
+
     if max_id is not None:
         query = query.filter(ClientCompany.client_company_id <= max_id)
-        
+
+    if hpe_rep_id is not None:
+        query = query.filter(ClientCompany.hpe_rep_id == hpe_rep_id)
+
     if company_name:
         query = query.filter(ClientCompany.company_name.ilike(f"%{company_name}%"))
-    
+
     if manager:
         query = query.filter(ClientCompany.manager_client_name.ilike(f"%{manager}%"))
-    
+
     companies = query.all()
-    
-    return jsonify([{'id': c.client_company_id, 'name': c.company_name, 'manager': c.manager_client_name} for c in companies])
+
+    return jsonify([
+        {
+            'id': c.client_company_id,
+            'name': c.company_name,
+            'manager': c.manager_client_name,
+            'hpe_rep_id' : c.hpe_rep_id
+        } for c in companies
+    ])
 
 @app.route('/client_company/<int:id>', methods=['GET'])
 def obtener_company(id):
