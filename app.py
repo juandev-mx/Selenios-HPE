@@ -184,7 +184,17 @@ def delete_client_company(id):
 @app.route('/users', methods=['GET'])
 def get_users():
     
-    allowed_filters = {"min_id", "max_id", "name", "mail", "role"}
+    allowed_filters = {
+        "min_id", 
+        "max_id", 
+        "name", 
+        "mail", 
+        "role",
+        "client_company_id",
+        "reports_to",
+        "password",
+        "session_started"
+    }
 
     unexpected_filters = set(request.args.keys()) - allowed_filters
     if unexpected_filters:
@@ -195,7 +205,11 @@ def get_users():
     name = request.args.get('name', type=str)
     mail = request.args.get('mail', type=str)
     role = request.args.get('role', type=str)
-    
+    client_company_id = request.args.get('client_company_id', type=int)
+    reports_to = request.args.get('reports_to', type=int)
+    password = request.args.get('password', type=str)
+    session_started = request.args.get('session_started', type=lambda v: v.lower() in ['true', '1', 'yes'])
+
     query = User.query
 
     if min_id is not None:
@@ -213,12 +227,33 @@ def get_users():
     if role:
         query = query.filter(User.role.ilike(f"%{role}%"))
     
+    if client_company_id is not None:
+        query = query.filter(User.client_company_id == client_company_id)
+
+    if reports_to is not None:
+        query = query.filter(User.reports_to == reports_to)
+
+    if password:
+        query = query.filter(User.password == password)
+
+    if session_started is not None:
+        query = query.filter(User.session_started == session_started)
+    
     users = query.all()
 
     return jsonify([
-        {'id': u.user_id, 'name': u.name, 'role': u.role, 'mail': u.mail}
+        {
+            'id': u.user_id, 
+            'name': u.name, 
+            'role': u.role, 
+            'mail': u.mail,
+            'client_company_id': u.client_company_id,
+            'reports_to': u.reports_to,
+            'session_started': u.session_started
+        }
         for u in users
     ])
+
 
 @app.route('/users/<int:id>', methods=['GET'])
 def obtener_usuario(id):
@@ -292,7 +327,7 @@ def validar_usuario(user_data, index=0, is_update=False, current_id=None):
 
         report_user = User.query.get(reports_to)
         if not report_user:
-            return {"index": index, "error": f"El reports_to {reports_to} no existe."}
+            return {"index": index, "error": f"El usuario para reports_to {reports_to} no existe."}
         result["reports_to"] = reports_to
 
     if "session_started" in user_data:
