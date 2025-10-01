@@ -52,39 +52,32 @@ def obtener_company(id):
 def validar_client_company(comp_data, index=None, is_update=False, current_id=None):
  
 
-    # company_name
     name = comp_data.get('company_name')
-    if not is_update:  # En POST es obligatorio
+    if not is_update:
         if not name:
             return {"index": index, "error": "company_name vacío."}
         elif not re.match(r'^[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]+$', name):
             return {"index": index, "error": "company_name inválido (solo letras, números y espacios)."}
-        # Checar unicidad
         existing = ClientCompany.query.filter_by(company_name=name).first()
         if existing:
             return {"index": index, "error": f"company_name '{name}' ya existe."}
     else:
-        # En PUT puede ser opcional
         if name:
             if not re.match(r'^[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]+$', name):
                 return {"index": index, "error": "company_name inválido (solo letras, números y espacios)."}
-            # Checar unicidad solo si pertenece a otra compañía
             existing = ClientCompany.query.filter_by(company_name=name).first()
             if existing and existing.client_company_id != current_id:
                 return {"index": index, "error": f"company_name '{name}' ya existe."}
         else:
-            # Si no mandan company_name en PUT, mantener el existente
             name = None
 
-    # manager_client_name
     manager = comp_data.get('manager_client_name')
-    if not is_update or manager is not None:  # En POST obligatorio, en PUT si viene debe validarse
+    if not is_update or manager is not None:
         if not manager:
             return {"index": index, "error": "manager_client_name vacío."}
         elif not re.match(r'^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$', manager):
             return {"index": index, "error": "manager_client_name inválido (solo letras y espacios)."}
 
-    # hpe_rep_id
     hpe = comp_data.get('hpe_rep_id')
     if hpe not in (None, ""):
         try:
@@ -125,7 +118,7 @@ def create_client_company():
 
         company = ClientCompany(**resultado)
         db.session.add(company)
-        db.session.flush()  # para obtener id
+        db.session.flush()
         created.append({
             "index": index,
             "id": company.client_company_id,
@@ -155,7 +148,6 @@ def update_client_company(id):
     if "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizamos solo campos enviados
     for key, value in resultado.items():
         if value is not None:
             setattr(company, key, value)
@@ -205,9 +197,7 @@ def obtener_usuario(id):
 
 
 ROLES = ['HPE_REP', 'HPE_MANAGER', 'CLIENT']
-#Funcion de validacion de datos
 def validar_usuario(user_data, index=0):
-
 
     # name
     if not user_data.get('name'):
@@ -252,8 +242,6 @@ def validar_usuario(user_data, index=0):
         "session_started": user_data.get('session_started', False)
     }
 
-
-# Crear usuarios validados
 @app.route('/users', methods=['POST'])
 def create_users():
     data = request.json
@@ -269,7 +257,6 @@ def create_users():
             errors.append(resultado)
             continue
 
-        # Si pasó validaciones, crear usuario
         user = User(**resultado)
         db.session.add(user)
         db.session.flush()
@@ -283,7 +270,6 @@ def create_users():
         "errores": errors
     }), 200
 
-#
 @app.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get(id)
@@ -292,16 +278,13 @@ def update_user(id):
 
     data = request.json
 
-    # Validar que venga un objeto JSON y no una lista
     if not isinstance(data, dict):
         return jsonify({"error": "Ingresa un diccionario para aceptarlo..."}), 400
 
-    # Validar datos usando la función de validación
     resultado = validar_usuario(data)
     if isinstance(resultado, dict) and "error" in resultado:
         return jsonify(resultado), 400
 
-    # Actualizamos atributos del usuario
     for key, value in resultado.items():
         setattr(user, key, value)
 
