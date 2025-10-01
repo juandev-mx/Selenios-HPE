@@ -318,8 +318,80 @@ def delete_user(id):
 # ---------------- EQUIPMENT ----------------
 @app.route('/equipment', methods=['GET'])
 def get_equipment():
-    equipment = Equipment.query.all()
-    return jsonify([{'solution_id': e.solution_id, 'product_number': e.product_number} for e in equipment])
+
+    allowed_filters = {
+        "product_number", "product_description", "company_program",
+        "price", "created_by", "min_price", "max_price"
+    }
+
+    unexpected_filters = set(request.args.keys()) - allowed_filters
+    if unexpected_filters:
+        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+
+
+    product_number = request.args.get('product_number', type=str)
+    product_description = request.args.get('product_description', type=str)
+    company_program = request.args.get('company_program', type=str)
+    price = request.args.get('price', type=float)
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+    created_by = request.args.get('created_by', type=int)
+
+
+    query = Equipment.query
+
+    if product_number:
+        query = query.filter(Equipment.product_number.ilike(f"%{product_number}%"))
+
+    if product_description:
+        query = query.filter(Equipment.product_description.ilike(f"%{product_description}%"))
+
+    if company_program:
+        query = query.filter(Equipment.company_program.ilike(f"%{company_program}%"))
+
+    if price is not None:
+        query = query.filter(Equipment.price == price)
+
+    if min_price is not None:
+        query = query.filter(Equipment.price >= min_price)
+
+    if max_price is not None:
+        query = query.filter(Equipment.price <= max_price)
+
+    if created_by is not None:
+        query = query.filter(Equipment.created_by == created_by)
+
+    equipment = query.all()
+
+    return jsonify([
+        {
+            'solution_id': e.solution_id,
+            'product_number': e.product_number,
+            'product_description': e.product_description,
+            'company_program': e.company_program,
+            'price': e.price,
+            'created_by': e.created_by
+        }
+        for e in equipment
+    ])
+
+
+@app.route('/equipment/<int:id>', methods=['GET'])
+def get_equipment_by_id(id):
+    equipment = Equipment.query.get(id)
+
+    if equipment is None:
+        return jsonify({"error": "Equipo no encontrado"}), 404
+
+    return jsonify({
+        'solution_id': equipment.solution_id,
+        'product_number': equipment.product_number,
+        'product_description': equipment.product_description,
+        'company_program': equipment.company_program,
+        'price': equipment.price,
+        'created_by': equipment.created_by
+    })
+
 
 @app.route('/equipment', methods=['POST'])
 def create_equipment():
