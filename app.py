@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from models import db, ClientCompany, User, Equipment, EquipmentItem, POC, POCEquipment
+from flask_cors import CORS
 import re
 
 from dotenv import load_dotenv
@@ -12,6 +13,49 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+app.secret_key = "clave_secreta_super_segura"
+CORS(app)
+
+
+from models import User
+
+@app.route('/')
+def home():
+    # Si ya inició sesión, mándalo al index
+    if 'user_id' in session:
+        return redirect(url_for('index'))
+    return redirect(url_for('login'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+
+    # Si el usuario envía el formulario
+    email = request.form['email']
+    password = request.form['password']
+
+    user = User.query.filter_by(mail=email, password=password).first()
+    if user:
+        session['user_id'] = user.user_id
+        session['user_name'] = user.name
+        return redirect(url_for('index'))
+    else:
+        return render_template('login.html', error="Correo o contraseña incorrectos.")
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/index')
+def index():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('index.html', user_name=session['user_name'])
+
 
 
 # ---------------- CLIENT_COMPANY ----------------
