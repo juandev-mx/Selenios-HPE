@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Customer Dashboard - HPE</title>
+  <link rel="stylesheet" href="HomeClientes.css">
+
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo">
+      <h2 class="customer-text">Customer</h2>
+    </div>
+    
+    <nav class="header-nav">
+      <a href="#" class="nav-link active">Dashboard</a>
+      <a href="#" class="nav-link">My POCs</a>
+      <a href="#" class="nav-link">Solutions Catalog</a>
+      <img class="avatar" src="https://api.builder.io/api/v1/image/assets/TEMP/4ebd142369a1387035563acfca5ac756f4169a84?width=80" alt="User Avatar">
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <!-- Page Title -->
+    <div class="page-title">
+      <h1>Customer Dashboard</h1>
+      <p>Welcome back!</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Pending</h3>
+        <div class="number">3</div>
+      </div>
+      <div class="stat-card">
+        <h3>Approved</h3>
+        <div class="number">5</div>
+      </div>
+      <div class="stat-card">
+        <h3>Rejected</h3>
+        <div class="number">1</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2>Quick Actions</h2>
+      <div class="actions-buttons">
+        <button class="btn btn-primary">
+          <span style="font-size:24px">+</span>
+          Create New POC
+        </button>
+        <button class="btn btn-secondary">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 15.4L6 9.4L7.4 8L12 12.6L16.6 8L18 9.4L12 15.4Z" fill="#1D1B20"/>
+          </svg>
+          View My POCs
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- News & Alerts -->
+      <div class="news-section">
+        <h2>News & Alerts</h2>
+        
+        <div class="alert-card">
+          <div class="alert-icon">✓</div>
+          <div class="alert-content">
+            <h3>POC Status Update</h3>
+            <p>Your POC for 'Data Analytics Solution' has been approved.</p>
+          </div>
+        </div>
+
+        <div class="alert-card">
+          <div class="alert-icon">💡</div>
+          <div class="alert-content">
+            <h3>New Solutions Available</h3>
+            <p>Explore the latest solutions for data management.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solutions Catalog -->
+      <div class="catalog-section">
+        <h2>Solutions Catalog</h2>
+        
+        <div class="solution-card">
+          <img class="solution-image" src="https://api.builder.io/api/v1/image/assets/TEMP/1f8407fdae58882ace48407ab57a6c642e53d414?width=945" alt="Data Analytics Solution">
+          <div class="solution-content">
+            <span class="solution-badge">Featured</span>
+            <h3>Data Analytics Solution</h3>
+            <p>Analyze large datasets and gain insights with our advanced analytics tools.</p>
+          </div>
+        </div>
+
+        <div class="solution-card">
+          <img class="solution-image" src="https://api.builder.io/api/v1/image/assets/TEMP/cf2f5f05de9e8e43fd64c499774da134a61606bd?width=945" alt="Cloud Storage Solution">
+          <div class="solution-content">
+            <span class="solution-badge">New</span>
+            <h3>Cloud Storage Solution</h3>
+            <p>Secure and scalable cloud storage for your business needs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
