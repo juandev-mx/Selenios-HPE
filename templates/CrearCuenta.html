@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create your account - HPE</title>
+ 
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Create your account</h1>
+
+    <form id="registerForm" class="form-container" novalidate>
+      <!-- Full Name -->
+      <div class="field">
+        <label for="fullName" class="label">Full Name</label>
+        <input 
+          id="fullName" 
+          name="fullName" 
+          type="text" 
+          placeholder="Enter your full name" 
+          class="input" 
+          required
+        >
+        <div id="fullNameError" class="error" aria-live="polite"></div>
+      </div>
+
+      <!-- Email -->
+      <div class="field">
+        <label for="email" class="label">Email</label>
+        <input 
+          id="email" 
+          name="email" 
+          type="email" 
+          placeholder="Enter your email" 
+          class="input" 
+          required
+        >
+        <div id="emailError" class="error" aria-live="polite"></div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <label for="password" class="label">Password</label>
+        <input 
+          id="password" 
+          name="password" 
+          type="password" 
+          placeholder="Create a password" 
+          class="input" 
+          required 
+          minlength="6"
+        >
+        <div id="passwordError" class="error" aria-live="polite"></div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="field">
+        <label for="confirmPassword" class="label">Confirm Password</label>
+        <input 
+          id="confirmPassword" 
+          name="confirmPassword" 
+          type="password" 
+          placeholder="Confirm your password" 
+          class="input" 
+          required
+        >
+        <div id="confirmPasswordError" class="error" aria-live="polite"></div>
+      </div>
+
+      <!-- Company Name -->
+      <div class="field">
+        <label for="companyName" class="label">Company Name</label>
+        <input 
+          id="companyName" 
+          name="companyName" 
+          type="text" 
+          placeholder="Enter your company name" 
+          class="input" 
+          required
+        >
+        <div id="companyNameError" class="error" aria-live="polite"></div>
+      </div>
+
+      <!-- Account Type -->
+      <div class="field">
+        <fieldset class="radio-group">
+          <legend class="label">Account Type</legend>
+          <div class="radio-options">
+            <label class="radio-label">
+              <input type="radio" name="accountType" value="customer" checked>
+              <span>Customer</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="accountType" value="representative">
+              <span>HPE Representative</span>
+            </label>
+          </div>
+        </fieldset>
+      </div>
+
+      <p class="info-text">If you are an HPE representative, you must wait to be approved after completing the registration.</p>
+
+      <button id="submitBtn" type="submit" class="btn-submit">Sign Up</button>
+    </form>
+
+    <div class="login-link">
+      <a href="#">Already have an account? Log in</a>
+    </div>
+  </div>
+    <script src="CrearCuentaValidaciones.js"></script>
+
+  </body>
+   </html>
