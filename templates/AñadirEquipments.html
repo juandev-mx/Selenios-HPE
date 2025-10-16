@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Add Equipment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="AñadirEquipments.css">
+</head>
+<body>
+  <main class="container">
+    <div class="form-wrapper">
+      <h1 class="heading">Add Equipment</h1>
+
+      <form class="equipment-form" aria-label="Add equipment form">
+        <!-- Product Number -->
+        <div class="form-group">
+          <label class="form-label" for="product-number">Product Number</label>
+          <input 
+            id="product-number" 
+            class="form-input" 
+            type="text" 
+            placeholder="Enter Product Number"
+          />
+        </div>
+
+        <!-- Product Description -->
+        <div class="form-group">
+          <label class="form-label" for="product-description">Product Description</label>
+          <textarea 
+            id="product-description" 
+            class="form-textarea" 
+            rows="5"
+            placeholder="Enter product description..."
+          ></textarea>
+        </div>
+
+        <!-- Owner -->
+        <div class="form-group">
+          <label class="form-label" for="owner">Owner</label>
+          <input 
+            id="owner" 
+            class="form-input" 
+            type="text" 
+            placeholder="Owner"
+          />
+        </div>
+
+        <!-- Company Program -->
+        <div class="form-group">
+          <label class="form-label" for="company-program">Company Program</label>
+          <input 
+            id="company-program" 
+            class="form-input" 
+            type="text" 
+            placeholder="Company Program"
+          />
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label class="form-label" for="price">Price</label>
+          <input 
+            id="price" 
+            class="form-input" 
+            type="text" 
+            placeholder="Enter Price"
+          />
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel">Cancel</button>
+          <button type="submit" class="btn btn-save">Save</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
