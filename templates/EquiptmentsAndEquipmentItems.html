@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPE Representative - Equipments</title>
+     <link rel="stylesheet" href="EquipmentsAndEquipmentItems.css">
+
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-container">
+            <div class="header-left">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo" class="logo">
+                <h1 class="header-title">Representative</h1>
+            </div>
+            
+            <div class="header-right">
+                <nav>
+                    <a href="#dashboard">Dashboard</a>
+                    <a href="#approvals">Approvals</a>
+                    <a href="#equipments" class="active">Equipments</a>
+                </nav>
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/4043025ee2c3922242207c3293e8fae21b5c3ce0?width=80" alt="User Avatar" class="avatar">
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="content-wrapper">
+            <!-- EQUIPMENTS SECTION -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Equipments</h2>
+                    
+                    <div class="section-controls">
+                        <div class="search-box">
+                            <div class="search-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19.5306 18.4694L14.8366 13.7762C17.6629 10.383 17.3204 5.36693 14.0591 2.38935C10.7978 -0.588237 5.77134 -0.474001 2.64867 2.64867C-0.474001 5.77134 -0.588237 10.7978 2.38935 14.0591C5.36693 17.3204 10.383 17.6629 13.7762 14.8366L18.4694 19.5306C18.7624 19.8237 19.2376 19.8237 19.5306 19.5306C19.8237 19.2376 19.8237 18.7624 19.5306 18.4694ZM1.75 8.5C1.75 4.77208 4.77208 1.75 8.5 1.75C12.2279 1.75 15.25 4.77208 15.25 8.5C15.25 12.2279 12.2279 15.25 8.5 15.25C4.77379 15.2459 1.75413 12.2262 1.75 8.5Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <input type="text" class="search-input" placeholder="Search">
+                        </div>
+                        
+                        <button class="filter-btn">
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M19.6187 1.64344C19.3828 1.09823 18.8441 0.746593 18.25 0.75H1.75C1.15687 0.751169 0.620137 1.10173 0.380657 1.64436C0.141177 2.18699 0.243933 2.81978 0.642812 3.25875L0.650312 3.26719L7 10.0472V17.25C6.99987 17.8032 7.30418 18.3115 7.7918 18.5726C8.27942 18.8338 8.87119 18.8054 9.33156 18.4988L12.3316 16.4981C12.7492 16.2199 13.0001 15.7512 13 15.2494V10.0472L19.3506 3.26719L19.3581 3.25875C19.7615 2.8215 19.8641 2.18536 19.6187 1.64344ZM11.9069 9.02625C11.6463 9.30242 11.5008 9.66751 11.5 10.0472V15.2494L8.5 17.25V10.0472C8.50087 9.66615 8.35597 9.2992 8.095 9.02156L1.75 2.25H18.25L11.9069 9.02625Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+
+                        <button class="btn-add">
+                            <span class="plus">+</span>
+                            <span>Add Solution</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Solution ID</th>
+                                    <th>Product Number</th>
+                                    <th>Product Description</th>
+                                    <th>Owner</th>
+                                    <th>Company Program</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="solution-id">SOL-001</td>
+                                    <td>P12345</td>
+                                    <td class="product-description">Developer Workstation</td>
+                                    <td>John Doe</td>
+                                    <td>HPE GreenLake</td>
+                                    <td>$15,500.00</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit">Edit</button>
+                                            <button class="btn-delete">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="solution-id">SOL-002</td>
+                                    <td>Q67890</td>
+                                    <td class="product-description">Premium Setup</td>
+                                    <td>Jane Smith</td>
+                                    <td>Hawkins Group</td>
+                                    <td>$8,200.00</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit">Edit</button>
+                                            <button class="btn-delete">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="solution-id">SOL-003</td>
+                                    <td>R11223</td>
+                                    <td class="product-description">Data Center Package</td>
+                                    <td>Peter Jones</td>
+                                    <td>Hunt LLC</td>
+                                    <td>$25,000.00</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit">Edit</button>
+                                            <button class="btn-delete">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EQUIPMENT ITEMS SECTION -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Equipment Items</h2>
+                    
+                    <div class="section-controls">
+                        <div class="search-box">
+                            <div class="search-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19.5306 18.4694L14.8366 13.7762C17.6629 10.383 17.3204 5.36693 14.0591 2.38935C10.7978 -0.588237 5.77134 -0.474001 2.64867 2.64867C-0.474001 5.77134 -0.588237 10.7978 2.38935 14.0591C5.36693 17.3204 10.383 17.6629 13.7762 14.8366L18.4694 19.5306C18.7624 19.8237 19.2376 19.8237 19.5306 19.5306C19.8237 19.2376 19.8237 18.7624 19.5306 18.4694ZM1.75 8.5C1.75 4.77208 4.77208 1.75 8.5 1.75C12.2279 1.75 15.25 4.77208 15.25 8.5C15.25 12.2279 12.2279 15.25 8.5 15.25C4.77379 15.2459 1.75413 12.2262 1.75 8.5Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <input type="text" class="search-input" placeholder="Search">
+                        </div>
+                        
+                        <button class="filter-btn">
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M19.6187 1.64344C19.3828 1.09823 18.8441 0.746593 18.25 0.75H1.75C1.15687 0.751169 0.620137 1.10173 0.380657 1.64436C0.141177 2.18699 0.243933 2.81978 0.642812 3.25875L0.650312 3.26719L7 10.0472V17.25C6.99987 17.8032 7.30418 18.3115 7.7918 18.5726C8.27942 18.8338 8.87119 18.8054 9.33156 18.4988L12.3316 16.4981C12.7492 16.2199 13.0001 15.7512 13 15.2494V10.0472L19.3506 3.26719L19.3581 3.25875C19.7615 2.8215 19.8641 2.18536 19.6187 1.64344ZM11.9069 9.02625C11.6463 9.30242 11.5008 9.66751 11.5 10.0472V15.2494L8.5 17.25V10.0472C8.50087 9.66615 8.35597 9.2992 8.095 9.02156L1.75 2.25H18.25L11.9069 9.02625Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+
+                        <button class="btn-add">
+                            <span class="plus">+</span>
+                            <span>Add Item</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Solution ID</th>
+                                    <th>Product Number</th>
+                                    <th>Product Name</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="solution-id">SOL-001</td>
+                                    <td>P12345-001</td>
+                                    <td class="product-name">Laptop</td>
+                                    <td>2</td>
+                                    <td>$3,500.00</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit">Edit</button>
+                                            <button class="btn-delete">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="solution-id">SOL-001</td>
+                                    <td>P12345-002</td>
+                                    <td class="product-name">Server</td>
+                                    <td>4</td>
+                                    <td>$1,200.00</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit">Edit</button>
+                                            <button class="btn-delete">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="solution-id">SOL-002</td>
+                                    <td>Q67890-001</td>
+                                    <td class="product-name">SSD</td>
+                                    <td>8</td>
+                                    <td>$350.00</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit">Edit</button>
+                                            <button class="btn-delete">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="solution-id">SOL-003</td>
+                                    <td>R11223-001</td>
+                                    <td class="product-name">Router</td>
+                                    <td>10</td>
+                                    <td>$950.00</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-edit">Edit</button>
+                                            <button class="btn-delete">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

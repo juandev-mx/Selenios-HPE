@@ -21,7 +21,6 @@
       line-height:1.5;
     }
 
-    /* Header */
     .header{
       width:100%;
       height:71px;
@@ -77,14 +76,12 @@
       object-fit:cover;
     }
 
-    /* Main Container */
     .main-container{
       max-width:1536px;
       margin:0 auto;
       padding:32px 24px;
     }
 
-    /* Page Title */
     .page-title{
       margin-bottom:32px;
     }
@@ -101,7 +98,6 @@
       color:var(--text-gray);
     }
 
-    /* Stats Cards */
     .stats-grid{
       display:grid;
       grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
@@ -130,7 +126,6 @@
       line-height:40px;
     }
 
-    /* Quick Actions */
     .quick-actions{
       padding:25px;
       border-radius:12px;
@@ -182,14 +177,12 @@
       height:24px;
     }
 
-    /* Content Grid */
     .content-grid{
       display:grid;
       grid-template-columns:1fr 475px;
       gap:32px;
     }
 
-    /* News & Alerts */
     .news-section h2,
     .catalog-section h2{
       font-size:18px;
@@ -231,7 +224,6 @@
       color:var(--text-muted);
     }
 
-    /* Solutions Catalog */
     .solution-card{
       border-radius:12px;
       border:1px solid var(--border);
@@ -270,7 +262,6 @@
       line-height:20px;
     }
 
-    /* Responsive */
     @media (max-width:1200px){
       .content-grid{
         grid-template-columns:1fr;

@@ -21,7 +21,6 @@
       line-height:1.5;
     }
 
-    /* Header */
     .header{
       width:100%;
       height:65px;
@@ -77,14 +76,12 @@
       object-fit:cover;
     }
 
-    /* Main Container */
     .main-container{
       max-width:1280px;
       margin:0 auto;
       padding:32px 24px;
     }
 
-    /* Solutions Section */
     .solutions-section{
       margin-bottom:81px;
     }
@@ -213,7 +210,6 @@
       text-decoration:underline;
     }
 
-    /* Items Section */
     .items-section{
       margin-top:81px;
     }
@@ -227,7 +223,6 @@
       margin-left:auto;
     }
 
-    /* Responsive */
     @media (max-width:1024px){
       .table-container{
         overflow-x:auto;

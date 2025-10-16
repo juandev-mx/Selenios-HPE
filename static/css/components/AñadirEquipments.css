@@ -146,7 +146,6 @@ body {
   transform: translateY(1px);
 }
 
-/* Responsive adjustments */
 @media (max-width: 480px) {
   .heading {
     font-size: 28px;

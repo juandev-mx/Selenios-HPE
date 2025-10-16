@@ -1,131 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-
+!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proof of Concepts (POCs) - Hewlett Packard Enterprise</title>
-    <link rel="stylesheet" href="/static/css/main.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="pocs.css">
+    <title>HPE Representative - Proof of Concept Approvals</title>
+    <link rel="stylesheet" href="Pocs.css">
+
 </head>
 <body>
-    <!-- Header Navigation -->
-    <header class="site-header">
+    <!-- HEADER -->
+    <header>
         <div class="header-container">
-            <!-- Navigation items in proper order -->
-            <div class="header-content">
-                <div class="logo-container">
-                    <img src="https://api.builder.io/api/v1/image/assets/TEMP/27bd09ef4f03575d08ed87cbcd47d57ae76bc55e?width=186" alt="Hewlett Packard Enterprise" class="logo">
-                </div>
-                
-                <nav class="main-nav">
-                    <a href="#" class="nav-link">Dashboard</a>
-                    <a href="#" class="nav-link">Solutions</a>
-                    <a href="#" class="nav-link">Products</a>
-                    <a href="#" class="nav-link">Clients</a>
-                    <a href="#" class="nav-link active">POCs</a>
-                </nav>
+            <div class="header-left">
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo" class="logo">
+                <h1 class="header-title">Representative</h1>
             </div>
             
-            <!-- Right side: Notifications and Profile -->
             <div class="header-right">
-                <div class="notification-container">
-                    <svg class="notification-icon" width="16" height="18" viewBox="0 0 16 18" fill="none">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.3281 12.7453C14.8945 11.9984 14.25 9.88516 14.25 7.125C14.25 3.67322 11.4518 0.875 8 0.875C4.54822 0.875 1.75 3.67322 1.75 7.125C1.75 9.88594 1.10469 11.9984 0.671094 12.7453C0.445722 13.1318 0.444082 13.6092 0.666796 13.9973C0.889509 14.3853 1.30261 14.6247 1.75 14.625H4.93828C5.23556 16.0796 6.51529 17.1243 8 17.1243C9.48471 17.1243 10.7644 16.0796 11.0617 14.625H14.25C14.6972 14.6244 15.1101 14.3849 15.3326 13.9969C15.5551 13.609 15.5534 13.1317 15.3281 12.7453ZM8 15.875C7.20562 15.8748 6.49761 15.3739 6.23281 14.625H9.76719C9.50239 15.3739 8.79438 15.8748 8 15.875ZM1.75 13.375C2.35156 12.3406 3 9.94375 3 7.125C3 4.36358 5.23858 2.125 8 2.125C10.7614 2.125 13 4.36358 13 7.125C13 9.94141 13.6469 12.3383 14.25 13.375H1.75Z" fill="#0D1C17"/>
-                    </svg>
-                </div>
-                
-                <div class="profile-avatar">
-                    <img src="https://api.builder.io/api/v1/image/assets/TEMP/82040195d4fa5d39f8c0f473fda3d9cae104caf4?width=80" alt="Profile" class="avatar-img">
-                </div>
+                <nav>
+                    <a href="#dashboard">Dashboard</a>
+                    <a href="#approvals" class="active">Approvals</a>
+                    <a href="#equipments">Equipments</a>
+                </nav>
+                <img src="https://api.builder.io/api/v1/image/assets/TEMP/c5687d1a0e0dcd9d74ab11ae7e783cd4f539c30e?width=80" alt="User Avatar" class="avatar">
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="content-container">
-            <!-- Page Header -->
-            <div class="page-header">
-                <div class="header-info">
-                    <h1 class="page-title">Proof of Concepts (POCs)</h1>
-                    <p class="page-subtitle">Manage and track all POCs for equipment deployments.</p>
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- PAGE HEADER WITH CONTROLS -->
+        <div class="page-header">
+            <h2 class="page-title">Proof of Concept Approvals</h2>
+            
+            <div class="controls">
+                <div class="search-box">
+                    <div class="search-icon">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M19.5306 18.4694L14.8366 13.7762C17.6629 10.383 17.3204 5.36693 14.0591 2.38935C10.7978 -0.588237 5.77134 -0.474001 2.64867 2.64867C-0.474001 5.77134 -0.588237 10.7978 2.38935 14.0591C5.36693 17.3204 10.383 17.6629 13.7762 14.8366L18.4694 19.5306C18.7624 19.8237 19.2376 19.8237 19.5306 19.5306C19.8237 19.2376 19.8237 18.7624 19.5306 18.4694ZM1.75 8.5C1.75 4.77208 4.77208 1.75 8.5 1.75C12.2279 1.75 15.25 4.77208 15.25 8.5C15.25 12.2279 12.2279 15.25 8.5 15.25C4.77379 15.2459 1.75413 12.2262 1.75 8.5Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <input type="text" class="search-input" placeholder="Search">
                 </div>
+                
+                <button class="filter-btn">
+                    <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M19.6187 1.64344C19.3828 1.09823 18.8441 0.746593 18.25 0.75H1.75C1.15687 0.751169 0.620137 1.10173 0.380657 1.64436C0.141177 2.18699 0.243933 2.81978 0.642812 3.25875L0.650312 3.26719L7 10.0472V17.25C6.99987 17.8032 7.30418 18.3115 7.7918 18.5726C8.27942 18.8338 8.87119 18.8054 9.33156 18.4988L12.3316 16.4981C12.7492 16.2199 13.0001 15.7512 13 15.2494V10.0472L19.3506 3.26719L19.3581 3.25875C19.7615 2.8215 19.8641 2.18536 19.6187 1.64344ZM11.9069 9.02625C11.6463 9.30242 11.5008 9.66751 11.5 10.0472V15.2494L8.5 17.25V10.0472C8.50087 9.66615 8.35597 9.2992 8.095 9.02156L1.75 2.25H18.25L11.9069 9.02625Z" fill="currentColor"/>
+                    </svg>
+                </button>
             </div>
+        </div>
 
-            <!-- POCs Table -->
-            <div class="table-section">
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr class="table-header">
-                                <th class="table-cell header-cell poc-name">POC Name</th>
-                                <th class="table-cell header-cell poc-status">Status</th>
-                                <th class="table-cell header-cell poc-client">Client</th>
-                                <th class="table-cell header-cell poc-equipment">Equipment Product</th>
-                                <th class="table-cell header-cell poc-actions">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="table-row">
-                                <td class="table-cell">POC Alpha</td>
-                                <td class="table-cell">
-                                    <span class="status-badge status-approved">Approved</span>
-                                </td>
-                                <td class="table-cell data-cell">Tech Solutions Inc.</td>
-                                <td class="table-cell data-cell">Model X500</td>
-                                <td class="table-cell">
-                                    <button class="action-btn">Approve</button>
-                                </td>
-                            </tr>
-                            <tr class="table-row">
-                                <td class="table-cell">POC Beta</td>
-                                <td class="table-cell">
-                                    <span class="status-badge status-denied">Denied</span>
-                                </td>
-                                <td class="table-cell data-cell">Global Innovations Ltd.</td>
-                                <td class="table-cell data-cell">Model Y700</td>
-                                <td class="table-cell">
-                                    <button class="action-btn">Approve</button>
-                                </td>
-                            </tr>
-                            <tr class="table-row">
-                                <td class="table-cell">POC Gamma</td>
-                                <td class="table-cell">
-                                    <span class="status-badge status-approved">Approved</span>
-                                </td>
-                                <td class="table-cell data-cell">Future Systems Corp.</td>
-                                <td class="table-cell data-cell">Model Z900</td>
-                                <td class="table-cell">
-                                    <button class="action-btn">Approve</button>
-                                </td>
-                            </tr>
-                            <tr class="table-row">
-                                <td class="table-cell">POC Delta</td>
-                                <td class="table-cell">
-                                    <span class="status-badge status-denied">Denied</span>
-                                </td>
-                                <td class="table-cell data-cell">Pioneer Industries</td>
-                                <td class="table-cell data-cell">Model A100</td>
-                                <td class="table-cell">
-                                    <button class="action-btn">Approve</button>
-                                </td>
-                            </tr>
-                            <tr class="table-row">
-                                <td class="table-cell">POC Epsilon</td>
-                                <td class="table-cell">
-                                    <span class="status-badge status-approved">Approved</span>
-                                </td>
-                                <td class="table-cell data-cell">Summit Enterprises</td>
-                                <td class="table-cell data-cell">Model B200</td>
-                                <td class="table-cell">
-                                    <button class="action-btn">Approve</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <!-- TABLE -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Requestor Name</th>
+                            <th>Client</th>
+                            <th>Business Justification</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Row 1: Approved -->
+                        <tr>
+                            <td class="requestor-name">John Doe</td>
+                            <td>Global Tech Inc.</td>
+                            <td class="business-justification">Enhance customer engagement through personalized marketing campaigns.</td>
+                            <td>
+                                <span class="status-badge status-approved">Approved</span>
+                            </td>
+                            <td class="action-cell">
+                                <span class="action-text">Completed: 05/15/2024</span>
+                            </td>
+                        </tr>
+
+                        <!-- Row 2: Pending -->
+                        <tr>
+                            <td class="requestor-name">Jane Smith</td>
+                            <td>Innovate Solutions</td>
+                            <td class="business-justification">Streamline supply chain logistics using AI-driven forecasting.</td>
+                            <td>
+                                <span class="status-badge status-pending">Pending</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="btn-approve">Approve</button>
+                                <button class="btn-deny">Deny</button>
+                            </td>
+                        </tr>
+
+                        <!-- Row 3: Rejected -->
+                        <tr>
+                            <td class="requestor-name">Peter Jones</td>
+                            <td>NextGen Corp</td>
+                            <td class="business-justification">Improve employee productivity with a new collaboration platform.</td>
+                            <td>
+                                <span class="status-badge status-rejected">Rejected</span>
+                            </td>
+                            <td class="action-cell">
+                                <span class="action-text">Rejected: 05/20/2024</span>
+                            </td>
+                        </tr>
+
+                        <!-- Row 4: Pending -->
+                        <tr>
+                            <td class="requestor-name">Mary Johnson</td>
+                            <td>Future Enterprises</td>
+                            <td class="business-justification">Reduce operational costs by optimizing energy consumption.</td>
+                            <td>
+                                <span class="status-badge status-pending">Pending</span>
+                            </td>
+                            <td class="action-cell">
+                                <button class="btn-approve">Approve</button>
+                                <button class="btn-deny">Deny</button>
+                            </td>
+                        </tr>
+
+                        <!-- Row 5: Approved -->
+                        <tr>
+                            <td class="requestor-name">David Brown</td>
+                            <td>Pioneer Group</td>
+                            <td class="business-justification">Expand market reach with a targeted social media strategy.</td>
+                            <td>
+                                <span class="status-badge status-approved">Approved</span>
+                            </td>
+                            <td class="action-cell">
+                                <span class="action-text">Completed: 05/20/2024</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
