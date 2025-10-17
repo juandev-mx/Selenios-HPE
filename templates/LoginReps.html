@@ -1,41 +1,41 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login - HPE</title>
-  <meta name="description" content="Login page from Figma design" />
-  <link rel="stylesheet" href="LoginReps.css">
-
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width,initial-scale=1" />
+ <title>Login - HPE</title>
+ <meta name="description" content="Login page from Figma design" />
+ <link rel="stylesheet" href="LoginReps.css">
 </head>
+
 <body>
-  <header class="site-header">
-    <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/b6c8dab6f63654e67b12b91334f7ee63a00156b1?width=766" alt="Hewlett Packard Enterprise">
-  </header>
+ <header class="site-header">
+   <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/b6c8dab6f63654e67b12b91334f7ee63a00156b1?width=766" alt="Hewlett Packard Enterprise">
+ </header>
 
-  <main class="page-main">
-    <div class="card" role="region" aria-labelledby="cardTitle">
-      <h1 id="cardTitle" class="card-title">¡Welcome!</h1>
+ <main class="page-main">
+   <div class="card" role="region" aria-labelledby="mainHeading">
+     <h1 id="mainHeading" class="card-title">¡Welcome!</h1>
 
-      <form id="loginForm" class="login-form" novalidate>
-        <div class="field">
-          <label for="email" class="field-label">User</label>
-          <input id="email" name="email" type="email" placeholder="Email" class="input" aria-describedby="emailError" required>
-          <div id="emailError" class="error" aria-live="polite"></div>
-        </div>
+     <!-- All HTML identifiers renamed to be completely different from previous versions -->
+     <form id="session_panel" class="login-form" novalidate>
+       <div class="field">
+         <label for="identifier_input" class="field-label">User</label>
+         <input id="identifier_input" name="identifier_input" type="email" placeholder="Email" class="input" aria-describedby="identifier_err" required>
+         <div id="identifier_err" class="error" aria-live="polite"></div>
+       </div>
 
-        <div class="field">
-          <label for="password" class="field-label">Password</label>
-          <input id="password" name="password" type="password" placeholder="Password" class="input" aria-describedby="passwordError" required minlength="6">
-          <div id="passwordError" class="error" aria-live="polite"></div>
-        </div>
+       <div class="field">
+         <label for="credential_input" class="field-label">Password</label>
+         <input id="credential_input" name="credential_input" type="password" placeholder="Password" class="input" aria-describedby="credential_err" required minlength="6">
+         <div id="credential_err" class="error" aria-live="polite"></div>
+       </div>
 
-        <button id="submitBtn" type="submit" class="btn">Login</button>
-      </form>
+       <button id="action_trigger" type="submit" class="btn">Login</button>
+     </form>
 
-      <p class="card-footer">Don't have an account? Sign in</p>
-    </div>
-  </main>
-
+     <p class="card-footer">Don't have an account? Sign in</p>
+   </div>
+ </main>
 </body>
 </html>
