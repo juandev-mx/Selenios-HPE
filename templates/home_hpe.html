@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HPE Data Management - Dashboard</title>
-        <link rel="stylesheet" href="/static/css/home_hpe.css">
-
+    <link rel="stylesheet" href="/static/css/home_hpe.css">
 </head>
 <body>
     <header>
@@ -17,131 +16,188 @@
             
             <div class="header-right">
                 <nav>
-                    <a href="#dashboard" class="active">Dashboard</a>
-                    <a href="#approvals">Approvals</a>
-                    <a href="#equipments">Equipments</a>
-                    <a href="#users">Users & companies</a>
+                    <a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a>
+                    <a href="#approvals" class="nav-link" data-section="approvals">Approvals</a>
+                    <a href="#equipments" class="nav-link" data-section="equipments">Equipments</a>
+                    <!-- Solo visible para HPE_MANAGER -->
+                    <a href="#users" class="nav-link manager-only" data-section="users" style="display: none;">Users & companies</a>
                 </nav>
-                <img src="https://api.builder.io/api/v1/image/assets/TEMP/5f5e49ac187c2350a79aec64cef2a14a07ca77aa?width=80" alt="User Avatar" class="avatar">
+                <div class="user-info-header">
+                    <span id="userNameHeader"></span>
+                    <img src="https://api.builder.io/api/v1/image/assets/TEMP/5f5e49ac187c2350a79aec64cef2a14a07ca77aa?width=80" alt="User Avatar" class="avatar">
+                    <button id="logoutBtn" class="btn-logout" style="margin-left: 10px; padding: 5px 10px; cursor: pointer;">Cerrar sesión</button>
+                </div>
             </div>
         </div>
     </header>
 
     <main>
         <div class="content-wrapper">
-            <div class="page-header">
-                <h2 class="page-title">Panel de Rendimiento</h2>
-                <p class="page-subtitle">Resumen de los indicadores clave de rendimiento para el negocio.</p>
-            </div>
-
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-label">Ingresos Totales</div>
-                    <div class="kpi-value">$12.5M</div>
-                    <div class="kpi-change positive">+15%</div>
+            <!-- Sección Dashboard -->
+            <div id="section-dashboard" class="section-content">
+                <div class="page-header">
+                    <h2 class="page-title">Panel de Rendimiento</h2>
+                    <p class="page-subtitle">Resumen de los indicadores clave de rendimiento para el negocio.</p>
                 </div>
 
-                <div class="kpi-card">
-                    <div class="kpi-label">Tasa de Aprobación</div>
-                    <div class="kpi-value">95%</div>
-                    <div class="kpi-change negative">-2%</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Ingresos Totales</div>
+                        <div class="kpi-value">$12.5M</div>
+                        <div class="kpi-change positive">+15%</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Tasa de Aprobación</div>
+                        <div class="kpi-value">95%</div>
+                        <div class="kpi-change negative">-2%</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-label">Clientes Activos</div>
+                        <div class="kpi-value">250</div>
+                        <div class="kpi-change positive">+10%</div>
+                    </div>
                 </div>
 
-                <div class="kpi-card">
-                    <div class="kpi-label">Clientes Activos</div>
-                    <div class="kpi-value">250</div>
-                    <div class="kpi-change positive">+10%</div>
-                </div>
-            </div>
-
-            <div class="section-grid">
-                <div class="section-card">
-                    <h3 class="section-title">Rendimiento de Soluciones Clave</h3>
-                    
-                    <div class="chart-grid">
-                        <div class="chart-box">
-                            <div class="chart-label">Ingresos por Solución</div>
-                            <div class="chart-value">$8.2M</div>
-                            <div class="chart-info">
-                                <span class="chart-period">Este Trimestre</span>
-                                <span class="kpi-change positive">+12%</span>
+                <div class="section-grid">
+                    <div class="section-card">
+                        <h3 class="section-title">Rendimiento de Soluciones Clave</h3>
+                        
+                        <div class="chart-grid">
+                            <div class="chart-box">
+                                <div class="chart-label">Ingresos por Solución</div>
+                                <div class="chart-value">$8.2M</div>
+                                <div class="chart-info">
+                                    <span class="chart-period">Este Trimestre</span>
+                                    <span class="kpi-change positive">+12%</span>
+                                </div>
+                                <div class="chart-bars">
+                                    <div class="chart-bar">
+                                        <div class="bar" style="height: 80px;"></div>
+                                        <div class="bar-label">Sol A</div>
+                                    </div>
+                                    <div class="chart-bar">
+                                        <div class="bar" style="height: 60px;"></div>
+                                        <div class="bar-label">Sol B</div>
+                                    </div>
+                                    <div class="chart-bar">
+                                        <div class="bar" style="height: 95px;"></div>
+                                        <div class="bar-label">Sol C</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="chart-bars">
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: 80px;"></div>
-                                    <div class="bar-label">Sol A</div>
+
+                            <div class="chart-box">
+                                <div class="chart-label">Tendencia de Aprobaciones</div>
+                                <div class="chart-value">95%</div>
+                                <div class="chart-info">
+                                    <span class="chart-period">Este Trimestre</span>
+                                    <span class="kpi-change negative">-1%</span>
                                 </div>
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: 60px;"></div>
-                                    <div class="bar-label">Sol B</div>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: 95px;"></div>
-                                    <div class="bar-label">Sol C</div>
-                                </div>
+                                <svg width="100%" height="97" viewBox="0 0 310 98" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: 2rem;">
+                                    <path d="M2.12811 70.9935C13.8712 70.9935 13.8712 14.0691 25.6144 14.0691C37.3575 14.0691 37.3575 27.0065 49.1007 27.0065C60.8438 27.0065 60.8438 60.6436 72.587 60.6436C84.3302 60.6436 84.3302 21.8315 96.0735 21.8315C107.817 21.8315 107.817 65.8186 119.559 65.8186C131.303 65.8186 131.303 39.9438 143.046 39.9438C154.789 39.9438 154.789 29.5939 166.532 29.5939C178.276 29.5939 178.276 78.7559 190.019 78.7559C201.761 78.7559 201.761 96.8682 213.505 96.8682C225.248 96.8682 225.248 1.13171 236.991 1.13171C248.734 1.13171 248.734 52.8812 260.478 52.8812C272.22 52.8812 272.22 83.9309 283.964 83.9309C295.707 83.9309 295.707 16.6566 307.45 16.6566V96.8682H213.505H2.12811V70.9935Z" fill="url(#paint0_linear_99_62)"/>
+                                    <defs>
+                                        <linearGradient id="paint0_linear_99_62" x1="154.789" y1="1.13171" x2="154.789" y2="96.8682" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#11D473" stop-opacity="0.2"/>
+                                            <stop offset="1" stop-color="#11D473" stop-opacity="0"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="chart-box">
-                            <div class="chart-label">Tendencia de Aprobaciones</div>
-                            <div class="chart-value">95%</div>
-                            <div class="chart-info">
-                                <span class="chart-period">Este Trimestre</span>
-                                <span class="kpi-change negative">-1%</span>
-                            </div>
-                            <svg width="100%" height="97" viewBox="0 0 310 98" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: 2rem;">
-                                <path d="M2.12811 70.9935C13.8712 70.9935 13.8712 14.0691 25.6144 14.0691C37.3575 14.0691 37.3575 27.0065 49.1007 27.0065C60.8438 27.0065 60.8438 60.6436 72.587 60.6436C84.3302 60.6436 84.3302 21.8315 96.0735 21.8315C107.817 21.8315 107.817 65.8186 119.559 65.8186C131.303 65.8186 131.303 39.9438 143.046 39.9438C154.789 39.9438 154.789 29.5939 166.532 29.5939C178.276 29.5939 178.276 78.7559 190.019 78.7559C201.761 78.7559 201.761 96.8682 213.505 96.8682C225.248 96.8682 225.248 1.13171 236.991 1.13171C248.734 1.13171 248.734 52.8812 260.478 52.8812C272.22 52.8812 272.22 83.9309 283.964 83.9309C295.707 83.9309 295.707 16.6566 307.45 16.6566V96.8682H213.505H2.12811V70.9935Z" fill="url(#paint0_linear_99_62)"/>
-                                <defs>
-                                    <linearGradient id="paint0_linear_99_62" x1="154.789" y1="1.13171" x2="154.789" y2="96.8682" gradientUnits="userSpaceOnUse">
-                                        <stop stop-color="#11D473" stop-opacity="0.2"/>
-                                        <stop offset="1" stop-color="#11D473" stop-opacity="0"/>
-                                    </linearGradient>
-                                </defs>
-                            </svg>
+                    <div class="section-card">
+                        <h3 class="section-title">Rendimiento de Clientes Clave</h3>
+                        
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Ingresos</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="client-name">Cliente X</td>
+                                        <td class="client-revenue">$3.5M</td>
+                                        <td>
+                                            <span class="status-badge status-active">Activo</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="client-name">Cliente Y</td>
+                                        <td class="client-revenue">$2.8M</td>
+                                        <td>
+                                            <span class="status-badge status-active">Activo</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="client-name">Cliente Z</td>
+                                        <td class="client-revenue">$2.1M</td>
+                                        <td>
+                                            <span class="status-badge status-active">Activo</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="client-name">Cliente W</td>
+                                        <td class="client-revenue">$1.8M</td>
+                                        <td>
+                                            <span class="status-badge status-inactive">Inactivo</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <div class="section-card">
-                    <h3 class="section-title">Rendimiento de Clientes Clave</h3>
+                <div class="section-card full-width">
+                    <h3 class="section-title">Rendimiento del Equipo</h3>
                     
                     <div class="table-wrapper">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Cliente</th>
+                                    <th>Representante</th>
+                                    <th>Gerente</th>
                                     <th>Ingresos</th>
-                                    <th>Estado</th>
+                                    <th>Aprobaciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td class="client-name">Cliente X</td>
-                                    <td class="client-revenue">$3.5M</td>
-                                    <td>
-                                        <span class="status-badge status-active">Activo</span>
-                                    </td>
+                                    <td class="rep-name">Ana López</td>
+                                    <td class="manager-name">Carlos García</td>
+                                    <td class="revenue">$1.2M</td>
+                                    <td class="approvals">15</td>
                                 </tr>
                                 <tr>
-                                    <td class="client-name">Cliente Y</td>
-                                    <td class="client-revenue">$2.8M</td>
-                                    <td>
-                                        <span class="status-badge status-active">Activo</span>
-                                    </td>
+                                    <td class="rep-name">Juan Martínez</td>
+                                    <td class="manager-name">Sofía Ramírez</td>
+                                    <td class="revenue">$1.1M</td>
+                                    <td class="approvals">12</td>
                                 </tr>
                                 <tr>
-                                    <td class="client-name">Cliente Z</td>
-                                    <td class="client-revenue">$2.1M</td>
-                                    <td>
-                                        <span class="status-badge status-active">Activo</span>
-                                    </td>
+                                    <td class="rep-name">Elena Torres</td>
+                                    <td class="manager-name">Carlos García</td>
+                                    <td class="revenue">$1.0M</td>
+                                    <td class="approvals">10</td>
                                 </tr>
                                 <tr>
-                                    <td class="client-name">Cliente W</td>
-                                    <td class="client-revenue">$1.8M</td>
-                                    <td>
-                                        <span class="status-badge status-inactive">Inactivo</span>
-                                    </td>
+                                    <td class="rep-name">Diego Vargas</td>
+                                    <td class="manager-name">Sofía Ramírez</td>
+                                    <td class="revenue">$0.9M</td>
+                                    <td class="approvals">8</td>
+                                </tr>
+                                <tr>
+                                    <td class="rep-name">Isabel Castro</td>
+                                    <td class="manager-name">Carlos García</td>
+                                    <td class="revenue">$0.8M</td>
+                                    <td class="approvals">7</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -149,55 +205,35 @@
                 </div>
             </div>
 
-            <div class="section-card full-width">
-                <h3 class="section-title">Rendimiento del Equipo</h3>
-                
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Representante</th>
-                                <th>Gerente</th>
-                                <th>Ingresos</th>
-                                <th>Aprobaciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="rep-name">Ana López</td>
-                                <td class="manager-name">Carlos García</td>
-                                <td class="revenue">$1.2M</td>
-                                <td class="approvals">15</td>
-                            </tr>
-                            <tr>
-                                <td class="rep-name">Juan Martínez</td>
-                                <td class="manager-name">Sofía Ramírez</td>
-                                <td class="revenue">$1.1M</td>
-                                <td class="approvals">12</td>
-                            </tr>
-                            <tr>
-                                <td class="rep-name">Elena Torres</td>
-                                <td class="manager-name">Carlos García</td>
-                                <td class="revenue">$1.0M</td>
-                                <td class="approvals">10</td>
-                            </tr>
-                            <tr>
-                                <td class="rep-name">Diego Vargas</td>
-                                <td class="manager-name">Sofía Ramírez</td>
-                                <td class="revenue">$0.9M</td>
-                                <td class="approvals">8</td>
-                            </tr>
-                            <tr>
-                                <td class="rep-name">Isabel Castro</td>
-                                <td class="manager-name">Carlos García</td>
-                                <td class="revenue">$0.8M</td>
-                                <td class="approvals">7</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- Sección Approvals -->
+            <div id="section-approvals" class="section-content" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Aprobaciones</h2>
+                    <p class="page-subtitle">Gestión de POCs pendientes de aprobación.</p>
                 </div>
+                <div id="approvals-content"></div>
+            </div>
+
+            <!-- Sección Equipments -->
+            <div id="section-equipments" class="section-content" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Equipamiento</h2>
+                    <p class="page-subtitle">Catálogo de soluciones y equipos disponibles.</p>
+                </div>
+                <div id="equipments-content"></div>
+            </div>
+
+            <!-- Sección Users & Companies (SOLO MANAGER) -->
+            <div id="section-users" class="section-content manager-only" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Usuarios y Compañías</h2>
+                    <p class="page-subtitle">Gestión de usuarios y compañías cliente.</p>
+                </div>
+                <div id="users-content"></div>
             </div>
         </div>
     </main>
+
+    <script src="/static/js/role_hpe.js"></script>
 </body>
 </html>

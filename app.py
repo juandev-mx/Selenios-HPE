@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask_cors import CORS
 from models import db, ClientCompany, User, Equipment, EquipmentItem, POC, POCEquipment
 import re
 
@@ -8,10 +9,94 @@ import os
 load_dotenv() 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            static_folder='static',
+            template_folder='templates')
+
+# Habilitar CORS para desarrollo
+CORS(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+# ---------------- RUTAS HTML ----------------
+@app.route('/')
+def index():
+    return render_template('login.html')
+
+
+@app.route('/home_cliente.html')
+def client_dashboard():
+    return render_template('home_cliente.html')
+
+@app.route('/home_hpe.html')
+def hpe_dashboard():
+    return render_template('home_hpe.html')
+
+# ---------------- LOGIN ----------------
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "Faltan datos"}), 400
+    
+    mail = data.get('mail')
+    password = data.get('password')
+    
+    if not mail or not password:
+        return jsonify({"error": "Correo y contraseña son requeridos"}), 400
+    
+    # Buscar usuario por correo
+    user = User.query.filter_by(mail=mail).first()
+    
+    if not user:
+        return jsonify({"error": "Credenciales inválidas"}), 401
+    
+    # Verificar contraseña
+    if user.password != password:
+        return jsonify({"error": "Credenciales inválidas"}), 401
+    
+    # Actualizar session_started a True
+    user.session_started = True
+    db.session.commit()
+    
+    # Obtener información de la compañía si es cliente
+    company_name = None
+    if user.client_company_id:
+        company = ClientCompany.query.get(user.client_company_id)
+        if company:
+            company_name = company.company_name
+    
+    return jsonify({
+        "message": "Login exitoso",
+        "user": {
+            "id": user.user_id,
+            "name": user.name,
+            "mail": user.mail,
+            "role": user.role,
+            "client_company_id": user.client_company_id,
+            "company_name": company_name,
+            "reports_to": user.reports_to
+        }
+    }), 200
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    
+    if not user_id:
+        return jsonify({"error": "user_id requerido"}), 400
+    
+    user = User.query.get(user_id)
+    if user:
+        user.session_started = False
+        db.session.commit()
+        return jsonify({"message": "Logout exitoso"}), 200
+    
+    return jsonify({"error": "Usuario no encontrado"}), 404
 
 # ---------------- CLIENT_COMPANY ----------------
 @app.route('/client_company', methods=['GET'])
