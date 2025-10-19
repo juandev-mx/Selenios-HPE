@@ -44,7 +44,7 @@ function showManagerFeatures() {
         element.style.display = '';
     });
 
-    console.log('✅ Vista de Manager activada - Acceso completo');
+    console.log('Vista de Manager activada - Acceso completo');
 }
 
 function hideManagerFeatures() {
@@ -54,7 +54,7 @@ function hideManagerFeatures() {
         element.style.display = 'none';
     });
 
-    console.log('✅ Vista de Representante activada - Acceso limitado');
+    console.log('Vista de Representante activada - Acceso limitado');
 }
 
 function setupEventListeners(user) {
@@ -109,7 +109,7 @@ function showSection(sectionName, user) {
     if (targetSection) {
         // Verificar permisos para Users & Companies
         if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
-            alert('⛔ Acceso denegado. Solo los Managers pueden acceder a esta sección.');
+            alert('Acceso denegado. Solo los Managers pueden acceder a esta sección.');
             return;
         }
         
@@ -343,7 +343,7 @@ async function approvePOC(pocId) {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (user.role !== 'HPE_MANAGER') {
-        alert('⛔ Solo los managers pueden aprobar POCs');
+        alert('Solo los managers pueden aprobar POCs');
         return;
     }
 
@@ -360,10 +360,10 @@ async function approvePOC(pocId) {
             alert('✅ POC aprobado exitosamente');
             loadApprovals(user);
         } else {
-            alert('❌ Error al aprobar POC');
+            alert('Error al aprobar POC');
         }
     } catch (error) {
-        alert('❌ Error al aprobar POC');
+        alert('Error al aprobar POC');
         console.error('Error:', error);
     }
 }
@@ -372,7 +372,7 @@ async function rejectPOC(pocId) {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (user.role !== 'HPE_MANAGER') {
-        alert('⛔ Solo los managers pueden rechazar POCs');
+        alert('Solo los managers pueden rechazar POCs');
         return;
     }
 
@@ -386,10 +386,10 @@ async function rejectPOC(pocId) {
                 alert('✅ POC rechazado');
                 loadApprovals(user);
             } else {
-                alert('❌ Error al rechazar POC');
+                alert('Error al rechazar POC');
             }
         } catch (error) {
-            alert('❌ Error al rechazar POC');
+            alert('Error al rechazar POC');
             console.error('Error:', error);
         }
     }
