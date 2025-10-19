@@ -141,7 +141,7 @@ function loadSectionData(section, user) {
 
 // Cargar datos del dashboard (ya está en HTML estático)
 function loadDashboardData() {
-    console.log('📊 Dashboard cargado');
+    console.log('Dashboard cargado');
 }
 
 // Cargar aprobaciones

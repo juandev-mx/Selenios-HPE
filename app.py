@@ -29,18 +29,13 @@ def index():
 def login_page():
     return render_template('login.html')
 
-@app.route('/client-dashboard.html')
+@app.route('/home_cliente.html')
 def client_dashboard():
-    return render_template('client-dashboard.html')
+    return render_template('home_cliente.html')
 
-@app.route('/hpe-dashboard.html')
-def hpe_dashboard():
-    return render_template('hpe-dashboard.html')
-
-# Ruta alternativa
 @app.route('/home_hpe.html')
 def home_hpe():
-    return render_template('hpe-dashboard.html')
+    return render_template('home_hpe.html')
 
 # ---------------- LOGIN ----------------
 @app.route('/api/login', methods=['POST'])
