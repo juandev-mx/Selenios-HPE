@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login - HPE</title>
   <meta name="description" content="Login page from Figma design" />
-  <link rel="stylesheet" href="/static/css/login.css">
+  <link rel="stylesheet" href="/static/css/login_registro.css">
 </head>
 
 <body>
@@ -18,6 +18,7 @@
 
   <main class="page-main">
     <div class="card" role="region" aria-labelledby="cardTitle">
+      <h1 id="cardTitle" class="card-title">Iniciar sesión en HPE</h1>
       <form id="loginForm" class="login-form" novalidate>
         <div class="field">
           <label for="email" class="field-label">Correo electrónico</label>
@@ -32,15 +33,16 @@
             aria-describedby="passwordError" required minlength="6">
           <div id="passwordError" class="error" aria-live="polite"></div>
         </div>
+
         <button id="submitBtn" type="submit" class="btn">Iniciar sesión</button>
       </form>
 
-      <!-- Bloque de opciones -->
       <p class="forgot-password"><a href="#">¿Olvidaste tu contraseña?</a></p>
       <hr class="divider">
-      <button class="btn_login">Crear cuenta nueva</button>
+      <a href="crear_cuenta.html" class="btn_registro">Crear cuenta nueva</a>
     </div>
   </main>
+
 
   <!-- Agregar el script -->
   <script src="/static/js/login.js"></script>

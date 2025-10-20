@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - HPE</title>
+  <meta name="description" content="Login page from Figma design" />
+  <link rel="stylesheet" href="/static/css/login_registro.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <img class="logo"
+      src="https://api.builder.io/api/v1/image/assets/TEMP/b6c8dab6f63654e67b12b91334f7ee63a00156b1?width=766"
+      alt="Hewlett Packard Enterprise">
+  </header>
+
+<main class="page-main">
+  <div class="card" role="region" aria-labelledby="cardTitle">
+    <h1 id="cardTitle" class="card-title title-normal">Crea una cuenta</h1>
+    <form id="registerForm" class="login-form" novalidate>
+
+      <div class="field">
+        <label for="fullName" class="field-label">Nombre completo</label>
+        <input id="fullName" name="fullName" type="text" placeholder="Ingresa tu nombre completo" class="input"
+          aria-describedby="nameError" required>
+        <div id="nameError" class="error" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label for="email" class="field-label">Correo electrónico</label>
+        <input id="email" name="email" type="email" placeholder="Ingresa tu correo electrónico" class="input"
+          aria-describedby="emailError" required>
+        <div id="emailError" class="error" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label for="password" class="field-label">Contraseña</label>
+        <input id="password" name="password" type="password" placeholder="Crea una contraseña" class="input"
+          aria-describedby="passwordError" required minlength="6">
+        <div id="passwordError" class="error" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label for="confirmPassword" class="field-label">Confirmar contraseña</label>
+        <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Confirma tu contraseña" class="input"
+          aria-describedby="confirmPasswordError" required minlength="6">
+        <div id="confirmPasswordError" class="error" aria-live="polite"></div>
+      </div>
+
+      <div class="field">
+        <label for="company" class="field-label">Nombre de la empresa</label>
+        <input id="company" name="company" type="text" placeholder="Ingresa el nombre de tu empresa" class="input"
+          aria-describedby="companyError" required>
+        <div id="companyError" class="error" aria-live="polite"></div>
+      </div>
+
+      <button id="submitBtn" type="submit" class="btn">Crear cuenta</button>
+    </form>
+
+    <!-- Bloque de opciones -->
+    <p class="forgot-password"><a href="login.html">¿Ya tienes una cuenta? Inicia sesión</a></p>
+  </div>
+</main>
+
+
+  <!-- Agregar el script -->
+  <script src="/static/js/login.js"></script>
+</body>
+
+</html>
