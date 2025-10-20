@@ -29,13 +29,18 @@ def index():
 def login_page():
     return render_template('login.html')
 
+@app.route('/crear_cuenta.html')
+def crear_cuenta_page():
+    return render_template('crear_cuenta.html')
+
 @app.route('/home_cliente.html')
 def client_dashboard():
     return render_template('home_cliente.html')
 
 @app.route('/home_hpe.html')
-def home_hpe():
+def hpe_dashboard():
     return render_template('home_hpe.html')
+
 
 # ---------------- LOGIN ----------------
 @app.route('/api/login', methods=['POST'])

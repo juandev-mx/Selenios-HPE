@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initDashboard(user) {
     // Mostrar información del usuario en el header
-    document.getElementById('userNameHeader').textContent = user.name;
+    //document.getElementById('userNameHeader').textContent = user.name;
 
     // Control de acceso basado en rol
     if (user.role === 'HPE_MANAGER') {
