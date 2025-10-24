@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Customer Dashboard - HPE</title>
   <link rel="stylesheet" href="/static/css/home_cliente.css">
-
+  <!-- Agregar CSS del sistema de modales -->
+  <link rel="stylesheet" href="/static/css/sistema_modal.css">
 </head>
 <body>
   <!-- Header -->
@@ -17,7 +18,7 @@
     
     <nav class="header-nav">
       <a href="#" class="nav-link active">Dashboard</a>
-      <a href="#" class="nav-link">My POCs</a>
+      <a href="#" class="nav-link" onclick="openViewPOCs()">My POCs</a>
       <a href="#" class="nav-link">Solutions Catalog</a>
       <img class="avatar" src="https://api.builder.io/api/v1/image/assets/TEMP/4ebd142369a1387035563acfca5ac756f4169a84?width=80" alt="User Avatar">
     </nav>
@@ -28,22 +29,22 @@
     <!-- Page Title -->
     <div class="page-title">
       <h1>Customer Dashboard</h1>
-      <p>Welcome back!</p>
+      <p>Welcome back, <span id="customer-name">Customer</span>!</p>
     </div>
 
     <!-- Stats Cards -->
     <div class="stats-grid">
       <div class="stat-card">
         <h3>Pending</h3>
-        <div class="number">3</div>
+        <div class="number" id="pending-count">0</div>
       </div>
       <div class="stat-card">
         <h3>Approved</h3>
-        <div class="number">5</div>
+        <div class="number" id="approved-count">0</div>
       </div>
       <div class="stat-card">
         <h3>Rejected</h3>
-        <div class="number">1</div>
+        <div class="number" id="rejected-count">0</div>
       </div>
     </div>
 
@@ -51,11 +52,11 @@
     <div class="quick-actions">
       <h2>Quick Actions</h2>
       <div class="actions-buttons">
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" onclick="window.openCreatePOC()">
           <span style="font-size:24px">+</span>
           Create New POC
         </button>
-        <button class="btn btn-secondary">
+        <button class="btn btn-secondary" onclick="window.openViewPOCs()">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 15.4L6 9.4L7.4 8L12 12.6L16.6 8L18 9.4L12 15.4Z" fill="#1D1B20"/>
           </svg>
@@ -70,19 +71,13 @@
       <div class="news-section">
         <h2>News & Alerts</h2>
         
-        <div class="alert-card">
-          <div class="alert-icon">✓</div>
-          <div class="alert-content">
-            <h3>POC Status Update</h3>
-            <p>Your POC for 'Data Analytics Solution' has been approved.</p>
-          </div>
-        </div>
-
-        <div class="alert-card">
-          <div class="alert-icon">💡</div>
-          <div class="alert-content">
-            <h3>New Solutions Available</h3>
-            <p>Explore the latest solutions for data management.</p>
+        <div id="alerts-container">
+          <div class="alert-card">
+            <div class="alert-icon">💡</div>
+            <div class="alert-content">
+              <h3>Welcome to HPE Customer Portal</h3>
+              <p>Create your first POC to get started with our solutions.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -111,5 +106,9 @@
       </div>
     </div>
   </main>
+
+  <!-- Agregar JavaScript del sistema de modales -->
+  <script src="/static/js/pocs.js"></script>
+  <script src="/static/js/crear_poc.js"></script>
 </body>
 </html>
