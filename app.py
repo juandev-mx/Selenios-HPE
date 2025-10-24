@@ -37,10 +37,10 @@ def crear_cuenta_page():
 def client_dashboard():
     return render_template('home_cliente.html')
 
+# Ruta alternativa
 @app.route('/home_hpe.html')
-def hpe_dashboard():
+def home_hpe():
     return render_template('home_hpe.html')
-
 
 # ---------------- LOGIN ----------------
 @app.route('/api/login', methods=['POST'])
@@ -90,6 +90,65 @@ def login():
         }
     }), 200
 
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "Faltan datos"}), 400
+    
+    # Validar campos requeridos
+    required_fields = ['name', 'mail', 'password', 'company_name']
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({"error": f"El campo {field} es requerido"}), 400
+    
+    # Verificar si el correo ya existe
+    existing_user = User.query.filter_by(mail=data['mail']).first()
+    if existing_user:
+        return jsonify({"error": "El correo electrónico ya está registrado"}), 400
+    
+    # Verificar si la compañía existe, si no, crearla
+    company = ClientCompany.query.filter_by(company_name=data['company_name']).first()
+    
+    if not company:
+        # Crear nueva compañía
+        company = ClientCompany(
+            company_name=data['company_name'],
+            manager_client_name=data['name']
+        )
+        db.session.add(company)
+        db.session.flush()
+    
+    # Crear nuevo usuario con rol CLIENT
+    new_user = User(
+        name=data['name'],
+        mail=data['mail'],
+        password=data['password'],
+        role='CLIENT',
+        client_company_id=company.client_company_id,
+        session_started=False
+    )
+    
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Usuario registrado exitosamente",
+            "user": {
+                "id": new_user.user_id,
+                "name": new_user.name,
+                "mail": new_user.mail,
+                "role": new_user.role,
+                "company_name": company.company_name
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Error al registrar usuario", "detail": str(e)}), 500
+
 @app.route('/api/logout', methods=['POST'])
 def logout():
     data = request.get_json()
@@ -105,6 +164,7 @@ def logout():
         return jsonify({"message": "Logout exitoso"}), 200
     
     return jsonify({"error": "Usuario no encontrado"}), 404
+
 
 # ---------------- CLIENT_COMPANY ----------------
 @app.route('/client_company', methods=['GET'])
