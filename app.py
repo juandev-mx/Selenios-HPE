@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-# ---------------- RUTAS HTML ----------------
+# ---------------- RUTAS HTML CLIENTE ----------------
 @app.route('/')
 def index():
     return render_template('login.html')
@@ -33,9 +33,19 @@ def login_page():
 def client_dashboard():
     return render_template('home_cliente.html')
 
+@app.route('/ver_pocs.html')
+def ver_pocs():
+    return render_template('ver_pocs.html')
+
+@app.route('/catalogo_soluciones.html')
+def catalogo_soluciones():
+    return render_template('catalogo_soluciones.html')
+
+# ---------------- RUTAS HTML HPE ----------------
 @app.route('/home_hpe.html')
 def hpe_dashboard():
     return render_template('home_hpe.html')
+
 
 # ---------------- LOGIN ----------------
 @app.route('/api/login', methods=['POST'])
