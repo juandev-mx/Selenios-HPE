@@ -5,7 +5,7 @@ import re
 
 from dotenv import load_dotenv
 import os
-
+# comentario para que les carguen los archivos...................
 load_dotenv() 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
