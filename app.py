@@ -8,7 +8,7 @@ import os
 # comentario para que les carguen los archivos...................
 load_dotenv() 
 DATABASE_URL = os.getenv("DATABASE_URL")
-
+#te sale esto abraham??
 app = Flask(__name__, 
             static_folder='static',
             template_folder='templates')
