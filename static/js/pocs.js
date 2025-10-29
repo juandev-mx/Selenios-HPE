@@ -5,11 +5,12 @@ let selectedEquipment = [];
 let selectedItems = [];
 let allEquipment = [];
 let allEquipmentItems = [];
+let modalCreated = false;
 
 // Inicializar al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('POCs.js loaded');
     loadEquipmentData();
-    createModalStructure();
 });
 
 // Crear estructura del modal
@@ -102,7 +103,20 @@ function createModalStructure() {
 
 // Abrir modal de crear POC
 function openCreatePOC() {
+    console.log('openCreatePOC called');
+    
+    // Crear modal si no existe
+    if (!modalCreated) {
+        createModalStructure();
+        modalCreated = true;
+    }
+    
     const modal = document.getElementById('pocModal');
+    if (!modal) {
+        console.error('Modal not found!');
+        return;
+    }
+    
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
@@ -134,11 +148,11 @@ document.addEventListener('click', function(e) {
 async function loadEquipmentData() {
     try {
         // Cargar Equipment
-        const equipmentResponse = await fetch('/api/equipment');
+        const equipmentResponse = await fetch('/equipment');
         allEquipment = await equipmentResponse.json();
 
         // Cargar Equipment Items
-        const itemsResponse = await fetch('/api/equipment_items');
+        const itemsResponse = await fetch('/equipment_items');
         allEquipmentItems = await itemsResponse.json();
 
         console.log('Equipment loaded:', allEquipment.length);
@@ -366,42 +380,64 @@ async function submitPOC() {
     submitBtn.textContent = 'Creating...';
 
     try {
+        const pocData = {
+            client_user_id: user.id,
+            business_justification: justification,
+            is_approved: false,
+            created_date: new Date().toISOString()
+        };
+        
+        console.log('Sending POC data:', pocData);
+        
         // Crear POC
-        const pocResponse = await fetch('/api/pocs', {
+        const pocResponse = await fetch('/pocs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                client_user_id: user.id,
-                business_justification: justification,
-                is_approved: false,
-                created_date: new Date().toISOString()
-            })
+            body: JSON.stringify(pocData)
         });
 
-        const pocData = await pocResponse.json();
-
-        if (!pocResponse.ok) {
-            throw new Error(pocData.error || 'Error creating POC');
+        console.log('Response status:', pocResponse.status);
+        console.log('Response headers:', pocResponse.headers);
+        
+        // Verificar el tipo de contenido
+        const contentType = pocResponse.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await pocResponse.text();
+            console.error('Received non-JSON response:', text);
+            throw new Error('Server returned HTML instead of JSON. Check your Flask routes.');
         }
 
-        const pocId = pocData.created[0].poc_id;
+        const pocResponseData = await pocResponse.json();
+        console.log('POC Response:', pocResponseData);
+
+        if (!pocResponse.ok) {
+            throw new Error(pocResponseData.error || 'Error creating POC');
+        }
+
+        const pocId = pocResponseData.created[0].poc_id;
+        console.log('POC created with ID:', pocId);
 
         // Agregar equipos al POC
         if (selectedEquipment.length > 0) {
-            await fetch('/api/poc_equipment', {
+            const equipmentData = selectedEquipment.map(eq => ({
+                poc_id: pocId,
+                solution_id: eq.solution_id
+            }));
+            
+            console.log('Adding equipment to POC:', equipmentData);
+            
+            const equipResponse = await fetch('/poc_equipment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(
-                    selectedEquipment.map(eq => ({
-                        poc_id: pocId,
-                        solution_id: eq.solution_id
-                    }))
-                )
+                body: JSON.stringify(equipmentData)
             });
+            
+            const equipResponseData = await equipResponse.json();
+            console.log('Equipment added:', equipResponseData);
         }
 
         alert('POC created successfully!');

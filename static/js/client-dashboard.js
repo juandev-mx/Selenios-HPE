@@ -34,7 +34,7 @@ async function initClientDashboard(user) {
 // Cargar estadísticas de POCs del usuario
 async function loadPOCStats(userId) {
     try {
-        const response = await fetch(`/api/pocs?client_user_id=${userId}`);
+        const response = await fetch(`/pocs?client_user_id=${userId}`);
         const pocs = await response.json();
 
         // Contar por estado
