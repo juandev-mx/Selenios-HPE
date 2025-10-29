@@ -37,6 +37,10 @@ def crear_cuenta_page():
 def client_dashboard():
     return render_template('home_cliente.html')
 
+@app.route('/pocs_clientes.html')
+def pocs_clientes():
+    return render_template('pocs_clientes.html')
+
 # Ruta alternativa
 @app.route('/home_hpe.html')
 def home_hpe():

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My POCs - HPE</title>
+  <link rel="stylesheet" href="/static/css/home_cliente.css">
+  <link rel="stylesheet" href="/static/css/pocs_clientes.css">
+  <link rel="stylesheet" href="/static/css/sistema_modal.css">
+</head>
+<body>
+  <!-- Header con navegación -->
+  <header class="header">
+    <div class="header-left">
+      <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo">
+      <h2 class="customer-text">Customer</h2>
+    </div>
+    
+    <nav class="header-nav">
+      <a href="/home_cliente.html" class="nav-link">Dashboard</a>
+      <a href="/pocs_usuarios.html" class="nav-link active">My POCs</a>
+      <a href="/catalogo_soluciones.html" class="nav-link">Solutions Catalog</a>
+      <img class="avatar" src="https://api.builder.io/api/v1/image/assets/TEMP/4ebd142369a1387035563acfca5ac756f4169a84?width=80" alt="User Avatar">
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <div class="page-title">
+      <h1>My POCs</h1>
+      <p>View and manage your Proof of Concepts</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <div class="filter-group">
+        <label for="status-filter">Status:</label>
+        <select id="status-filter" onchange="filterPOCs()">
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+        </select>
+      </div>
+      
+      <button class="btn btn-primary" onclick="window.location.href='/home_cliente.html'">
+        <span style="font-size:18px">+</span> Create New POC
+      </button>
+    </div>
+
+    <!-- Lista de POCs -->
+    <div id="pocs-container" class="pocs-grid">
+      <div class="loading">Loading your POCs...</div>
+    </div>
+
+    <!-- Mensaje si no hay POCs -->
+    <div id="no-pocs-message" style="display: none; text-align: center; padding: 3rem;">
+      <h3>No POCs found</h3>
+      <p>You haven't created any POCs yet.</p>
+      <button class="btn btn-primary" onclick="window.location.href='/home_cliente.html'">
+        Create your first POC
+      </button>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="/static/js/navigation.js"></script>
+  <script src="/static/js/pocs.js"></script>
+  <script src="/static/js/pocs_usuarios.js"></script>
+</body>
+</html>

@@ -457,8 +457,8 @@ async function submitPOC() {
 
 // Función para abrir modal de ver POCs
 function openViewPOCs() {
-    alert('View POCs feature coming soon!');
-    // Aquí puedes implementar otro modal para ver los POCs del usuario
+    // Redirigir a la página de POCs del usuario
+    window.location.href = '/pocs_clientes.html';
 }
 
 // Cerrar dropdowns al hacer clic fuera
