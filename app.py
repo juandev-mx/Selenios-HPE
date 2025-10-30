@@ -42,17 +42,13 @@ def pocs_clientes():
     return render_template('pocs_clientes.html')
 
 @app.route('/PocsHPEManager.html')
-def hperep_pocs():
+def hpe_pocs():
     return render_template('PocsHPEManager.html')
 
 # Ruta alternativa
 @app.route('/home_hpe.html')
 def home_hpe():
     return render_template('home_hpe.html')
-
-@app.route('/solutions_catalog.html')
-def solutions_catalog():
-    return render_template('solutions_catalog.html')
 
 # ---------------- LOGIN ----------------
 @app.route('/api/login', methods=['POST'])
@@ -347,76 +343,85 @@ def delete_client_company(id):
 # ---------------- USERS ----------------
 @app.route('/users', methods=['GET'])
 def get_users():
-    
-    allowed_filters = {
-        "min_id", 
-        "max_id", 
-        "name", 
-        "mail", 
-        "role",
-        "client_company_id",
-        "reports_to",
-        "password",
-        "session_started"
-    }
-
-    unexpected_filters = set(request.args.keys()) - allowed_filters
-    if unexpected_filters:
-        return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
-    
-    min_id = request.args.get('min_id', type=int)
-    max_id = request.args.get('max_id', type=int)
-    name = request.args.get('name', type=str)
-    mail = request.args.get('mail', type=str)
-    role = request.args.get('role', type=str)
-    client_company_id = request.args.get('client_company_id', type=int)
-    reports_to = request.args.get('reports_to', type=int)
-    password = request.args.get('password', type=str)
-    session_started = request.args.get('session_started', type=lambda v: v.lower() in ['true', '1', 'yes'])
-
-    query = User.query
-
-    if min_id is not None:
-        query = query.filter(User.user_id >= min_id)
-
-    if max_id is not None:
-        query = query.filter(User.user_id <= max_id)
-
-    if name:
-        query = query.filter(User.name.ilike(f"%{name}%"))
-
-    if mail:
-        query = query.filter(User.mail.ilike(f"%{mail}%"))
-    
-    if role:
-        query = query.filter(User.role.ilike(f"%{role}%"))
-    
-    if client_company_id is not None:
-        query = query.filter(User.client_company_id == client_company_id)
-
-    if reports_to is not None:
-        query = query.filter(User.reports_to == reports_to)
-
-    if password:
-        query = query.filter(User.password == password)
-
-    if session_started is not None:
-        query = query.filter(User.session_started == session_started)
-    
-    users = query.all()
-
-    return jsonify([
-        {
-            'id': u.user_id, 
-            'name': u.name, 
-            'role': u.role, 
-            'mail': u.mail,
-            'client_company_id': u.client_company_id,
-            'reports_to': u.reports_to,
-            'session_started': u.session_started
+    try:
+        allowed_filters = {
+            "min_id", 
+            "max_id", 
+            "name", 
+            "mail", 
+            "role",
+            "client_company_id",
+            "reports_to",
+            "password",
+            "session_started"
         }
-        for u in users
-    ])
+
+        unexpected_filters = set(request.args.keys()) - allowed_filters
+        if unexpected_filters:
+            return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
+        
+        min_id = request.args.get('min_id', type=int)
+        max_id = request.args.get('max_id', type=int)
+        name = request.args.get('name', type=str)
+        mail = request.args.get('mail', type=str)
+        role = request.args.get('role', type=str)
+        client_company_id = request.args.get('client_company_id', type=int)
+        reports_to = request.args.get('reports_to', type=int)
+        password = request.args.get('password', type=str)
+        session_started = request.args.get('session_started', type=lambda v: v.lower() in ['true', '1', 'yes'])
+
+        # Usar User.query directamente (como en el resto de tu código)
+        query = User.query
+
+        if min_id is not None:
+            query = query.filter(User.user_id >= min_id)
+
+        if max_id is not None:
+            query = query.filter(User.user_id <= max_id)
+
+        if name:
+            query = query.filter(User.name.ilike(f"%{name}%"))
+
+        if mail:
+            query = query.filter(User.mail.ilike(f"%{mail}%"))
+        
+        if role:
+            query = query.filter(User.role.ilike(f"%{role}%"))
+        
+        if client_company_id is not None:
+            query = query.filter(User.client_company_id == client_company_id)
+
+        if reports_to is not None:
+            query = query.filter(User.reports_to == reports_to)
+
+        if password:
+            query = query.filter(User.password == password)
+
+        if session_started is not None:
+            query = query.filter(User.session_started == session_started)
+        
+        users = query.all()
+
+        # Construir respuesta
+        result = [
+            {
+                'id': u.user_id, 
+                'name': u.name, 
+                'role': u.role, 
+                'mail': u.mail,
+                'client_company_id': u.client_company_id,
+                'reports_to': u.reports_to,
+                'session_started': u.session_started
+            }
+            for u in users
+        ]
+
+        return jsonify(result)
+    
+    except Exception as e:
+        # Log del error
+        app.logger.error(f"Error en get_users: {str(e)}")
+        return jsonify({"error": "Error interno del servidor"}), 500
 
 
 @app.route('/users/<int:id>', methods=['GET'])
@@ -865,7 +870,6 @@ def get_pocs():
     if unexpected_filters:
         return jsonify({"error": f"Filtro no esperado: {', '.join(unexpected_filters)}"}), 400
 
-
     client_user_id = request.args.get('client_user_id', type=int)
     business_justification = request.args.get('business_justification', type=str)
     is_approved = request.args.get('is_approved', type=lambda v: v.lower() in ['true', '1', 'yes'])
@@ -882,7 +886,16 @@ def get_pocs():
     if sort_by and sort_by not in allowed_sort_fields:
         return jsonify({"error": f"Campo para ordenamiento no permitido: {sort_by}"}), 400
 
-    query = POC.query
+    # Hacer JOIN con User y ClientCompany para obtener nombres
+    query = db.session.query(
+        POC,
+        User.name.label('client_user_name'),
+        ClientCompany.company_name.label('company_name')
+    ).join(
+        User, POC.client_user_id == User.user_id
+    ).outerjoin(
+        ClientCompany, User.client_company_id == ClientCompany.client_company_id
+    )
 
     if client_user_id is not None:
         query = query.filter(POC.client_user_id == client_user_id)
@@ -915,31 +928,45 @@ def get_pocs():
         column = allowed_sort_fields[sort_by]
         query = query.order_by(column.desc() if order == "desc" else column.asc())
 
-    pocs = query.all()
+    results = query.all()
 
     return jsonify([
         {
-            'poc_id': p.poc_id,
-            'client_user_id': p.client_user_id,
-            'business_justification': p.business_justification,
-            'is_approved': p.is_approved,
-            'completion_date': p.completion_date.isoformat() if p.completion_date else None,
-            'created_date': p.created_date.isoformat() if p.created_date else None
+            'poc_id': p.POC.poc_id,
+            'client_user_id': p.POC.client_user_id,
+            'client_user_name': p.client_user_name,
+            'company_name': p.company_name,
+            'business_justification': p.POC.business_justification,
+            'is_approved': p.POC.is_approved,
+            'completion_date': p.POC.completion_date.isoformat() if p.POC.completion_date else None,
+            'created_date': p.POC.created_date.isoformat() if p.POC.created_date else None
         }
-        for p in pocs
+        for p in results
     ])
 
 
 @app.route('/pocs/<int:id>', methods=['GET'])
 def get_poc_by_id(id):
-    poc = POC.query.get(id)
+    # Hacer JOIN para obtener nombres
+    result = db.session.query(
+        POC,
+        User.name.label('client_user_name'),
+        ClientCompany.company_name.label('company_name')
+    ).join(
+        User, POC.client_user_id == User.user_id
+    ).outerjoin(
+        ClientCompany, User.client_company_id == ClientCompany.client_company_id
+    ).filter(POC.poc_id == id).first()
 
-    if poc is None:
+    if result is None:
         return jsonify({"error": "POC no encontrado"}), 404
 
+    poc = result.POC
     return jsonify({
         'poc_id': poc.poc_id,
         'client_user_id': poc.client_user_id,
+        'client_user_name': result.client_user_name,
+        'company_name': result.company_name,
         'business_justification': poc.business_justification,
         'is_approved': poc.is_approved,
         'completion_date': poc.completion_date.isoformat() if poc.completion_date else None,
@@ -968,16 +995,22 @@ def create_pocs():
             poc = POC(
                 client_user_id=poc_data['client_user_id'],
                 business_justification=poc_data.get('business_justification'),
-                is_approved=poc_data.get('is_approved', False),
                 completion_date=poc_data.get('completion_date'),
                 created_date=poc_data.get('created_date')
             )
+            
+            # Solo establecer is_approved si viene explícitamente en los datos
+            if 'is_approved' in poc_data:
+                poc.is_approved = poc_data['is_approved']
+            # Si no viene, se usa el default=None del modelo
+            
             db.session.add(poc)
             db.session.flush()
             created.append({
                 "index": index,
                 "poc_id": poc.poc_id,
-                "client_user_id": poc.client_user_id
+                "client_user_id": poc.client_user_id,
+                "is_approved": poc.is_approved  # Para verificar que es None
             })
         except Exception as e:
             errors.append({"index": index, "error": str(e)})

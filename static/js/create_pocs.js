@@ -383,8 +383,8 @@ async function submitPOC() {
         const pocData = {
             client_user_id: user.id,
             business_justification: justification,
-            is_approved: false,
-            created_date: new Date().toISOString()
+            // ✅ NO incluir is_approved - se usará el default del modelo (None)
+            created_date: new Date().toISOString().split('T')[0] // Solo la fecha en formato YYYY-MM-DD
         };
         
         console.log('Sending POC data:', pocData);
