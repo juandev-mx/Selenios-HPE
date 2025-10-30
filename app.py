@@ -46,6 +46,10 @@ def pocs_clientes():
 def home_hpe():
     return render_template('home_hpe.html')
 
+@app.route('/solutions_catalog.html')
+def solutions_catalog():
+    return render_template('solutions_catalog.html')
+
 # ---------------- LOGIN ----------------
 @app.route('/api/login', methods=['POST'])
 def login():
