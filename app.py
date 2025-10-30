@@ -41,6 +41,10 @@ def client_dashboard():
 def pocs_clientes():
     return render_template('pocs_clientes.html')
 
+@app.route('/PocsHPEManager.html')
+def hperep_pocs():
+    return render_template('PocsHPEManager.html')
+
 # Ruta alternativa
 @app.route('/home_hpe.html')
 def home_hpe():

@@ -132,10 +132,7 @@ function openViewPOCs() {
     if (!user) return;
 
     // Por ahora, solo redirige o muestra un mensaje
-    alert('This feature will show all your POCs. Coming soon!');
-    
-    // Opcional: Crear otro modal para mostrar la lista de POCs
-    // showPOCsList(user.id);
+window.location.href = `/pocs_clientes.html`;
 }
 
 // Función opcional para mostrar lista de POCs en modal
