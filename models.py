@@ -49,13 +49,12 @@ class EquipmentItem(db.Model):
     qty = db.Column(db.Integer)
     unit_price = db.Column(db.Numeric)
 
-
 class POC(db.Model):
     __tablename__ = 'pocs'
     poc_id = db.Column(db.Integer, primary_key=True)
     client_user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     business_justification = db.Column(db.Text)
-    is_approved = db.Column(db.Boolean, default=False)
+    is_approved = db.Column(db.Boolean, nullable=True, default=None)  # ← CAMBIO AQUÍ
     completion_date = db.Column(db.Date)
     created_date = db.Column(db.Date)
 
