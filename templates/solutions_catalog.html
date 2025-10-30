@@ -3,22 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Solutions Catalog - HPE Representative</title>
+  <title>Solutions Catalog - HPE</title>
   <link rel="stylesheet" href="/static/css/SolutionsClientes.css">
-
 </head>
 <body>
   <!-- Header -->
   <header class="header">
     <div class="header-left">
       <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo">
-      <h2 class="representative-text">Representative</h2>
+      <h2 class="representative-text">Customer</h2>
     </div>
     
     <nav class="header-nav">
-      <a href="#" class="nav-link">Dashboard</a>
-      <a href="#" class="nav-link">Approvals</a>
-      <a href="#" class="nav-link active">Equipments</a>
+      <a href="/home_cliente.html" class="nav-link">Dashboard</a>
+      <a href="/pocs_clientes.html" class="nav-link">My POCs</a>
+      <a href="/solutions_catalog.html" class="nav-link active">Solutions Catalog</a>
       <img class="avatar" src="https://api.builder.io/api/v1/image/assets/TEMP/4ebd142369a1387035563acfca5ac756f4169a84?width=80" alt="User Avatar">
     </nav>
   </header>
@@ -46,7 +45,7 @@
         </div>
       </div>
       
-      <p class="section-subtitle">This is a read-only View of the available equipment and equipment items. You cannot edit the inventory from this screen.</p>
+      <p class="section-subtitle">This is a read-only view of the available equipment and equipment items. You cannot edit the inventory from this screen.</p>
 
       <!-- Solutions Table -->
       <div class="table-container">
@@ -62,35 +61,9 @@
             </tr>
           </thead>
           <tbody>
+            <!-- Los datos se cargarán dinámicamente -->
             <tr>
-              <td>P12345</td>
-              <td class="description">Developer Workstation</td>
-              <td>John Doe</td>
-              <td>25</td>
-              <td>$15,500.00</td>
-              <td>
-                <a href="#" class="view-link">View items</a>
-              </td>
-            </tr>
-            <tr>
-              <td>Q67890</td>
-              <td class="description">Premium Setup</td>
-              <td>Jane Smith</td>
-              <td>12</td>
-              <td>$8,200.00</td>
-              <td>
-                <a href="#" class="view-link">View items</a>
-              </td>
-            </tr>
-            <tr>
-              <td>R11223</td>
-              <td class="description">Data Center Package</td>
-              <td>Peter Jones</td>
-              <td>17</td>
-              <td>$25,000.00</td>
-              <td>
-                <a href="#" class="view-link">View items</a>
-              </td>
+              <td colspan="6" style="text-align:center;">Loading...</td>
             </tr>
           </tbody>
         </table>
@@ -129,30 +102,16 @@
             </tr>
           </thead>
           <tbody>
+            <!-- Los datos se cargarán dinámicamente -->
             <tr>
-              <td>P12345-001</td>
-              <td class="description">Laptop</td>
-              <td>$3,500.00</td>
-            </tr>
-            <tr>
-              <td>P12345-002</td>
-              <td class="description">Server</td>
-              <td>$1,200.00</td>
-            </tr>
-            <tr>
-              <td>Q67890-001</td>
-              <td class="description">SSD</td>
-              <td>$350.00</td>
-            </tr>
-            <tr>
-              <td>R11223-001</td>
-              <td class="description">Router</td>
-              <td>$950.00</td>
+              <td colspan="3" style="text-align:center;">Loading...</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
   </main>
+
+  <script src="/static/js/solutions_catalog.js"></script>
 </body>
 </html>
