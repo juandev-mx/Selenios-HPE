@@ -1,7 +1,5 @@
 // static/js/solutions_catalog.js
 
-<<<<<<< HEAD
-=======
 // Función para formatear precio
 function formatPrice(price) {
   return new Intl.NumberFormat('en-US', {
@@ -154,7 +152,6 @@ function setupItemsSearch() {
 }
 
 // Inicializar cuando cargue la página
->>>>>>> 2b919ea717871895e7354ce33131530782c7b37a
 document.addEventListener('DOMContentLoaded', () => {
   const user = JSON.parse(sessionStorage.getItem('user'));
 
