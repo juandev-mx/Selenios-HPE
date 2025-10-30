@@ -41,6 +41,10 @@ def client_dashboard():
 def pocs_clientes():
     return render_template('pocs_clientes.html')
 
+@app.route('/solutions_catalog.html')
+def solutions_catalog():
+    return render_template('solutions_catalog.html')
+
 @app.route('/PocsHPEManager.html')
 def hpe_pocs():
     return render_template('PocsHPEManager.html')
