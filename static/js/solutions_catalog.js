@@ -8,70 +8,57 @@ function formatPrice(price) {
   }).format(price);
 }
 
-// Cargar equipos desde la API
+// Cargar equipos desde la API (OPTIMIZADO)
 async function loadEquipment() {
   try {
     const tbody = document.querySelector('.solutions-section tbody');
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
     
-    const response = await fetch('/equipment');
-    const equipment = await response.json();
+    // Hacer todas las peticiones en paralelo
+    const [equipmentResponse, usersResponse, itemsResponse] = await Promise.all([
+      fetch('/equipment'),
+      fetch('/users'),
+      fetch('/equipment_items')
+    ]);
     
-    // Crear un array de promesas para cargar todos los datos en paralelo
-    const equipmentPromises = equipment.map(async (equip) => {
-      // Obtener el nombre del creador
-      let ownerName = 'N/A';
-      if (equip.created_by) {
-        try {
-          const userResponse = await fetch(`/users/${equip.created_by}`);
-          if (userResponse.ok) {
-            const user = await userResponse.json();
-            ownerName = user.name;
-          }
-        } catch (error) {
-          console.error('Error obteniendo usuario:', error);
-        }
-      }
-      
-      // Contar items
-      let itemCount = 0;
-      try {
-        const itemsResponse = await fetch(`/equipment_items?solution_id=${equip.solution_id}`);
-        const items = await itemsResponse.json();
-        itemCount = items.length;
-      } catch (error) {
-        console.error('Error obteniendo items:', error);
-      }
-      
-      return {
-        solution_id: equip.solution_id,
-        product_number: equip.product_number || 'N/A',
-        product_description: equip.product_description || 'N/A',
-        owner: ownerName,
-        itemCount: itemCount,
-        price: equip.price || 0
-      };
+    const equipment = await equipmentResponse.json();
+    const users = await usersResponse.json();
+    const allItems = await itemsResponse.json();
+    
+    // Crear un mapa de usuarios para búsqueda rápida
+    const usersMap = {};
+    users.forEach(user => {
+      usersMap[user.id] = user.name;
     });
     
-    // Esperar a que todas las promesas se resuelvan
-    const equipmentData = await Promise.all(equipmentPromises);
+    // Crear un mapa de conteo de items por solution_id
+    const itemsCountMap = {};
+    allItems.forEach(item => {
+      if (!itemsCountMap[item.solution_id]) {
+        itemsCountMap[item.solution_id] = 0;
+      }
+      itemsCountMap[item.solution_id]++;
+    });
     
     // Limpiar y mostrar todos los datos de una vez
     tbody.innerHTML = '';
     
-    if (equipmentData.length === 0) {
+    if (equipment.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No equipment found</td></tr>';
       return;
     }
     
-    equipmentData.forEach(equip => {
+    equipment.forEach(equip => {
+      const ownerName = usersMap[equip.created_by] || 'N/A';
+      const itemCount = itemsCountMap[equip.solution_id] || 0;
+      
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${equip.product_number}</td>
-        <td class="description">${equip.product_description}</td>
-        <td>${equip.owner}</td>
-        <td>${equip.itemCount}</td>
-        <td>${formatPrice(equip.price)}</td>
+        <td>${equip.product_number || 'N/A'}</td>
+        <td class="description">${equip.product_description || 'N/A'}</td>
+        <td>${ownerName}</td>
+        <td>${itemCount}</td>
+        <td>${formatPrice(equip.price || 0)}</td>
         <td>
           <a href="#" class="view-link" onclick="loadItems(${equip.solution_id}); return false;">View items</a>
         </td>
