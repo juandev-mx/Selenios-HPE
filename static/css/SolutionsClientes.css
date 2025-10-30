@@ -162,14 +162,67 @@
       color:var(--green-search-text);
     }
 
-    /* Table Container */
-    .table-container{
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:var(--bg-white);
-      overflow:hidden;
-      margin-bottom:24px;
-    }
+
+
+.table-container {
+  max-height: 400px; /* Altura máxima del contenedor */
+  overflow-y: auto; /* Scroll vertical */
+  overflow-x: auto; /* Scroll horizontal si es necesario */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+/* Hacer que el header de la tabla sea fijo al hacer scroll */
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  position: relative;
+}
+
+.table-container thead {
+  position: sticky;
+  top: 0;
+  background-color: #FFFFFF;
+  z-index: 10;
+}
+
+.table-container thead th {
+  background-color: #FFFFFF;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.table-container tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table-container tbody tr:hover {
+  background-color: #FFFFFF;
+}
+
+/* Estilos para el scrollbar (opcional, para hacerlo más bonito) */
+.table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 
     table{
       width:100%;
