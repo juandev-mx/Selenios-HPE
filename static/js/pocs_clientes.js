@@ -1,14 +1,18 @@
-// pocs_usuarios.js - Gestión de POCs del usuario
+// pocs_usuarios.js - Gestión de POCs del usuario MEJORADO
 
 let userPOCs = [];
 let currentUser = null;
+let currentEditingPOC = null;
+let allEquipment = []; // Variable global para equipos
+let allEquipmentItems = []; // Variable global para items
 
-// Hacer funciones globales para que puedan ser llamadas desde HTML
+// Hacer funciones globales
 window.editPOC = editPOC;
 window.deletePOC = deletePOC;
 window.viewPOCDetails = viewPOCDetails;
 window.filterPOCs = filterPOCs;
 window.closeEditModal = closeEditModal;
+window.closeDetailsModal = closeDetailsModal;
 window.saveEditedPOC = saveEditedPOC;
 window.addEquipmentToPOC = addEquipmentToPOC;
 window.removeEquipmentFromPOC = removeEquipmentFromPOC;
@@ -17,7 +21,6 @@ window.searchEquipmentForEdit = searchEquipmentForEdit;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('pocs_usuarios.js loaded');
     
-    // Verificar autenticación
     const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (!user) {
@@ -33,8 +36,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     currentUser = user;
     console.log('Current user:', currentUser);
-    loadUserPOCs();
+    
+    // Cargar equipos primero
+    loadEquipmentData().then(() => {
+        loadUserPOCs();
+    });
 });
+
+// Cargar datos de equipos (NUEVO)
+async function loadEquipmentData() {
+    try {
+        console.log('Loading equipment data...');
+        
+        // Cargar Equipment
+        const equipmentResponse = await fetch('/equipment');
+        if (!equipmentResponse.ok) {
+            throw new Error('Error loading equipment');
+        }
+        allEquipment = await equipmentResponse.json();
+
+        // Cargar Equipment Items
+        const itemsResponse = await fetch('/equipment_items');
+        if (!itemsResponse.ok) {
+            throw new Error('Error loading equipment items');
+        }
+        allEquipmentItems = await itemsResponse.json();
+
+        console.log('Equipment loaded:', allEquipment.length);
+        console.log('Items loaded:', allEquipmentItems.length);
+    } catch (error) {
+        console.error('Error loading equipment:', error);
+        alert('Error loading equipment data. Some features may not work correctly.');
+    }
+}
 
 // Cargar POCs del usuario
 async function loadUserPOCs() {
@@ -57,6 +91,8 @@ async function loadUserPOCs() {
             return;
         }
 
+        container.style.display = 'grid';
+        noPocsMessage.style.display = 'none';
         displayPOCs(userPOCs);
         
     } catch (error) {
@@ -70,7 +106,7 @@ async function loadUserPOCs() {
     }
 }
 
-// Mostrar POCs en la interfaz
+// Mostrar POCs en la interfaz (numerados por usuario)
 function displayPOCs(pocs) {
     const container = document.getElementById('pocs-container');
     
@@ -79,29 +115,34 @@ function displayPOCs(pocs) {
         return;
     }
 
-    container.innerHTML = pocs.map(poc => {
+    container.innerHTML = pocs.map((poc, index) => {
         const status = poc.is_approved ? 'approved' : 'pending';
         const statusLabel = poc.is_approved ? 'Approved' : 'Pending Approval';
         const statusClass = poc.is_approved ? 'status-approved' : 'status-pending';
         const createdDate = new Date(poc.created_date).toLocaleDateString();
+        const userPocNumber = index + 1; // Número del POC del usuario (1, 2, 3...)
         
         return `
             <div class="poc-card" data-status="${status}">
                 <div class="poc-header">
-                    <h3>POC #${poc.poc_id}</h3>
+                    <h3>My POC #${userPocNumber}</h3>
                     <span class="poc-status ${statusClass}">${statusLabel}</span>
                 </div>
                 
                 <div class="poc-body">
                     <div class="poc-info">
                         <strong>Business Justification:</strong>
-                        <p>${poc.business_justification}</p>
+                        <p>${poc.business_justification.substring(0, 100)}${poc.business_justification.length > 100 ? '...' : ''}</p>
                     </div>
                     
                     <div class="poc-meta">
                         <div class="poc-date">
                             <span>📅 Created:</span>
                             <span>${createdDate}</span>
+                        </div>
+                        <div class="poc-date">
+                            <span>🔢 ID:</span>
+                            <span>#${poc.poc_id}</span>
                         </div>
                         ${poc.completion_date ? `
                             <div class="poc-date">
@@ -145,22 +186,32 @@ function filterPOCs() {
     displayPOCs(filteredPOCs);
 }
 
-// Ver detalles de un POC
+// Ver detalles de un POC (Modal mejorado)
 async function viewPOCDetails(pocId) {
     try {
-        // Obtener detalles del POC
         const pocResponse = await fetch(`/pocs/${pocId}`);
         const poc = await pocResponse.json();
         
-        // Obtener equipos asociados
         const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
-        const equipment = await equipmentResponse.json();
+        const pocEquipment = await equipmentResponse.json();
         
-        console.log('POC Details:', poc);
-        console.log('POC Equipment:', equipment);
+        // Cargar detalles completos de cada equipo
+        const equipmentDetails = await Promise.all(
+            pocEquipment.map(async (pe) => {
+                const response = await fetch(`/equipment/${pe.solution_id}`);
+                return await response.json();
+            })
+        );
         
-        // Aquí puedes crear un modal con los detalles
-        alert(`POC Details:\n\nID: ${poc.poc_id}\nStatus: ${poc.is_approved ? 'Approved' : 'Pending'}\nJustification: ${poc.business_justification}\nEquipment Items: ${equipment.length}`);
+        // Cargar items de cada equipo
+        const allItems = await Promise.all(
+            pocEquipment.map(async (pe) => {
+                const response = await fetch(`/equipment_items?solution_id=${pe.solution_id}`);
+                return await response.json();
+            })
+        );
+        
+        showDetailsModal(poc, equipmentDetails, allItems.flat());
         
     } catch (error) {
         console.error('Error loading POC details:', error);
@@ -168,60 +219,139 @@ async function viewPOCDetails(pocId) {
     }
 }
 
-// Eliminar POC
-async function deletePOC(pocId) {
-    if (!confirm('Are you sure you want to delete this POC?')) {
-        return;
+// Mostrar modal de detalles
+function showDetailsModal(poc, equipment, items) {
+    if (!document.getElementById('detailsModal')) {
+        createDetailsModal();
     }
     
-    try {
-        const response = await fetch(`/pocs/${pocId}`, {
-            method: 'DELETE'
-        });
+    const userPocIndex = userPOCs.findIndex(p => p.poc_id === poc.poc_id);
+    const userPocNumber = userPocIndex + 1;
+    
+    const statusBadge = poc.is_approved 
+        ? '<span class="poc-status status-approved">Approved</span>'
+        : '<span class="poc-status status-pending">Pending Approval</span>';
+    
+    const totalPrice = equipment.reduce((sum, eq) => sum + parseFloat(eq.price || 0), 0);
+    
+    document.getElementById('details-content').innerHTML = `
+        <div class="details-header-info">
+            <div>
+                <h2>My POC #${userPocNumber}</h2>
+                <p style="color: #666; margin-top: 0.5rem;">Database ID: #${poc.poc_id}</p>
+            </div>
+            ${statusBadge}
+        </div>
         
-        if (response.ok) {
-            alert('POC deleted successfully');
-            loadUserPOCs(); // Recargar lista
-        } else {
-            throw new Error('Error deleting POC');
-        }
+        <div class="details-section">
+            <h3>📋 Business Justification</h3>
+            <p class="justification-text">${poc.business_justification}</p>
+        </div>
         
-    } catch (error) {
-        console.error('Error deleting POC:', error);
-        alert('Error deleting POC: ' + error.message);
+        <div class="details-section">
+            <h3>📅 Timeline</h3>
+            <div class="timeline-info">
+                <div>
+                    <strong>Created:</strong> ${new Date(poc.created_date).toLocaleDateString()}
+                </div>
+                ${poc.completion_date ? `
+                    <div>
+                        <strong>Completed:</strong> ${new Date(poc.completion_date).toLocaleDateString()}
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+        
+        <div class="details-section">
+            <h3>🛠️ Equipment (${equipment.length})</h3>
+            ${equipment.length > 0 ? `
+                <div class="equipment-details-list">
+                    ${equipment.map(eq => `
+                        <div class="equipment-detail-card">
+                            <div class="eq-info">
+                                <h4>${eq.product_description}</h4>
+                                <p>${eq.product_number}</p>
+                                ${eq.company_program ? `<span class="eq-program">${eq.company_program}</span>` : ''}
+                            </div>
+                            <div class="eq-price">$${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p style="color: #666;">No equipment added</p>'}
+        </div>
+        
+        <div class="details-section">
+            <h3>📦 Equipment Items (${items.length})</h3>
+            ${items.length > 0 ? `
+                <div class="items-details-list">
+                    ${items.map(item => `
+                        <div class="item-detail-row">
+                            <div>
+                                <strong>${item.product_name}</strong>
+                                <small>${item.product_number}</small>
+                            </div>
+                            <div>
+                                <span class="item-qty">Qty: ${item.qty}</span>
+                                <span class="item-price">$${parseFloat(item.unit_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p style="color: #666;">No items added</p>'}
+        </div>
+        
+        <div class="details-total">
+            <strong>Total Equipment Value:</strong>
+            <span class="total-amount">$${totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+        </div>
+    `;
+    
+    document.getElementById('detailsModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Crear modal de detalles
+function createDetailsModal() {
+    const modalHTML = `
+        <div id="detailsModal" class="modal-overlay">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2 class="modal-title">POC Details</h2>
+                    <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="details-content"></div>
+                <div class="modal-footer">
+                    <button class="modal-btn-cancel" onclick="closeDetailsModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Cerrar modal de detalles
+function closeDetailsModal() {
+    const modal = document.getElementById('detailsModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
     }
 }
 
-// Editar POC
+// Editar POC (MEJORADO)
 async function editPOC(pocId) {
     console.log('editPOC called with ID:', pocId);
+    currentEditingPOC = pocId;
     
     try {
-        console.log('Fetching POC data...');
-        // Obtener datos del POC
         const pocResponse = await fetch(`/pocs/${pocId}`);
-        console.log('POC Response status:', pocResponse.status);
-        
-        if (!pocResponse.ok) {
-            throw new Error(`HTTP error! status: ${pocResponse.status}`);
-        }
-        
+        if (!pocResponse.ok) throw new Error(`HTTP ${pocResponse.status}`);
         const poc = await pocResponse.json();
-        console.log('POC data loaded:', poc);
         
-        // Obtener equipos asociados
-        console.log('Fetching POC equipment...');
         const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
-        console.log('Equipment Response status:', equipmentResponse.status);
-        
-        if (!equipmentResponse.ok) {
-            throw new Error(`HTTP error! status: ${equipmentResponse.status}`);
-        }
-        
+        if (!equipmentResponse.ok) throw new Error(`HTTP ${equipmentResponse.status}`);
         const pocEquipment = await equipmentResponse.json();
-        console.log('POC Equipment loaded:', pocEquipment);
         
-        // Abrir modal de edición
         openEditModal(poc, pocEquipment);
         
     } catch (error) {
@@ -232,77 +362,66 @@ async function editPOC(pocId) {
 
 // Abrir modal de edición
 function openEditModal(poc, pocEquipment) {
-    console.log('openEditModal called');
-    console.log('POC:', poc);
-    console.log('Equipment:', pocEquipment);
-    
-    // Crear modal si no existe
     if (!document.getElementById('editPOCModal')) {
-        console.log('Creating edit modal...');
         createEditModal();
-    } else {
-        console.log('Edit modal already exists');
     }
     
-    // Verificar que los elementos existan
-    const pocIdInput = document.getElementById('edit-poc-id');
-    const justificationTextarea = document.getElementById('edit-justification');
-    
-    if (!pocIdInput || !justificationTextarea) {
-        console.error('Modal elements not found!');
-        alert('Error: Modal elements not found. Please refresh the page.');
+    // Verificar que los equipos estén cargados
+    if (!allEquipment || allEquipment.length === 0) {
+        alert('⚠️ Equipment data is not loaded yet. Please wait a moment and try again.');
+        console.error('Equipment data not available');
         return;
     }
     
-    // Cargar datos en el modal
-    pocIdInput.value = poc.poc_id;
-    justificationTextarea.value = poc.business_justification;
+    const userPocIndex = userPOCs.findIndex(p => p.poc_id === poc.poc_id);
+    const userPocNumber = userPocIndex + 1;
     
-    console.log('Data loaded into modal');
+    document.getElementById('edit-modal-title').textContent = `Edit My POC #${userPocNumber}`;
+    document.getElementById('edit-poc-id').value = poc.poc_id;
+    document.getElementById('edit-justification').value = poc.business_justification;
     
-    // Cargar equipos asociados
     loadPOCEquipment(poc.poc_id, pocEquipment);
     
-    // Mostrar modal
-    const modal = document.getElementById('editPOCModal');
-    modal.classList.add('active');
+    document.getElementById('editPOCModal').classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    console.log('Modal opened');
+    console.log('Edit modal opened. Equipment available:', allEquipment.length);
 }
 
-// Crear estructura del modal de edición
+// Crear modal de edición
 function createEditModal() {
     const modalHTML = `
         <div id="editPOCModal" class="modal-overlay">
             <div class="modal-container">
                 <div class="modal-header">
-                    <h2 class="modal-title">Edit POC</h2>
+                    <h2 class="modal-title" id="edit-modal-title">Edit POC</h2>
                     <button class="modal-close" onclick="closeEditModal()">&times;</button>
                 </div>
                 
                 <div class="modal-body">
                     <input type="hidden" id="edit-poc-id">
                     
-                    <!-- Business Justification -->
                     <div class="modal-section">
                         <label class="modal-label" for="edit-justification">Business Justification</label>
                         <textarea id="edit-justification" class="modal-textarea" placeholder="Enter business justification..." rows="6"></textarea>
                     </div>
 
-                    <!-- Current Equipment -->
                     <div class="modal-section">
                         <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Current Equipment</h3>
                         <div id="current-equipment-list"></div>
+                        <p style="color: #666; font-size: 13px; margin-top: 0.5rem;">
+                            ⚠️ A POC must have at least one equipment item
+                        </p>
                     </div>
 
-                    <!-- Add New Equipment -->
                     <div class="modal-section">
                         <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Add More Equipment</h3>
-
+                        <p style="color: #666; font-size: 14px; margin-bottom: 1rem;">
+                            Type at least 2 characters to search for equipment
+                        </p>
                         <div class="modal-grid">
                             <div class="modal-field">
-                                <label class="modal-label" for="edit-modal-equipment">Equipment</label>
+                                <label class="modal-label" for="edit-modal-equipment">Search Equipment</label>
                                 <div class="modal-search">
                                     <input id="edit-modal-equipment" class="modal-input" type="text" 
                                            placeholder="Search and select equipment"
@@ -329,7 +448,6 @@ function createEditModal() {
             </div>
         </div>
     `;
-
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
@@ -348,13 +466,12 @@ async function loadPOCEquipment(pocId, pocEquipment) {
     const countSpan = document.getElementById('edit-items-count');
     
     if (pocEquipment.length === 0) {
-        container.innerHTML = '<p style="color: #618975;">No equipment added yet.</p>';
+        container.innerHTML = '<p style="color: #618975; padding: 1rem; background: #f8f9fa; border-radius: 8px;">No equipment added yet.</p>';
         countSpan.textContent = '0 items';
         return;
     }
 
     try {
-        // Cargar detalles de cada equipo
         const equipmentDetails = await Promise.all(
             pocEquipment.map(async (pe) => {
                 const response = await fetch(`/equipment/${pe.solution_id}`);
@@ -368,7 +485,7 @@ async function loadPOCEquipment(pocId, pocEquipment) {
                     <div class="equipment-item">
                         <div class="equipment-info">
                             <strong>${eq.product_description}</strong>
-                            <small>${eq.product_number} - ${eq.price}</small>
+                            <small>${eq.product_number} - $${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}</small>
                         </div>
                         <button class="btn-remove-small" onclick="removeEquipmentFromPOC(${pocId}, ${eq.solution_id})">
                             Remove
@@ -386,9 +503,8 @@ async function loadPOCEquipment(pocId, pocEquipment) {
     }
 }
 
-// Buscar equipos para agregar en edición
+// Buscar equipos para agregar
 function searchEquipmentForEdit(query) {
-    // Reutilizar la función de búsqueda original
     const dropdown = document.getElementById('edit-equipment-dropdown');
     
     if (!query || query.length < 2) {
@@ -396,23 +512,29 @@ function searchEquipmentForEdit(query) {
         return;
     }
 
-    // Obtener equipos globales (asumiendo que ya fueron cargados)
-    if (typeof allEquipment === 'undefined' || allEquipment.length === 0) {
-        dropdown.innerHTML = '<div class="modal-dropdown-item" style="color: #618975;">Loading equipment...</div>';
+    // Verificar que los equipos estén cargados
+    if (!allEquipment || allEquipment.length === 0) {
+        console.error('Equipment data not loaded!');
+        dropdown.innerHTML = '<div class="modal-dropdown-item" style="color: #dc3545;">Equipment data not available. Please refresh the page.</div>';
         dropdown.classList.add('active');
         return;
     }
+
+    console.log('Searching equipment with query:', query);
+    console.log('Available equipment:', allEquipment.length);
 
     const filtered = allEquipment.filter(eq => 
         eq.product_description.toLowerCase().includes(query.toLowerCase()) ||
         eq.product_number.toLowerCase().includes(query.toLowerCase())
     );
 
+    console.log('Filtered results:', filtered.length);
+
     if (filtered.length > 0) {
         dropdown.innerHTML = filtered.map(eq => `
             <div class="modal-dropdown-item" onclick="addEquipmentToPOC(${eq.solution_id})">
                 <strong>${eq.product_description}</strong><br>
-                <small style="color: #618975;">${eq.product_number} - ${eq.price}</small>
+                <small style="color: #618975;">${eq.product_number} - ${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}</small>
             </div>
         `).join('');
         dropdown.classList.add('active');
@@ -422,16 +544,27 @@ function searchEquipmentForEdit(query) {
     }
 }
 
-// Agregar equipo al POC en edición
+// Agregar equipo al POC (CON VALIDACIÓN DE DUPLICADOS)
 async function addEquipmentToPOC(equipmentId) {
     const pocId = document.getElementById('edit-poc-id').value;
     
     try {
+        // Verificar si el equipo ya está agregado
+        const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+        const currentEquipment = await equipmentResponse.json();
+        
+        const alreadyExists = currentEquipment.some(eq => eq.solution_id === equipmentId);
+        
+        if (alreadyExists) {
+            alert('⚠️ This equipment is already added to the POC!');
+            document.getElementById('edit-modal-equipment').value = '';
+            document.getElementById('edit-equipment-dropdown').classList.remove('active');
+            return;
+        }
+        
         const response = await fetch('/poc_equipment', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify([{
                 poc_id: parseInt(pocId),
                 solution_id: equipmentId
@@ -439,18 +572,17 @@ async function addEquipmentToPOC(equipmentId) {
         });
 
         if (response.ok) {
-            // Recargar lista de equipos
-            const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
-            const pocEquipment = await equipmentResponse.json();
+            const updatedEquipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+            const pocEquipment = await updatedEquipmentResponse.json();
             loadPOCEquipment(pocId, pocEquipment);
             
-            // Limpiar búsqueda
             document.getElementById('edit-modal-equipment').value = '';
             document.getElementById('edit-equipment-dropdown').classList.remove('active');
             
-            alert('Equipment added successfully!');
+            alert('✅ Equipment added successfully!');
         } else {
-            throw new Error('Error adding equipment');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error adding equipment');
         }
     } catch (error) {
         console.error('Error adding equipment:', error);
@@ -458,23 +590,31 @@ async function addEquipmentToPOC(equipmentId) {
     }
 }
 
-// Remover equipo del POC
+// Remover equipo del POC (CON VALIDACIÓN)
 async function removeEquipmentFromPOC(pocId, solutionId) {
-    if (!confirm('Remove this equipment from the POC?')) {
-        return;
-    }
-    
     try {
+        // Verificar cuántos equipos tiene el POC actualmente
+        const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+        const currentEquipment = await equipmentResponse.json();
+        
+        console.log('Current equipment count:', currentEquipment.length);
+        
+        // Si solo queda 1 equipo, no permitir eliminarlo
+        if (currentEquipment.length <= 1) {
+            alert('⚠️ Cannot remove the last equipment!\n\nA POC must have at least one equipment item.\n\nPlease add another equipment before removing this one.');
+            return;
+        }
+        
+        if (!confirm('Remove this equipment from the POC?')) return;
+        
         const response = await fetch(`/poc_equipment/${pocId}/${solutionId}`, {
             method: 'DELETE'
         });
 
         if (response.ok) {
-            // Recargar lista de equipos
-            const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
-            const pocEquipment = await equipmentResponse.json();
+            const updatedEquipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+            const pocEquipment = await updatedEquipmentResponse.json();
             loadPOCEquipment(pocId, pocEquipment);
-            
             alert('Equipment removed successfully!');
         } else {
             throw new Error('Error removing equipment');
@@ -485,7 +625,7 @@ async function removeEquipmentFromPOC(pocId, solutionId) {
     }
 }
 
-// Guardar cambios del POC editado
+// Guardar cambios del POC
 async function saveEditedPOC() {
     const pocId = document.getElementById('edit-poc-id').value;
     const justification = document.getElementById('edit-justification').value.trim();
@@ -502,18 +642,14 @@ async function saveEditedPOC() {
     try {
         const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                business_justification: justification
-            })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({business_justification: justification})
         });
 
         if (response.ok) {
             alert('POC updated successfully!');
             closeEditModal();
-            loadUserPOCs(); // Recargar lista
+            loadUserPOCs();
         } else {
             const data = await response.json();
             throw new Error(data.error || 'Error updating POC');
@@ -524,5 +660,43 @@ async function saveEditedPOC() {
     } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Changes';
+    }
+}
+
+// Eliminar POC
+async function deletePOC(pocId) {
+    const userPocIndex = userPOCs.findIndex(p => p.poc_id === pocId);
+    const userPocNumber = userPocIndex + 1;
+    
+    if (!confirm(`Are you sure you want to delete My POC #${userPocNumber}?\n\nThis action cannot be undone.`)) {
+        return;
+    }
+    
+    try {
+        // Primero eliminar equipment asociado
+        const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+        const pocEquipment = await equipmentResponse.json();
+        
+        for (const eq of pocEquipment) {
+            await fetch(`/poc_equipment/${pocId}/${eq.solution_id}`, {
+                method: 'DELETE'
+            });
+        }
+        
+        // Luego eliminar el POC
+        const response = await fetch(`/pocs/${pocId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            alert('POC deleted successfully');
+            loadUserPOCs();
+        } else {
+            throw new Error('Error deleting POC');
+        }
+        
+    } catch (error) {
+        console.error('Error deleting POC:', error);
+        alert('Error deleting POC: ' + error.message);
     }
 }
