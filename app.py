@@ -29,6 +29,11 @@ def index():
 def login_page():
     return render_template('login.html')
 
+@app.route('/solutions_catalog.html')
+def solutions_catalog():
+    return render_template('solutions_catalog.html')
+
+
 @app.route('/crear_cuenta.html')
 def crear_cuenta_page():
     return render_template('crear_cuenta.html')
