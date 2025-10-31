@@ -1,4 +1,4 @@
-// pocs_usuarios.js - Gestión de POCs del usuario MEJORADO
+// pocs_clientes.js - Gestión de POCs del usuario MEJORADO
 
 let userPOCs = [];
 let currentUser = null;
@@ -19,7 +19,7 @@ window.removeEquipmentFromPOC = removeEquipmentFromPOC;
 window.searchEquipmentForEdit = searchEquipmentForEdit;
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('pocs_usuarios.js loaded');
+    console.log('pocs_clientes.js loaded');
     
     const user = JSON.parse(sessionStorage.getItem('user'));
     
