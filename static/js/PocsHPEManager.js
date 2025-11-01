@@ -88,7 +88,7 @@ function createPocRow(poc) {
     const statusClass = poc.is_approved === null ? 'pending' : 
                        poc.is_approved === true ? 'approved' : 'rejected';
     const statusText = poc.is_approved === null ? 'Pending' : 
-                      poc.is_approved === true ? 'Approved' : 'Rejected';
+                      poc.is_approved === true ? 'Accepted' : 'Rejected';
     
     // Crear celdas
     tr.innerHTML = `
@@ -109,21 +109,27 @@ function createPocRow(poc) {
 // Crear botones de acción según el estado
 function createActionButtons(poc) {
     if (poc.is_approved === null) {
-        // Pending - mostrar botones de aprobar/denegar + view
+        // Pending - mostrar "In Progress" + view
         return `
-            <button class="btn-approve" onclick="handleApprove(${poc.poc_id})">Approve</button>
-            <button class="btn-deny" onclick="handleDeny(${poc.poc_id})">Deny</button>
-            <button class="btn-view" onclick="showPocDetails(${poc.poc_id})" style="padding: 0.375rem 0.8rem; background-color: var(--primary-dark); color: var(--white); border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-left: 0.25rem;">View</button>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                <span class="action-text" style="font-size: 0.75rem; color: var(--muted-text);">In Progress...</span>
+                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})" style="padding: 0.375rem 0.8rem; background-color: var(--primary-dark); color: var(--white); border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">View</button>
+            </div>
         `;
     } else {
-        // Approved o Rejected - mostrar fecha de completado + view
+        // Approved o Rejected - mostrar estado y fecha en líneas separadas + view
         const completionDate = poc.completion_date ? 
             new Date(poc.completion_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 
             'N/A';
-        const actionText = poc.is_approved ? 'Completed' : 'Rejected';
+        const actionText = poc.is_approved ? 'Accepted' : 'Rejected';
         return `
-            <span class="action-text">${actionText}: ${completionDate}</span>
-            <button class="btn-view" onclick="showPocDetails(${poc.poc_id})" style="padding: 0.375rem 0.8rem; background-color: var(--primary-dark); color: var(--white); border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-left: 0.5rem;">View</button>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                <div style="text-align: center;">
+                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--dark-text);">${actionText}:</div>
+                    <div style="font-size: 0.75rem; color: var(--muted-text);">${completionDate}</div>
+                </div>
+                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})" style="padding: 0.375rem 0.8rem; background-color: var(--primary-dark); color: var(--white); border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">View</button>
+            </div>
         `;
     }
 }
@@ -252,7 +258,7 @@ function createPocModal(poc, equipment) {
     const statusClass = poc.is_approved === null ? 'pending' : 
                        poc.is_approved === true ? 'approved' : 'rejected';
     const statusText = poc.is_approved === null ? 'Pending' : 
-                      poc.is_approved === true ? 'Approved' : 'Rejected';
+                      poc.is_approved === true ? 'Accepted' : 'Rejected';
     
     const createdDate = poc.created_date ? 
         new Date(poc.created_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 
@@ -329,9 +335,7 @@ function createPocModal(poc, equipment) {
                 
                 ${poc.is_approved === null ? `
                     <div class="modal-footer">
-                        <button class="btn-approve" onclick="handleApprove(${poc.poc_id}); closePocModal();">Approve</button>
-                        <button class="btn-deny" onclick="handleDeny(${poc.poc_id}); closePocModal();">Deny</button>
-                        <button class="btn-cancel" onclick="closePocModal()">Cancel</button>
+                        <button class="btn-cancel" onclick="closePocModal()">Close</button>
                     </div>
                 ` : `
                     <div class="modal-footer">
@@ -554,7 +558,7 @@ function showFilterMenu() {
     const filters = [
         { value: 'all', label: 'All POCs', icon: '📋' },
         { value: 'pending', label: 'Pending', icon: '⏳' },
-        { value: 'approved', label: 'Approved', icon: '✅' },
+        { value: 'approved', label: 'Accepted', icon: '✅' },
         { value: 'rejected', label: 'Rejected', icon: '❌' }
     ];
     

@@ -44,11 +44,11 @@
       object-fit:contain;
     }
 
-    .customer-text {
-      color: #01a982;
-      font-size: 32px;
-      font-weight: 700;
-      margin-left: 28px;
+    .customer-text{
+      color:var(--dark-blue);
+      font-size:32px;
+      font-weight:700;
+      line-height:28px;
     }
 
     .representative-text{

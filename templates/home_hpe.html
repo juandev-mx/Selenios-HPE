@@ -10,7 +10,13 @@
     <header>
         <div class="header-container">
             <div class="header-left">
-                <img src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo" class="logo">
+                <img 
+                id="hpeLogo"
+                src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" 
+                alt="HPE Logo" 
+                class="logo"
+                style="cursor: pointer;">
+
                 <h1 class="header-title">Data Management</h1>
             </div>
             
@@ -44,20 +50,20 @@
                 <div class="kpi-grid">
                     <div class="kpi-card">
                         <div class="kpi-label">Ingresos Totales</div>
-                        <div class="kpi-value">$12.5M</div>
-                        <div class="kpi-change positive">+15%</div>
+                        <div class="kpi-value">$0</div>
+                        <div class="kpi-change positive">+0%</div>
                     </div>
 
                     <div class="kpi-card">
                         <div class="kpi-label">Tasa de Aprobación</div>
-                        <div class="kpi-value">95%</div>
-                        <div class="kpi-change negative">-2%</div>
+                        <div class="kpi-value">0%</div>
+                        <div class="kpi-change negative">-0%</div>
                     </div>
 
                     <div class="kpi-card">
                         <div class="kpi-label">Clientes Activos</div>
-                        <div class="kpi-value">250</div>
-                        <div class="kpi-change positive">+10%</div>
+                        <div class="kpi-value">0</div>
+                        <div class="kpi-change positive">+0%</div>
                     </div>
                 </div>
 
@@ -68,10 +74,10 @@
                         <div class="chart-grid">
                             <div class="chart-box">
                                 <div class="chart-label">Ingresos por Solución</div>
-                                <div class="chart-value">$8.2M</div>
+                                <div class="chart-value">$0Pen</div>
                                 <div class="chart-info">
                                     <span class="chart-period">Este Trimestre</span>
-                                    <span class="kpi-change positive">+12%</span>
+                                    <span class="kpi-change positive">+0Pen%</span>
                                 </div>
                                 <div class="chart-bars">
                                     <div class="chart-bar">
@@ -91,10 +97,10 @@
 
                             <div class="chart-box">
                                 <div class="chart-label">Tendencia de Aprobaciones</div>
-                                <div class="chart-value">95%</div>
+                                <div class="chart-value">0Pen%</div>
                                 <div class="chart-info">
                                     <span class="chart-period">Este Trimestre</span>
-                                    <span class="kpi-change negative">-1%</span>
+                                    <span class="kpi-change negative">-0Pen%</span>
                                 </div>
                                 <svg width="100%" height="97" viewBox="0 0 310 98" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: 2rem;">
                                     <path d="M2.12811 70.9935C13.8712 70.9935 13.8712 14.0691 25.6144 14.0691C37.3575 14.0691 37.3575 27.0065 49.1007 27.0065C60.8438 27.0065 60.8438 60.6436 72.587 60.6436C84.3302 60.6436 84.3302 21.8315 96.0735 21.8315C107.817 21.8315 107.817 65.8186 119.559 65.8186C131.303 65.8186 131.303 39.9438 143.046 39.9438C154.789 39.9438 154.789 29.5939 166.532 29.5939C178.276 29.5939 178.276 78.7559 190.019 78.7559C201.761 78.7559 201.761 96.8682 213.505 96.8682C225.248 96.8682 225.248 1.13171 236.991 1.13171C248.734 1.13171 248.734 52.8812 260.478 52.8812C272.22 52.8812 272.22 83.9309 283.964 83.9309C295.707 83.9309 295.707 16.6566 307.45 16.6566V96.8682H213.505H2.12811V70.9935Z" fill="url(#paint0_linear_99_62)"/>
@@ -122,34 +128,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="client-name">Cliente X</td>
-                                        <td class="client-revenue">$3.5M</td>
-                                        <td>
-                                            <span class="status-badge status-active">Activo</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="client-name">Cliente Y</td>
-                                        <td class="client-revenue">$2.8M</td>
-                                        <td>
-                                            <span class="status-badge status-active">Activo</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="client-name">Cliente Z</td>
-                                        <td class="client-revenue">$2.1M</td>
-                                        <td>
-                                            <span class="status-badge status-active">Activo</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="client-name">Cliente W</td>
-                                        <td class="client-revenue">$1.8M</td>
-                                        <td>
-                                            <span class="status-badge status-inactive">Inactivo</span>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -166,40 +144,10 @@
                                     <th>Representante</th>
                                     <th>Gerente</th>
                                     <th>Ingresos</th>
-                                    <th>Aprobaciones</th>
+                                    <th>Used equipment</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="rep-name">Ana López</td>
-                                    <td class="manager-name">Carlos García</td>
-                                    <td class="revenue">$1.2M</td>
-                                    <td class="approvals">15</td>
-                                </tr>
-                                <tr>
-                                    <td class="rep-name">Juan Martínez</td>
-                                    <td class="manager-name">Sofía Ramírez</td>
-                                    <td class="revenue">$1.1M</td>
-                                    <td class="approvals">12</td>
-                                </tr>
-                                <tr>
-                                    <td class="rep-name">Elena Torres</td>
-                                    <td class="manager-name">Carlos García</td>
-                                    <td class="revenue">$1.0M</td>
-                                    <td class="approvals">10</td>
-                                </tr>
-                                <tr>
-                                    <td class="rep-name">Diego Vargas</td>
-                                    <td class="manager-name">Sofía Ramírez</td>
-                                    <td class="revenue">$0.9M</td>
-                                    <td class="approvals">8</td>
-                                </tr>
-                                <tr>
-                                    <td class="rep-name">Isabel Castro</td>
-                                    <td class="manager-name">Carlos García</td>
-                                    <td class="revenue">$0.8M</td>
-                                    <td class="approvals">7</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
