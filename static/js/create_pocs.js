@@ -1,8 +1,7 @@
-// pocs.js - Sistema de gestión de POCs con modales
+// pocs.js - Sistema de gestión de POCs con modales MEJORADO
 
 // Variables globales
 let selectedEquipment = [];
-let selectedItems = [];
 let allEquipment = [];
 let allEquipmentItems = [];
 let modalCreated = false;
@@ -12,6 +11,22 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('POCs.js loaded');
     loadEquipmentData();
 });
+
+// Cargar datos de equipos
+async function loadEquipmentData() {
+    try {
+        const equipmentResponse = await fetch('/equipment');
+        allEquipment = await equipmentResponse.json();
+
+        const itemsResponse = await fetch('/equipment_items');
+        allEquipmentItems = await itemsResponse.json();
+
+        console.log('Equipment loaded:', allEquipment.length);
+        console.log('Items loaded:', allEquipmentItems.length);
+    } catch (error) {
+        console.error('Error loading equipment:', error);
+    }
+}
 
 // Crear estructura del modal
 function createModalStructure() {
@@ -30,64 +45,56 @@ function createModalStructure() {
                         <textarea id="modal-justification" class="modal-textarea" placeholder="Enter business justification..." rows="6"></textarea>
                     </div>
 
-                    <!-- Solutions Selection -->
+                    <!-- Equipment Selection -->
                     <div class="modal-section">
-                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Solutions Selection</h3>
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Select Equipment</h3>
+                        <p style="color: #666; font-size: 14px; margin-bottom: 1rem;">
+                            Search and select equipment solutions. The equipment items will be shown automatically.
+                        </p>
 
-                        <div class="modal-grid">
-                            <div class="modal-field">
-                                <label class="modal-label" for="modal-equipment">Equipment</label>
-                                <div class="modal-search">
-                                    <input id="modal-equipment" class="modal-input" type="text" 
-                                           placeholder="Search and select equipment"
-                                           oninput="searchEquipment(this.value)" />
-                                    <svg class="modal-icon" viewBox="0 0 24 24">
-                                        <path d="M19.6 21L13.3 14.7C12.8 15.1 12.225 15.4167 11.575 15.65C10.925 15.8833 10.2333 16 9.5 16C7.68333 16 6.14583 15.3708 4.8875 14.1125C3.62917 12.8542 3 11.3167 3 9.5C3 7.68333 3.62917 6.14583 4.8875 4.8875C6.14583 3.62917 7.68333 3 9.5 3C11.3167 3 12.8542 3.62917 14.1125 4.8875C15.3708 6.14583 16 7.68333 16 9.5C16 10.2333 15.8833 10.925 15.65 11.575C15.4167 12.225 15.1 12.8 14.7 13.3L21 19.6L19.6 21ZM9.5 14C10.75 14 11.8125 13.5625 12.6875 12.6875C13.5625 11.8125 14 10.75 14 9.5C14 8.25 13.5625 7.1875 12.6875 6.3125C11.8125 5.4375 10.75 5 9.5 5C8.25 5 7.1875 5.4375 6.3125 6.3125C5.4375 7.1875 5 8.25 5 9.5C5 10.75 5.4375 11.8125 6.3125 12.6875C7.1875 13.5625 8.25 14 9.5 14Z" fill="currentColor"/>
-                                    </svg>
-                                    <div id="equipment-dropdown" class="modal-dropdown"></div>
-                                </div>
-                            </div>
-
-                            <div class="modal-field">
-                                <label class="modal-label" for="modal-items">Equipment Items</label>
-                                <div class="modal-search">
-                                    <input id="modal-items" class="modal-input" type="text" 
-                                           placeholder="Search and select items"
-                                           oninput="searchEquipmentItems(this.value)" />
-                                    <svg class="modal-icon" viewBox="0 0 24 24">
-                                        <path d="M19.6 21L13.3 14.7C12.8 15.1 12.225 15.4167 11.575 15.65C10.925 15.8833 10.2333 16 9.5 16C7.68333 16 6.14583 15.3708 4.8875 14.1125C3.62917 12.8542 3 11.3167 3 9.5C3 7.68333 3.62917 6.14583 4.8875 4.8875C6.14583 3.62917 7.68333 3 9.5 3C11.3167 3 12.8542 3.62917 14.1125 4.8875C15.3708 6.14583 16 7.68333 16 9.5C16 10.2333 15.8833 10.925 15.65 11.575C15.4167 12.225 15.1 12.8 14.7 13.3L21 19.6L19.6 21ZM9.5 14C10.75 14 11.8125 13.5625 12.6875 12.6875C13.5625 11.8125 14 10.75 14 9.5C14 8.25 13.5625 7.1875 12.6875 6.3125C11.8125 5.4375 10.75 5 9.5 5C8.25 5 7.1875 5.4375 6.3125 6.3125C5.4375 7.1875 5 8.25 5 9.5C5 10.75 5.4375 11.8125 6.3125 12.6875C7.1875 13.5625 8.25 14 9.5 14Z" fill="currentColor"/>
-                                    </svg>
-                                    <div id="items-dropdown" class="modal-dropdown"></div>
-                                </div>
+                        <div class="modal-field">
+                            <label class="modal-label" for="modal-equipment">Search Equipment</label>
+                            <div class="modal-search">
+                                <input id="modal-equipment" class="modal-input" type="text" 
+                                       placeholder="Type at least 2 characters to search..."
+                                       oninput="searchEquipment(this.value)" />
+                                <svg class="modal-icon" viewBox="0 0 24 24">
+                                    <path d="M19.6 21L13.3 14.7C12.8 15.1 12.225 15.4167 11.575 15.65C10.925 15.8833 10.2333 16 9.5 16C7.68333 16 6.14583 15.3708 4.8875 14.1125C3.62917 12.8542 3 11.3167 3 9.5C3 7.68333 3.62917 6.14583 4.8875 4.8875C6.14583 3.62917 7.68333 3 9.5 3C11.3167 3 12.8542 3.62917 14.1125 4.8875C15.3708 6.14583 16 7.68333 16 9.5C16 10.2333 15.8833 10.925 15.65 11.575C15.4167 12.225 15.1 12.8 14.7 13.3L21 19.6L19.6 21ZM9.5 14C10.75 14 11.8125 13.5625 12.6875 12.6875C13.5625 11.8125 14 10.75 14 9.5C14 8.25 13.5625 7.1875 12.6875 6.3125C11.8125 5.4375 10.75 5 9.5 5C8.25 5 7.1875 5.4375 6.3125 6.3125C5.4375 7.1875 5 8.25 5 9.5C5 10.75 5.4375 11.8125 6.3125 12.6875C7.1875 13.5625 8.25 14 9.5 14Z" fill="currentColor"/>
+                                </svg>
+                                <div id="equipment-dropdown" class="modal-dropdown"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Items Table -->
-                    <div class="modal-table-wrap">
-                        <table class="modal-items-table">
-                            <thead>
-                                <tr>
-                                    <th>Type</th>
-                                    <th>Item Name</th>
-                                    <th>Quantity</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="modal-items-tbody">
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: #618975; padding: 2rem;">
-                                        No items added yet. Search and select equipment or items above.
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- Selected Equipment & Items Table -->
+                    <div class="modal-section">
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Selected Equipment & Items</h3>
+                        <div class="modal-table-wrap">
+                            <table class="modal-items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Product Number</th>
+                                        <th style="text-align: center;">Qty</th>
+                                        <th style="text-align: right;">Price</th>
+                                        <th style="text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modal-items-tbody">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: #618975; padding: 2rem;">
+                                            No equipment selected yet. Search and select equipment above.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <div style="color: #618975; font-size: 14px;">
-                        <span id="items-count">0 items selected</span>
+                        <span id="items-count">0 equipment selected</span>
                     </div>
                     <div class="modal-footer-actions">
                         <button class="modal-btn-cancel" onclick="closeCreatePOC()">Cancel</button>
@@ -105,50 +112,33 @@ function createModalStructure() {
 function openCreatePOC() {
     console.log('openCreatePOC called');
     
-    // Crear modal si no existe
     if (!modalCreated) {
         createModalStructure();
         modalCreated = true;
     }
-
+    
     const modal = document.getElementById('pocModal');
     if (!modal) {
         console.error('Modal not found!');
         return;
     }
-
-    // Mostrar modal
+    
     modal.classList.add('active');
-    modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-
-    // Intentar limpiar campos si existen
-    const justification = document.getElementById('modal-justification');
-    const equipment = document.getElementById('modal-equipment');
-    const items = document.getElementById('modal-items');
-
-    if (justification) justification.value = '';
-    if (equipment) equipment.value = '';
-    if (items) items.value = '';
-
+    
+    // Resetear formulario
+    document.getElementById('modal-justification').value = '';
+    document.getElementById('modal-equipment').value = '';
     selectedEquipment = [];
-    selectedItems = [];
-    if (typeof updateItemsTable === 'function') {
-        updateItemsTable();
-    }
+    updateItemsTable();
 }
-
 
 // Cerrar modal
 function closeCreatePOC() {
     const modal = document.getElementById('pocModal');
-    if (!modal) return;
-
     modal.classList.remove('active');
-    modal.style.display = 'none'; // 🔹 Oculta el modal completamente
-    document.body.style.overflow = ''; // 🔹 Restaura el scroll de fondo
+    document.body.style.overflow = '';
 }
-
 
 // Cerrar modal al hacer clic fuera
 document.addEventListener('click', function(e) {
@@ -157,24 +147,6 @@ document.addEventListener('click', function(e) {
         closeCreatePOC();
     }
 });
-
-// Cargar datos de equipos
-async function loadEquipmentData() {
-    try {
-        // Cargar Equipment
-        const equipmentResponse = await fetch('/equipment');
-        allEquipment = await equipmentResponse.json();
-
-        // Cargar Equipment Items
-        const itemsResponse = await fetch('/equipment_items');
-        allEquipmentItems = await itemsResponse.json();
-
-        console.log('Equipment loaded:', allEquipment.length);
-        console.log('Items loaded:', allEquipmentItems.length);
-    } catch (error) {
-        console.error('Error loading equipment:', error);
-    }
-}
 
 // Buscar equipos
 function searchEquipment(query) {
@@ -187,44 +159,23 @@ function searchEquipment(query) {
 
     const filtered = allEquipment.filter(eq => 
         eq.product_description.toLowerCase().includes(query.toLowerCase()) ||
-        eq.product_number.toLowerCase().includes(query.toLowerCase())
+        eq.product_number.toLowerCase().includes(query.toLowerCase()) ||
+        (eq.company_program && eq.company_program.toLowerCase().includes(query.toLowerCase()))
     );
 
     if (filtered.length > 0) {
-        dropdown.innerHTML = filtered.map(eq => `
-            <div class="modal-dropdown-item" onclick="addEquipment(${eq.solution_id})">
-                <strong>${eq.product_description}</strong><br>
-                <small style="color: #618975;">${eq.product_number} - $${eq.price}</small>
-            </div>
-        `).join('');
-        dropdown.classList.add('active');
-    } else {
-        dropdown.innerHTML = '<div class="modal-dropdown-item" style="color: #618975;">No results found</div>';
-        dropdown.classList.add('active');
-    }
-}
-
-// Buscar items de equipos
-function searchEquipmentItems(query) {
-    const dropdown = document.getElementById('items-dropdown');
-    
-    if (!query || query.length < 2) {
-        dropdown.classList.remove('active');
-        return;
-    }
-
-    const filtered = allEquipmentItems.filter(item => 
-        item.product_name.toLowerCase().includes(query.toLowerCase()) ||
-        item.product_number.toLowerCase().includes(query.toLowerCase())
-    );
-
-    if (filtered.length > 0) {
-        dropdown.innerHTML = filtered.map(item => `
-            <div class="modal-dropdown-item" onclick="addEquipmentItem(${item.item_id})">
-                <strong>${item.product_name}</strong><br>
-                <small style="color: #618975;">${item.product_number} - Qty: ${item.qty} - $${item.unit_price}</small>
-            </div>
-        `).join('');
+        dropdown.innerHTML = filtered.map(eq => {
+            const itemsCount = allEquipmentItems.filter(item => item.solution_id === eq.solution_id).length;
+            return `
+                <div class="modal-dropdown-item" onclick="addEquipment(${eq.solution_id})">
+                    <strong>${eq.product_description}</strong><br>
+                    <small style="color: #618975;">
+                        ${eq.product_number} | $${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                        ${itemsCount > 0 ? ` | ${itemsCount} items` : ' | No items'}
+                    </small>
+                </div>
+            `;
+        }).join('');
         dropdown.classList.add('active');
     } else {
         dropdown.innerHTML = '<div class="modal-dropdown-item" style="color: #618975;">No results found</div>';
@@ -236,47 +187,30 @@ function searchEquipmentItems(query) {
 function addEquipment(equipmentId) {
     const equipment = allEquipment.find(eq => eq.solution_id === equipmentId);
     
-    if (!equipment) return;
+    if (!equipment) {
+        console.error('Equipment not found:', equipmentId);
+        return;
+    }
     
     // Verificar si ya está agregado
     if (selectedEquipment.find(eq => eq.solution_id === equipmentId)) {
-        alert('This equipment is already added');
+        alert('⚠️ This equipment is already selected');
         return;
     }
 
+    // Obtener los items de este equipo
+    const equipmentItems = allEquipmentItems.filter(item => item.solution_id === equipmentId);
+
     selectedEquipment.push({
         ...equipment,
-        quantity: 1
+        items: equipmentItems
     });
 
     // Limpiar búsqueda
     document.getElementById('modal-equipment').value = '';
     document.getElementById('equipment-dropdown').classList.remove('active');
 
-    updateItemsTable();
-}
-
-// Agregar item de equipo
-function addEquipmentItem(itemId) {
-    const item = allEquipmentItems.find(i => i.item_id === itemId);
-    
-    if (!item) return;
-    
-    // Verificar si ya está agregado
-    if (selectedItems.find(i => i.item_id === itemId)) {
-        alert('This item is already added');
-        return;
-    }
-
-    selectedItems.push({
-        ...item,
-        quantity: item.qty
-    });
-
-    // Limpiar búsqueda
-    document.getElementById('modal-items').value = '';
-    document.getElementById('items-dropdown').classList.remove('active');
-
+    console.log('Equipment added:', equipment.product_description, 'with', equipmentItems.length, 'items');
     updateItemsTable();
 }
 
@@ -284,87 +218,95 @@ function addEquipmentItem(itemId) {
 function updateItemsTable() {
     const tbody = document.getElementById('modal-items-tbody');
     
-    if (selectedEquipment.length === 0 && selectedItems.length === 0) {
+    if (selectedEquipment.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="4" style="text-align: center; color: #618975; padding: 2rem;">
-                    No items added yet. Search and select equipment or items above.
+                    No equipment selected yet. Search and select equipment above.
                 </td>
             </tr>
         `;
-        document.getElementById('items-count').textContent = '0 items selected';
+        document.getElementById('items-count').textContent = '0 equipment selected';
         return;
     }
 
     let html = '';
+    let totalItems = 0;
+    let totalPrice = 0;
 
-    // Agregar equipos
+    // Agregar equipos con sus items
     selectedEquipment.forEach(eq => {
+        // Calcular precio del equipo
+        const equipmentPrice = parseFloat(eq.price) || 0;
+        totalPrice += equipmentPrice;
+
+        // Fila del equipo
         html += `
-            <tr>
-                <td>Equipment</td>
-                <td class="modal-muted">${eq.product_description}</td>
-                <td class="modal-muted">
-                    <input type="number" value="${eq.quantity}" min="1" 
-                           style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;"
-                           onchange="updateEquipmentQuantity(${eq.solution_id}, this.value)">
-                </td>
-                <td>
-                    <button class="modal-link" onclick="removeEquipment(${eq.solution_id})">Remove</button>
+            <tr style="background: #f0f9f5; border-top: 2px solid #05AD7A;">
+                <td><strong>${eq.product_description}</strong></td>
+                <td><strong>${eq.product_number}</strong></td>
+                <td style="text-align: center;"><strong>—</strong></td>
+                <td style="text-align: right;"><strong>${equipmentPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong></td>
+                <td style="text-align: center;">
+                    <button class="modal-link" onclick="removeEquipment(${eq.solution_id})" style="color: #dc3545; font-weight: 600;">Remove</button>
                 </td>
             </tr>
         `;
+
+        // Filas de los items del equipo
+        if (eq.items && eq.items.length > 0) {
+            eq.items.forEach(item => {
+                const itemPrice = parseFloat(item.unit_price) || 0;
+                html += `
+                    <tr style="background: #fafafa;">
+                        <td style="padding-left: 2rem;">↳ ${item.product_name}</td>
+                        <td style="color: #666;">${item.product_number}</td>
+                        <td style="text-align: center; color: #666;">${item.qty}</td>
+                        <td style="text-align: right; color: #666;">${itemPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                        <td></td>
+                    </tr>
+                `;
+                totalItems++;
+            });
+        } else {
+            html += `
+                <tr style="background: #fafafa;">
+                    <td colspan="5" style="padding-left: 2rem; color: #999; font-style: italic;">
+                        No items associated with this equipment
+                    </td>
+                </tr>
+            `;
+        }
     });
 
-    // Agregar items
-    selectedItems.forEach(item => {
-        html += `
-            <tr>
-                <td>Equipment Item</td>
-                <td class="modal-muted">${item.product_name}</td>
-                <td class="modal-muted">
-                    <input type="number" value="${item.quantity}" min="1" 
-                           style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;"
-                           onchange="updateItemQuantity(${item.item_id}, this.value)">
-                </td>
-                <td>
-                    <button class="modal-link" onclick="removeItem(${item.item_id})">Remove</button>
-                </td>
-            </tr>
-        `;
-    });
+    // Fila de total
+    html += `
+        <tr style="background: #e8f5e9; border-top: 2px solid #05AD7A; font-weight: 700;">
+            <td colspan="3" style="text-align: right; padding-right: 1rem;">TOTAL:</td>
+            <td style="text-align: right; font-size: 18px; color: #05AD7A;">${totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+            <td></td>
+        </tr>
+    `;
 
     tbody.innerHTML = html;
     
-    const totalItems = selectedEquipment.length + selectedItems.length;
-    document.getElementById('items-count').textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''} selected`;
+    const equipmentCount = selectedEquipment.length;
+    document.getElementById('items-count').textContent = 
+        `${equipmentCount} equipment selected (${totalItems} total items)`;
 }
 
-// Actualizar cantidad de equipo
-function updateEquipmentQuantity(equipmentId, quantity) {
-    const equipment = selectedEquipment.find(eq => eq.solution_id === equipmentId);
-    if (equipment) {
-        equipment.quantity = parseInt(quantity) || 1;
-    }
-}
-
-// Actualizar cantidad de item
-function updateItemQuantity(itemId, quantity) {
-    const item = selectedItems.find(i => i.item_id === itemId);
-    if (item) {
-        item.quantity = parseInt(quantity) || 1;
-    }
-}
-
-// Remover equipo
+// Remover equipo (y todos sus items)
 function removeEquipment(equipmentId) {
+    const equipment = selectedEquipment.find(eq => eq.solution_id === equipmentId);
+    
+    if (equipment) {
+        const itemCount = equipment.items ? equipment.items.length : 0;
+        if (!confirm(`Remove "${equipment.product_description}"?\n\nThis will also remove ${itemCount} associated item${itemCount !== 1 ? 's' : ''}.`)) {
+            return;
+        }
+    }
+    
     selectedEquipment = selectedEquipment.filter(eq => eq.solution_id !== equipmentId);
-    updateItemsTable();
-}
-
-// Remover item
-function removeItem(itemId) {
-    selectedItems = selectedItems.filter(i => i.item_id !== itemId);
     updateItemsTable();
 }
 
@@ -373,19 +315,19 @@ async function submitPOC() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (!user) {
-        alert('User not logged in');
+        alert('❌ User not logged in');
         return;
     }
 
     const justification = document.getElementById('modal-justification').value.trim();
 
     if (!justification) {
-        alert('Please enter a business justification');
+        alert('⚠️ Please enter a business justification');
         return;
     }
 
-    if (selectedEquipment.length === 0 && selectedItems.length === 0) {
-        alert('Please add at least one equipment or item');
+    if (selectedEquipment.length === 0) {
+        alert('⚠️ Please select at least one equipment');
         return;
     }
 
@@ -397,30 +339,22 @@ async function submitPOC() {
         const pocData = {
             client_user_id: user.id,
             business_justification: justification,
-            // ✅ NO incluir is_approved - se usará el default del modelo (None)
-            created_date: new Date().toISOString().split('T')[0] // Solo la fecha en formato YYYY-MM-DD
+            created_date: new Date().toISOString().split('T')[0]
         };
         
         console.log('Sending POC data:', pocData);
         
-        // Crear POC
         const pocResponse = await fetch('/pocs', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(pocData)
         });
 
-        console.log('Response status:', pocResponse.status);
-        console.log('Response headers:', pocResponse.headers);
-        
-        // Verificar el tipo de contenido
         const contentType = pocResponse.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
             const text = await pocResponse.text();
             console.error('Received non-JSON response:', text);
-            throw new Error('Server returned HTML instead of JSON. Check your Flask routes.');
+            throw new Error('Server error. Please check the console.');
         }
 
         const pocResponseData = await pocResponse.json();
@@ -434,35 +368,33 @@ async function submitPOC() {
         console.log('POC created with ID:', pocId);
 
         // Agregar equipos al POC
-        if (selectedEquipment.length > 0) {
-            const equipmentData = selectedEquipment.map(eq => ({
-                poc_id: pocId,
-                solution_id: eq.solution_id
-            }));
-            
-            console.log('Adding equipment to POC:', equipmentData);
-            
-            const equipResponse = await fetch('/poc_equipment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(equipmentData)
-            });
-            
-            const equipResponseData = await equipResponse.json();
-            console.log('Equipment added:', equipResponseData);
-        }
-
-        alert('POC created successfully!');
-        closeCreatePOC();
+        const equipmentData = selectedEquipment.map(eq => ({
+            poc_id: pocId,
+            solution_id: eq.solution_id
+        }));
         
-        // Recargar página o actualizar dashboard
+        console.log('Adding equipment to POC:', equipmentData);
+        
+        const equipResponse = await fetch('/poc_equipment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(equipmentData)
+        });
+        
+        if (!equipResponse.ok) {
+            throw new Error('Error adding equipment to POC');
+        }
+        
+        const equipResponseData = await equipResponse.json();
+        console.log('Equipment added:', equipResponseData);
+
+        alert('✅ POC created successfully!');
+        closeCreatePOC();
         window.location.reload();
 
     } catch (error) {
         console.error('Error creating POC:', error);
-        alert('Error creating POC: ' + error.message);
+        alert('❌ Error creating POC: ' + error.message);
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Create POC';
@@ -471,7 +403,6 @@ async function submitPOC() {
 
 // Función para abrir modal de ver POCs
 function openViewPOCs() {
-    // Redirigir a la página de POCs del usuario
     window.location.href = '/pocs_clientes.html';
 }
 
@@ -483,7 +414,17 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 🌎 Exponer funciones globales
+// Al final de create_pocs.js - ANTES de cerrar el archivo
+
+// Cerrar dropdowns al hacer clic fuera
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.modal-search')) {
+        const dropdowns = document.querySelectorAll('.modal-dropdown');
+        dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
+    }
+});
+
+// 🌎 Exponer funciones globales - CRÍTICO
 window.openCreatePOC = openCreatePOC;
 window.closeCreatePOC = closeCreatePOC;
 window.openViewPOCs = openViewPOCs;
