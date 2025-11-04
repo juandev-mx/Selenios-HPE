@@ -413,3 +413,18 @@ document.addEventListener('click', function(e) {
         dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
     }
 });
+
+// Al final de create_pocs.js - ANTES de cerrar el archivo
+
+// Cerrar dropdowns al hacer clic fuera
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.modal-search')) {
+        const dropdowns = document.querySelectorAll('.modal-dropdown');
+        dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
+    }
+});
+
+// 🌎 Exponer funciones globales - CRÍTICO
+window.openCreatePOC = openCreatePOC;
+window.closeCreatePOC = closeCreatePOC;
+window.openViewPOCs = openViewPOCs;

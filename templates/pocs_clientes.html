@@ -12,7 +12,11 @@
   <!-- Header con navegación -->
   <header class="header">
     <div class="header-left">
-      <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo">
+      <a href="home_cliente.html">
+        <img class="logo" 
+              src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188"
+              alt="HPE Logo">
+      </a>  
       <h2 class="customer-text">Customer</h2>
     </div>
     
@@ -42,7 +46,8 @@
         </select>
       </div>
       
-      <button class="btn btn-primary" onclick="window.location.href='/home_cliente.html'">
+      <!-- Cambiar onclick por id para manejarlo con addEventListener -->
+      <button id="create-poc-btn" class="btn btn-primary">
         <span style="font-size:18px">+</span> Create New POC
       </button>
     </div>
@@ -62,7 +67,33 @@
     </div>
   </main>
 
-  <!-- Scripts -->
+  <!-- Scripts - IMPORTANTE: create_pocs.js PRIMERO -->
+  <script src="/static/js/create_pocs.js"></script>
   <script src="/static/js/pocs_clientes.js"></script>
+  
+  <!-- Script inline para asegurar que el botón funcione -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const createBtn = document.getElementById('create-poc-btn');
+      if (createBtn) {
+        createBtn.addEventListener('click', function() {
+          console.log('Create POC button clicked');
+          if (typeof window.openCreatePOC === 'function') {
+            window.openCreatePOC();
+          } else {
+            console.error('openCreatePOC function not found!');
+            // Intentar cargar el modal manualmente
+            setTimeout(() => {
+              if (typeof window.openCreatePOC === 'function') {
+                window.openCreatePOC();
+              } else {
+                alert('Error: Modal function not loaded. Please refresh the page.');
+              }
+            }, 500);
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
