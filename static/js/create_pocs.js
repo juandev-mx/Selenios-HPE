@@ -110,31 +110,45 @@ function openCreatePOC() {
         createModalStructure();
         modalCreated = true;
     }
-    
+
     const modal = document.getElementById('pocModal');
     if (!modal) {
         console.error('Modal not found!');
         return;
     }
-    
+
+    // Mostrar modal
     modal.classList.add('active');
+    modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    
-    // Resetear formulario
-    document.getElementById('modal-justification').value = '';
-    document.getElementById('modal-equipment').value = '';
-    document.getElementById('modal-items').value = '';
+
+    // Intentar limpiar campos si existen
+    const justification = document.getElementById('modal-justification');
+    const equipment = document.getElementById('modal-equipment');
+    const items = document.getElementById('modal-items');
+
+    if (justification) justification.value = '';
+    if (equipment) equipment.value = '';
+    if (items) items.value = '';
+
     selectedEquipment = [];
     selectedItems = [];
-    updateItemsTable();
+    if (typeof updateItemsTable === 'function') {
+        updateItemsTable();
+    }
 }
+
 
 // Cerrar modal
 function closeCreatePOC() {
     const modal = document.getElementById('pocModal');
+    if (!modal) return;
+
     modal.classList.remove('active');
-    document.body.style.overflow = '';
+    modal.style.display = 'none'; // 🔹 Oculta el modal completamente
+    document.body.style.overflow = ''; // 🔹 Restaura el scroll de fondo
 }
+
 
 // Cerrar modal al hacer clic fuera
 document.addEventListener('click', function(e) {
@@ -468,3 +482,8 @@ document.addEventListener('click', function(e) {
         dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
     }
 });
+
+// 🌎 Exponer funciones globales
+window.openCreatePOC = openCreatePOC;
+window.closeCreatePOC = closeCreatePOC;
+window.openViewPOCs = openViewPOCs;
