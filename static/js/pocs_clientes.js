@@ -967,7 +967,7 @@ async function deletePOC(pocId) {
             });
         }
         
-        // Luego eliminar el POC
+        // Luego eliminar el POC tamarindos
         const response = await fetch(`/pocs/${pocId}`, {
             method: 'DELETE'
         });
