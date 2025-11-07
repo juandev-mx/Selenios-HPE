@@ -189,7 +189,7 @@ function addEquipment(equipmentId) {
     
     // Verificar si ya está agregado
     if (selectedEquipment.find(eq => eq.solution_id === equipmentId)) {
-        alert('⚠️ This equipment is already selected');
+        alert(' This equipment is already selected');
         return;
     }
 
@@ -317,12 +317,12 @@ async function submitPOC() {
     const justification = document.getElementById('modal-justification').value.trim();
 
     if (!justification) {
-        alert('⚠️ Please enter a business justification');
+        alert(' Please enter a business justification');
         return;
     }
 
     if (selectedEquipment.length === 0) {
-        alert('⚠️ Please select at least one equipment');
+        alert(' Please select at least one equipment');
         return;
     }
 
@@ -383,7 +383,7 @@ async function submitPOC() {
         const equipResponseData = await equipResponse.json();
         console.log('Equipment added:', equipResponseData);
 
-        alert('✅ POC created successfully!');
+        alert(' POC created successfully!');
         closeCreatePOC();
         window.location.reload();
 
