@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hasError) return;
 
                 submitBtn.disabled = true;
-        submitBtn.textContent = 'Iniciando sesión...';
+        submitBtn.textContent = 'Logging in...';
 
         try {
             const response = await fetch('/api/login', {

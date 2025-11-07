@@ -487,7 +487,7 @@ function setupHeaderAndNav(user) {
       <a href="/PocsHPEManager.html" class="nav-link">Approvals</a>
       <a href="/solutions_catalog.html" class="nav-link active">Equipments</a>
       
-      <a href="/home_hpe.html#section-reportes" class="nav-link">Reportes</a>
+      <a href="/home_hpe.html#section-reportes" class="nav-link">Reports</a>
       <img class="avatar" src="static/img/admin.png" alt="User Avatar">
     `;
   }
