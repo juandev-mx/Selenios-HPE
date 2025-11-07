@@ -27,6 +27,7 @@
     <a href="solutions_catalog.html" class="nav-link" data-section="equipments">Equipments</a>
     <!-- Solo visible para HPE_MANAGER -->
     <a href="home_hpe.html#users" class="nav-link manager-only" data-section="users" style="display: none;">Users & companies</a>
+    <a href="#reportes" class="nav-link" data-section="reportes">Reportes</a>
 </nav>
 
                 <div class="user-info-header">
@@ -172,11 +173,81 @@
                 <div id="equipments-content"></div>
             </div>
 
+            <!-- Sección Reportes -->
+            <div id="section-reportes" class="section-content" style="display: none;">
+                <div class="page-header">
+                    <h2 class="page-title">Generar Reportes</h2>
+                    <p class="page-subtitle">Selecciona el tipo de reporte que deseas generar en PDF.</p>
+                </div>
+
+                <div class="reports-grid">
+                    <!-- Reportes de Clientes y Empresas -->
+                    <div class="report-category">
+                        <h3>Clientes y Empresas</h3>
+                        <div class="report-buttons">
+                            <button class="report-btn" data-report="total_empresas">Total de Empresas Registradas</button>
+                            <button class="report-btn" data-report="pocs_por_empresa">PoCs por Empresa</button>
+                            <button class="report-btn" data-report="tasa_aprobacion_empresa">Tasa de Aprobación por Empresa</button>
+                            <button class="report-btn" data-report="clientes_pocs_completados">Clientes con más PoCs Completados</button>
+                            <button class="report-btn" data-report="tiempo_promedio_pocs">Tiempo Promedio de Ejecución</button>
+                        </div>
+                    </div>
+
+                    <!-- Reportes de PoCs -->
+                    <div class="report-category">
+                        <h3>Proof of Concept (PoCs)</h3>
+                        <div class="report-buttons">
+                            <button class="report-btn" data-report="total_pocs">Total de PoCs Registrados</button>
+                            <button class="report-btn" data-report="pocs_aprobados_vs_no">PoCs Aprobados vs No Aprobados</button>
+                            <button class="report-btn" data-report="pocs_curso_vs_completados">PoCs en Curso vs Completados</button>
+                            <button class="report-btn" data-report="tiempo_promedio_completado">Tiempo Promedio de Completado</button>
+                            <button class="report-btn" data-report="pocs_por_representante">PoCs por Representante HPE</button>
+                            <button class="report-btn" data-report="proyectos_justificacion">Proyectos con Mayor Justificación</button>
+                        </div>
+                    </div>
+
+                    <!-- Reportes de Equipos/Soluciones -->
+                    <div class="report-category">
+                        <h3>Equipos y Soluciones</h3>
+                        <div class="report-buttons">
+                            <button class="report-btn" data-report="total_equipos_por_solucion">Total de Equipos por Solución</button>
+                            <button class="report-btn" data-report="costo_total_equipos_poc">Costo Total de Equipos por PoC</button>
+                            <button class="report-btn" data-report="equipos_mas_utilizados">Equipos Más Utilizados en PoCs</button>
+                            <button class="report-btn" data-report="soluciones_mayor_inversion">Soluciones con Mayor Inversión</button>
+                            <button class="report-btn" data-report="equipamiento_promedio_poc">Equipamiento Promedio por PoC</button>
+                            <button class="report-btn" data-report="comparacion_soluciones_equipos">Comparación Soluciones vs Usadas</button>
+                        </div>
+                    </div>
+
+                    <!-- Reportes de Usuarios -->
+                    <div class="report-category">
+                        <h3>Usuarios</h3>
+                        <div class="report-buttons">
+                            <button class="report-btn" data-report="usuarios_mas_pocs">Usuarios con Más PoCs</button>
+                            <button class="report-btn" data-report="relacion_usuarios_clientes">Relación Usuarios y Clientes</button>
+                            <button class="report-btn" data-report="usuarios_internos_externos">Usuarios Internos vs Externos</button>
+                            <button class="report-btn" data-report="usuarios_activos">Usuarios Activos</button>
+                        </div>
+                    </div>
+
+                    <!-- Reportes Financieros -->
+                    <div class="report-category">
+                        <h3>Estadísticas Financieras</h3>
+                        <div class="report-buttons">
+                            <button class="report-btn" data-report="costo_total_poc">Costo Total por PoC</button>
+                            <button class="report-btn" data-report="soluciones_mas_caras">Soluciones Más Caras</button>
+                            <button class="report-btn" data-report="pocs_mayor_inversion">PoCs con Mayor Inversión</button>
+                            <button class="report-btn" data-report="empresa_mayor_inversion">Empresa con Mayor Inversión</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
         </div>
     </main>
 
     <script src="/static/js/role_hpe.js"></script>
     <script src="/static/js/analytics.js"></script>
+    <script src="/static/js/reports.js"></script>
 </body>
 </html>
