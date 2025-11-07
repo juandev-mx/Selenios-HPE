@@ -1,13 +1,10 @@
-// pocs.js - Sistema de gestión de POCs con modales MEJORADO
 
-// Variables globales
 let selectedEquipment = [];
 let allEquipment = [];
 let allEquipmentItems = [];
 let modalCreated = false;
 
 
-// Cargar datos de equipos
 async function loadEquipmentData() {
     try {
         const equipmentResponse = await fetch('/equipment');
@@ -23,7 +20,6 @@ async function loadEquipmentData() {
     }
 }
 
-// Crear estructura del modal
 function createModalStructure() {
     const modalHTML = `
         <div id="pocModal" class="modal-overlay">
@@ -103,7 +99,6 @@ function createModalStructure() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-// Abrir modal de crear POC
 function openCreatePOC() {
     console.log('openCreatePOC called');
     
@@ -121,21 +116,18 @@ function openCreatePOC() {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Resetear formulario
-    document.getElementById('modal-justification').value = '';
+        document.getElementById('modal-justification').value = '';
     document.getElementById('modal-equipment').value = '';
     selectedEquipment = [];
     updateItemsTable();
 }
 
-// Cerrar modal
 function closeCreatePOC() {
     const modal = document.getElementById('pocModal');
     modal.classList.remove('active');
     document.body.style.overflow = '';
 }
 
-// Cerrar modal al hacer clic fuera
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('pocModal');
     if (e.target === modal) {
@@ -143,7 +135,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Buscar equipos
 function searchEquipment(query) {
     const dropdown = document.getElementById('equipment-dropdown');
     
@@ -178,7 +169,6 @@ function searchEquipment(query) {
     }
 }
 
-// Agregar equipo
 function addEquipment(equipmentId) {
     const equipment = allEquipment.find(eq => eq.solution_id === equipmentId);
     
@@ -187,29 +177,25 @@ function addEquipment(equipmentId) {
         return;
     }
     
-    // Verificar si ya está agregado
-    if (selectedEquipment.find(eq => eq.solution_id === equipmentId)) {
+        if (selectedEquipment.find(eq => eq.solution_id === equipmentId)) {
         alert(' This equipment is already selected');
         return;
     }
 
-    // Obtener los items de este equipo
-    const equipmentItems = allEquipmentItems.filter(item => item.solution_id === equipmentId);
+        const equipmentItems = allEquipmentItems.filter(item => item.solution_id === equipmentId);
 
     selectedEquipment.push({
         ...equipment,
         items: equipmentItems
     });
 
-    // Limpiar búsqueda
-    document.getElementById('modal-equipment').value = '';
+        document.getElementById('modal-equipment').value = '';
     document.getElementById('equipment-dropdown').classList.remove('active');
 
     console.log('Equipment added:', equipment.product_description, 'with', equipmentItems.length, 'items');
     updateItemsTable();
 }
 
-// Actualizar tabla de items
 function updateItemsTable() {
     const tbody = document.getElementById('modal-items-tbody');
     
@@ -229,14 +215,11 @@ function updateItemsTable() {
     let totalItems = 0;
     let totalPrice = 0;
 
-    // Agregar equipos con sus items
-    selectedEquipment.forEach(eq => {
-        // Calcular precio del equipo
-        const equipmentPrice = parseFloat(eq.price) || 0;
+        selectedEquipment.forEach(eq => {
+                const equipmentPrice = parseFloat(eq.price) || 0;
         totalPrice += equipmentPrice;
 
-        // Fila del equipo
-        html += `
+                html += `
             <tr style="background: #f0f9f5; border-top: 2px solid #05AD7A;">
                 <td><strong>${eq.product_description}</strong></td>
                 <td><strong>${eq.product_number}</strong></td>
@@ -248,8 +231,7 @@ function updateItemsTable() {
             </tr>
         `;
 
-        // Filas de los items del equipo
-        if (eq.items && eq.items.length > 0) {
+                if (eq.items && eq.items.length > 0) {
             eq.items.forEach(item => {
                 const itemPrice = parseFloat(item.unit_price) || 0;
                 html += `
@@ -274,8 +256,7 @@ function updateItemsTable() {
         }
     });
 
-    // Fila de total
-    html += `
+        html += `
         <tr style="background: #e8f5e9; border-top: 2px solid #05AD7A; font-weight: 700;">
             <td colspan="3" style="text-align: right; padding-right: 1rem;">TOTAL:</td>
             <td style="text-align: right; font-size: 18px; color: #05AD7A;">${totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
@@ -290,7 +271,6 @@ function updateItemsTable() {
         `${equipmentCount} equipment selected (${totalItems} total items)`;
 }
 
-// Remover equipo (y todos sus items)
 function removeEquipment(equipmentId) {
     const equipment = selectedEquipment.find(eq => eq.solution_id === equipmentId);
     
@@ -305,7 +285,6 @@ function removeEquipment(equipmentId) {
     updateItemsTable();
 }
 
-// Enviar POC
 async function submitPOC() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
@@ -362,8 +341,7 @@ async function submitPOC() {
         const pocId = pocResponseData.created[0].poc_id;
         console.log('POC created with ID:', pocId);
 
-        // Agregar equipos al POC
-        const equipmentData = selectedEquipment.map(eq => ({
+                const equipmentData = selectedEquipment.map(eq => ({
             poc_id: pocId,
             solution_id: eq.solution_id
         }));
@@ -396,15 +374,12 @@ async function submitPOC() {
     }
 }
 
-// Función para abrir modal de ver POCs
 function openViewPOCs() {
     window.location.href = '/pocs_clientes.html';
 }
 
 
-// Al final de create_pocs.js - ANTES de cerrar el archivo
 
-// Cerrar dropdowns al hacer clic fuera
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.modal-search')) {
         const dropdowns = document.querySelectorAll('.modal-dropdown');
@@ -412,16 +387,13 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 🌎 Exponer funciones globales - CRÍTICO
 window.openCreatePOC = openCreatePOC;
 window.closeCreatePOC = closeCreatePOC;
 window.openViewPOCs = openViewPOCs;
 window.loadEquipmentData = loadEquipmentData;
 
-// Inicializar SOLO si NO estamos en pocs_clientes.html
 if (!document.getElementById('pocs-container')) {
-    // Estamos en home_cliente.html u otra página
-    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
         console.log('create_pocs.js loaded (home)');
         loadEquipmentData();
     });

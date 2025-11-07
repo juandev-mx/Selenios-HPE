@@ -1,42 +1,34 @@
-// hpe-dashboard.js - Script unificado para el dashboard de HPE
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar autenticación
-    const user = JSON.parse(sessionStorage.getItem('user'));
+        const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (!user) {
         window.location.href = '/login.html';
         return;
     }
 
-    // Verificar que sea HPE_REP o HPE_MANAGER
-    if (user.role !== 'HPE_REP' && user.role !== 'HPE_MANAGER') {
+        if (user.role !== 'HPE_REP' && user.role !== 'HPE_MANAGER') {
         alert('Acceso denegado. Esta página es solo para personal de HPE.');
         window.location.href = '/login.html';
         return;
     }
 
-    // Inicializar dashboard
-    initDashboard(user);
+        initDashboard(user);
 });
 
 function initDashboard(user) {
     console.log('Initializing dashboard for user:', user);
-    // Control de acceso basado en rol
-    if (user.role === 'HPE_MANAGER') {
+        if (user.role === 'HPE_MANAGER') {
         showManagerFeatures();
     } else if (user.role === 'HPE_REP') {
         hideManagerFeatures();
     }
 
-    // Event listeners
-    setupEventListeners(user);
+        setupEventListeners(user);
     
-    // Cargar datos iniciales del dashboard
-    console.log('Loading initial dashboard data...');
+        console.log('Loading initial dashboard data...');
     loadDashboardData();
     
-    // Crear menú de avatar
-    createAvatarMenu(user);
+        createAvatarMenu(user);
 }
 
 function showManagerFeatures() {
@@ -103,8 +95,7 @@ function createAvatarMenu(user) {
     avatarContainer.appendChild(menu);
     addAvatarMenuStyles();
     
-    // Toggle del menú
-    avatar.addEventListener('click', function(e) {
+        avatar.addEventListener('click', function(e) {
         e.stopPropagation();
         const isVisible = menu.style.display === 'block';
         
@@ -119,8 +110,7 @@ function createAvatarMenu(user) {
         }
     });
     
-    // Cerrar menú al hacer clic fuera
-    document.addEventListener('click', function(e) {
+        document.addEventListener('click', function(e) {
         if (!avatarContainer.contains(e.target)) {
             if (menu.style.display === 'block') {
                 menu.style.animation = 'slideUp 0.3s ease';
@@ -131,8 +121,7 @@ function createAvatarMenu(user) {
         }
     });
     
-    // Logout
-    const logoutBtn = menu.querySelector('#avatarLogoutBtn');
+        const logoutBtn = menu.querySelector('#avatarLogoutBtn');
     logoutBtn.addEventListener('click', async function() {
         try {
             if (typeof supabase !== 'undefined') {
@@ -293,38 +282,30 @@ function addAvatarMenuStyles() {
     document.head.appendChild(styles);
 }
 
-// Reemplazar la función setupEventListeners en role_hpe.js
 
 function setupEventListeners(user) {
-    // Navegación entre secciones
-    const navLinks = document.querySelectorAll('.nav-link');
+        const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             const section = this.getAttribute('data-section');
             
-            // Si no tiene data-section, no hacer nada (dejar que navegue normalmente)
-            if (!section) return;
+                        if (!section) return;
             
             e.preventDefault();
             
-            // Remover clase active de todos
-            navLinks.forEach(l => l.classList.remove('active'));
+                        navLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
             
-            // Mostrar la sección correspondiente
-            showSection(section, user);
+                        showSection(section, user);
         });
     });
 
-    // Scroll al hacer click en el logo
-    const logo = document.querySelector('.logo');
+        const logo = document.querySelector('.logo');
     if (logo && logo.parentElement) {
         logo.parentElement.addEventListener('click', (e) => {
             e.preventDefault();
-            // Mostrar dashboard
-            showSection('dashboard', user);
-            // Marcar Dashboard como activo
-            navLinks.forEach(l => {
+                        showSection('dashboard', user);
+                        navLinks.forEach(l => {
                 if (l.getAttribute('data-section') === 'dashboard') {
                     l.classList.add('active');
                 } else {
@@ -338,36 +319,29 @@ function setupEventListeners(user) {
 function showSection(sectionName, user) {
     console.log('Showing section:', sectionName);
     
-    // Ocultar todas las secciones
-    const allSections = document.querySelectorAll('.section-content');
+        const allSections = document.querySelectorAll('.section-content');
     allSections.forEach(section => {
         section.style.display = 'none';
     });
 
-    // Mostrar la sección seleccionada
-    const targetSection = document.getElementById(`section-${sectionName}`);
+        const targetSection = document.getElementById(`section-${sectionName}`);
     if (targetSection) {
-        // Verificar permisos para Users & Companies
-        if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
+                if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
             alert('Acceso denegado. Solo los Managers pueden acceder a esta sección.');
-            // Volver a mostrar dashboard
-            showSection('dashboard', user);
+                        showSection('dashboard', user);
             return;
         }
         
         targetSection.style.display = 'block';
         
-        // Cargar datos según la sección
-        if (sectionName === 'dashboard') {
+                if (sectionName === 'dashboard') {
             loadDashboardData();
         } else if (sectionName === 'users' && user.role === 'HPE_MANAGER') {
             loadUsersAndCompanies();
         } else if (sectionName === 'reportes') {
-            // La sección de reportes ya está en el HTML, solo mostrarla
-            console.log('Mostrando sección de reportes');
+                        console.log('Mostrando sección de reportes');
         }
-        // No cargar datos para approvals y equipments ya que son páginas separadas
-        
+                
     } else {
         console.warn('Section not found:', sectionName);
     }
@@ -398,8 +372,7 @@ async function loadDashboardData() {
     console.log('🔄 Cargando dashboard...');
     
     try {
-        // Cargar todos los datos en paralelo
-        const [pocsResponse, companiesResponse, equipmentResponse, pocEquipmentResponse, usersResponse] = await Promise.all([
+                const [pocsResponse, companiesResponse, equipmentResponse, pocEquipmentResponse, usersResponse] = await Promise.all([
             fetch('/pocs'),
             fetch('/client_company'),
             fetch('/equipment'),
@@ -409,8 +382,7 @@ async function loadDashboardData() {
 
         console.log('✅ Respuestas recibidas');
         
-        // Verificar que todas las respuestas sean OK
-        if (!pocsResponse.ok) throw new Error('Error loading POCs');
+                if (!pocsResponse.ok) throw new Error('Error loading POCs');
         if (!companiesResponse.ok) throw new Error('Error loading companies');
         if (!equipmentResponse.ok) throw new Error('Error loading equipment');
         if (!pocEquipmentResponse.ok) throw new Error('Error loading poc_equipment');
@@ -430,23 +402,17 @@ async function loadDashboardData() {
             users: users.length
         });
 
-        // Calcular y actualizar KPIs
-        updateKPIs(pocs, pocEquipment, equipment, users);
+                updateKPIs(pocs, pocEquipment, equipment, users);
 
-        // Calcular y actualizar rendimiento de soluciones
-        updateSolutionsPerformance(equipment, pocEquipment);
+                updateSolutionsPerformance(equipment, pocEquipment);
 
-        // Calcular y actualizar rendimiento de clientes
-        const clientPerformance = calculateClientPerformance(pocs, pocEquipment, equipment, users, companies);
+                const clientPerformance = calculateClientPerformance(pocs, pocEquipment, equipment, users, companies);
         updateClientPerformance(clientPerformance);
 
-        // Calcular y actualizar rendimiento del equipo
-        const teamPerformance = calculateTeamPerformance(equipment, pocEquipment, users);
+                const teamPerformance = calculateTeamPerformance(equipment, pocEquipment, users);
         updateTeamPerformance(teamPerformance);
 
-        // ⭐ REEMPLAZAR updateApprovalTrends con la nueva función
-        // updateApprovalTrends(pocs); // ❌ COMENTAR O ELIMINAR ESTA LÍNEA
-        updateApprovalTrends(pocs);
+                        updateApprovalTrends(pocs);
         
         console.log('✅ Dashboard cargado completamente');
 
@@ -457,26 +423,22 @@ async function loadDashboardData() {
 }
 
 function updateKPIs(pocs, pocEquipment, equipment, users) {
-    // 1. Ingresos totales: solo equipos que están en algún POC
-    const equipmentInPOCs = new Set(pocEquipment.map(pe => pe.solution_id));
+        const equipmentInPOCs = new Set(pocEquipment.map(pe => pe.solution_id));
     const totalRevenue = equipment
         .filter(eq => equipmentInPOCs.has(eq.solution_id))
         .reduce((sum, eq) => sum + parseFloat(eq.price || 0), 0);
     
-    // 2. Tasa de aprobación
-    const approvalRate = pocs.length > 0 ? 
+        const approvalRate = pocs.length > 0 ? 
         ((pocs.filter(p => p.is_approved).length / pocs.length) * 100).toFixed(0) : 0;
     
-    // 3. Clientes activos: compañías que tienen al menos un POC
-    const userMap = {};
+        const userMap = {};
     users.forEach(u => userMap[u.id] = u);
     const activeCompanyIds = new Set(
         pocs.map(p => userMap[p.client_user_id]?.client_company_id).filter(id => id)
     );
     const activeClients = activeCompanyIds.size;
 
-    // Actualizar en el DOM - USAR formatCurrencyFull para el KPI principal
-    const revenueElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
+        const revenueElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
     if (revenueElement) revenueElement.textContent = formatCurrencyFull(totalRevenue);
 
     const approvalElement = document.querySelector('.kpi-card:nth-child(2) .kpi-value');
@@ -487,34 +449,27 @@ function updateKPIs(pocs, pocEquipment, equipment, users) {
 }
 
 function updateSolutionsPerformance(equipment, pocEquipment) {
-    // Contar uso de cada solución
-    const solutionUsage = {};
+        const solutionUsage = {};
     pocEquipment.forEach(pe => {
         solutionUsage[pe.solution_id] = (solutionUsage[pe.solution_id] || 0) + 1;
     });
 
-    // Calcular revenue por solución
-    const solutions = equipment.map(eq => ({
+        const solutions = equipment.map(eq => ({
         solution_id: eq.solution_id,
         name: eq.product_description || eq.product_number || 'N/A',
         revenue: parseFloat(eq.price || 0) * (solutionUsage[eq.solution_id] || 0),
         usage: solutionUsage[eq.solution_id] || 0
     }));
 
-    // Filtrar solo las que tienen uso
-    const usedSolutions = solutions.filter(s => s.usage > 0);
+        const usedSolutions = solutions.filter(s => s.usage > 0);
     
-    // Ordenar por revenue
-    usedSolutions.sort((a, b) => b.revenue - a.revenue);
+        usedSolutions.sort((a, b) => b.revenue - a.revenue);
 
-    // Tomar top 5
-    const topSolutions = usedSolutions.slice(0, 5);
+        const topSolutions = usedSolutions.slice(0, 5);
 
-    // Actualizar gráfica de barras
-    updateSolutionsChart(topSolutions);
+        updateSolutionsChart(topSolutions);
 
-    // Actualizar revenue total de soluciones
-    const totalSolutionsRevenue = topSolutions.reduce((sum, s) => sum + s.revenue, 0);
+        const totalSolutionsRevenue = topSolutions.reduce((sum, s) => sum + s.revenue, 0);
     const chartValue = document.querySelector('.chart-grid .chart-box:nth-child(1) .chart-value');
     if (chartValue) chartValue.textContent = formatCurrency(totalSolutionsRevenue);
 }
@@ -545,8 +500,7 @@ function updateSolutionsChart(solutions) {
 }
 
 function calculateClientPerformance(pocs, pocEquipment, equipment, users, companies) {
-    // Mapa de equipos por POC
-    const equipmentByPoc = {};
+        const equipmentByPoc = {};
     pocEquipment.forEach(pe => {
         if (!equipmentByPoc[pe.poc_id]) {
             equipmentByPoc[pe.poc_id] = [];
@@ -554,14 +508,12 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         equipmentByPoc[pe.poc_id].push(pe.solution_id);
     });
 
-    // Mapa de precios
-    const equipmentPrices = {};
+        const equipmentPrices = {};
     equipment.forEach(eq => {
         equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
     });
 
-    // Calcular ingresos por cliente
-    const clientRevenue = {};
+        const clientRevenue = {};
     const clientHasPocs = {};
     
     pocs.forEach(poc => {
@@ -578,15 +530,13 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         });
     });
 
-    // Mapear usuarios y compañías
-    const userMap = {};
+        const userMap = {};
     users.forEach(u => userMap[u.id] = u);
 
     const companyMap = {};
     companies.forEach(c => companyMap[c.id] = c);
 
-    // Crear array de rendimiento
-    const performance = [];
+        const performance = [];
     Object.keys(clientRevenue).forEach(userId => {
         const user = userMap[userId];
         if (!user) return;
@@ -601,8 +551,7 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         });
     });
 
-    // Ordenar y devolver top 4
-    performance.sort((a, b) => b.revenue - a.revenue);
+        performance.sort((a, b) => b.revenue - a.revenue);
     return performance.slice(0, 4);
 }
 
@@ -637,13 +586,11 @@ function updateApprovalLineChart(data) {
 
     const ctx = canvas.getContext('2d');
 
-    // Destruir gráfica anterior solo si existe y es una instancia válida de Chart
-    if (window.approvalLineChart && typeof window.approvalLineChart.destroy === 'function') {
+        if (window.approvalLineChart && typeof window.approvalLineChart.destroy === 'function') {
         window.approvalLineChart.destroy();
     }
 
-    // Validar que hay datos
-    if (!data || data.length === 0) {
+        if (!data || data.length === 0) {
         ctx.font = '14px Arial';
         ctx.fillStyle = '#618975';
         ctx.textAlign = 'center';
@@ -654,8 +601,7 @@ function updateApprovalLineChart(data) {
     window.approvalLineChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.map(item => item.equipment), // Nombres de los equipos en el eje X
-            datasets: [{
+            labels: data.map(item => item.equipment),             datasets: [{
                 label: 'Approval Rate (%)',
                 data: data.map(item => item.approvalRate),
                 borderColor: '#01a982',
@@ -767,20 +713,17 @@ function calculateTeamPerformance(equipment, pocEquipment, users) {
         }
     });
 
-    // Crear mapa de precios de equipos
-    const equipmentPrices = {};
+        const equipmentPrices = {};
     equipment.forEach(eq => {
         equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
     });
 
     const repPerformance = hpeReps.map(rep => {
-        // Equipos creados por este rep
-        const repEquipmentIds = equipment
+                const repEquipmentIds = equipment
             .filter(eq => eq.created_by === rep.id)
             .map(eq => eq.solution_id);
         
-        // Calcular revenue: sumar el precio de cada equipo por cada vez que aparece en un POC
-        let totalRevenue = 0;
+                let totalRevenue = 0;
         let usageCount = 0;
         
         pocEquipment.forEach(pe => {
@@ -824,11 +767,9 @@ function updateTeamPerformance(teamPerformance) {
     `).join('');
 }
 
-// ✅ Nueva versión de updateApprovalTrends — agrupando POCs por equipment
 async function updateApprovalTrends(pocs) {
     try {
-        // Traer tabla de relacion POC ↔ Equipment
-        const pocEquipmentResponse = await fetch('/poc_equipment');
+                const pocEquipmentResponse = await fetch('/poc_equipment');
         const equipmentResponse = await fetch('/equipment');
 
         if (!pocEquipmentResponse.ok || !equipmentResponse.ok) {
@@ -838,14 +779,12 @@ async function updateApprovalTrends(pocs) {
         const pocEquipment = await pocEquipmentResponse.json();
         const equipment = await equipmentResponse.json();
 
-        // Crear mapa de nombre de equipo
-        const equipmentMap = {};
+                const equipmentMap = {};
         equipment.forEach(eq => {
             equipmentMap[eq.solution_id] = eq.product_description || eq.product_number || 'N/A';
         });
 
-        // Agrupar POCs por equipment
-        const statsByEquipment = {};
+                const statsByEquipment = {};
 
         pocEquipment.forEach(pe => {
             const poc = pocs.find(p => p.poc_id === pe.poc_id);
@@ -860,8 +799,7 @@ async function updateApprovalTrends(pocs) {
             if (poc.is_approved) statsByEquipment[equipmentId].approved++;
         });
 
-        // Convertir a array ordenado por porcentaje
-        const data = Object.keys(statsByEquipment).map(eqId => {
+                const data = Object.keys(statsByEquipment).map(eqId => {
             const stats = statsByEquipment[eqId];
             const rate = (stats.approved / stats.total) * 100;
             return {
@@ -872,35 +810,28 @@ async function updateApprovalTrends(pocs) {
             };
         });
 
-        // Ordenar de mayor a menor porcentaje
-        data.sort((a, b) => b.approvalRate - a.approvalRate);
+                data.sort((a, b) => b.approvalRate - a.approvalRate);
 
-        // Tomar top 6 equipos
-        const topData = data.slice(0, 6);
+                const topData = data.slice(0, 6);
 
-        // Calcular promedio de tasa de aprobación para el KPI
-        const averageApprovalRate = topData.length > 0 
+                const averageApprovalRate = topData.length > 0 
             ? (topData.reduce((sum, item) => sum + item.approvalRate, 0) / topData.length).toFixed(1)
             : 0;
 
-        // Actualizar el valor promedio en el nuevo elemento
-        const approvalValueElement = document.getElementById('approvalTrendValue');
+                const approvalValueElement = document.getElementById('approvalTrendValue');
         if (approvalValueElement) {
             approvalValueElement.textContent = `${averageApprovalRate}%`;
         }
 
-        // DEBUG: Verificar datos
-        console.log('📊 Datos para gráfica:', topData);
+                console.log('📊 Datos para gráfica:', topData);
         console.log('📊 Promedio de aprobación:', averageApprovalRate + '%');
 
-        // Dibujar gráfica con los datos procesados
-        if (topData.length > 0) {
+                if (topData.length > 0) {
             updateApprovalLineChart(topData);
             console.log('✅ Gráfica de aprobación dibujada correctamente');
         } else {
             console.warn('⚠️ No hay datos para mostrar en la gráfica');
-            // Mostrar mensaje en el canvas
-            const ctx = document.getElementById('approvalLineChart');
+                        const ctx = document.getElementById('approvalLineChart');
             if (ctx) {
                 const context = ctx.getContext('2d');
                 context.font = '14px Arial';
@@ -915,14 +846,12 @@ async function updateApprovalTrends(pocs) {
     } catch (err) {
         console.error('❌ Error al calcular tendencias de aprobación:', err);
         
-        // En caso de error, mostrar valores por defecto
-        const approvalValueElement = document.getElementById('approvalTrendValue');
+                const approvalValueElement = document.getElementById('approvalTrendValue');
         if (approvalValueElement) {
             approvalValueElement.textContent = 'Error';
         }
         
-        // Mostrar mensaje de error en el canvas
-        const ctx = document.getElementById('approvalLineChart');
+                const ctx = document.getElementById('approvalLineChart');
         if (ctx) {
             const context = ctx.getContext('2d');
             context.font = '14px Arial';

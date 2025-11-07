@@ -1,16 +1,11 @@
-// PocsHPEManager.js - Dynamic POC Management for HPE Managers
 
-// Estado global
 let allPocs = [];
-let currentFilter = 'all'; // 'all', 'approved', 'rejected', 'pending'
-
-// Hacer funciones globales
+let currentFilter = 'all'; 
 window.handleApprove = handleApprove;
 window.handleDeny = handleDeny;
 window.showPocDetails = showPocDetails;
 window.closePocModal = closePocModal;
 
-// Inicializar cuando cargue la página
 document.addEventListener('DOMContentLoaded', () => {
     console.log('PocsHPEManager.js loaded');
     initializePage();
@@ -21,13 +16,11 @@ async function initializePage() {
     setupEventListeners();
 }
 
-// Cargar POCs desde la API
 async function loadPocs() {
     const tbody = document.querySelector('tbody');
     
     try {
-        // Cargar todas las POCs (sin filtro de usuario, ya que es para el manager)
-        const response = await fetch('/pocs');
+                const response = await fetch('/pocs');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -52,7 +45,6 @@ async function loadPocs() {
     }
 }
 
-// Renderizar POCs en la tabla
 function renderPocs() {
     const tbody = document.querySelector('tbody');
     tbody.innerHTML = '';
@@ -79,19 +71,15 @@ function renderPocs() {
     });
 }
 
-// Crear fila de POC
 function createPocRow(poc) {
     const tr = document.createElement('tr');
     
-    // Determinar el estado basado en is_approved
-    // null = pending, true = approved, false = rejected
-    const statusClass = poc.is_approved === null ? 'pending' : 
+            const statusClass = poc.is_approved === null ? 'pending' : 
                        poc.is_approved === true ? 'approved' : 'rejected';
     const statusText = poc.is_approved === null ? 'Pending' : 
                       poc.is_approved === true ? 'Accepted' : 'Rejected';
     
-    // Crear celdas
-    tr.innerHTML = `
+        tr.innerHTML = `
         <td class="requestor-name">${poc.client_user_name || 'N/A'}</td>
         <td>${poc.company_name || 'N/A'}</td>
         <td class="business-justification">${poc.business_justification || 'N/A'}</td>
@@ -106,11 +94,9 @@ function createPocRow(poc) {
     return tr;
 }
 
-// Crear botones de acción según el estado
 function createActionButtons(poc) {
     if (poc.is_approved === null) {
-        // Pending - mostrar "In Progress" + view
-        return `
+                return `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                 <span class="action-text" style="font-size: 0.75rem; color: var(--muted-text);">In Progress...</span>
                 <button class="btn-view" onclick="showPocDetails(${poc.poc_id})">View</button>
@@ -118,8 +104,7 @@ function createActionButtons(poc) {
 
         `;
     } else {
-        // Approved o Rejected - mostrar estado y fecha en líneas separadas + view
-        const completionDate = poc.completion_date ? 
+                const completionDate = poc.completion_date ? 
             new Date(poc.completion_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 
             'N/A';
         const actionText = poc.is_approved ? 'Accepted' : 'Rejected';
@@ -135,7 +120,6 @@ function createActionButtons(poc) {
     }
 }
 
-// Aprobar POC
 async function handleApprove(pocId) {
     if (!confirm('¿Estás seguro de aprobar esta POC?')) return;
     
@@ -157,14 +141,12 @@ async function handleApprove(pocId) {
         }
         
         showNotification('POC aprobada exitosamente', 'success');
-        await loadPocs(); // Recargar lista
-    } catch (error) {
+        await loadPocs();     } catch (error) {
         console.error('Error approving POC:', error);
         showNotification('Error al aprobar la POC: ' + error.message, 'error');
     }
 }
 
-// Denegar POC
 async function handleDeny(pocId) {
     if (!confirm('¿Estás seguro de denegar esta POC?')) return;
     
@@ -186,18 +168,15 @@ async function handleDeny(pocId) {
         }
         
         showNotification('POC denegada', 'success');
-        await loadPocs(); // Recargar lista
-    } catch (error) {
+        await loadPocs();     } catch (error) {
         console.error('Error denying POC:', error);
         showNotification('Error al denegar la POC: ' + error.message, 'error');
     }
 }
 
-// Mostrar detalles de POC en modal
 async function showPocDetails(pocId) {
     try {
-        // Obtener detalles completos de la POC (ya incluye nombres con el JOIN)
-        const response = await fetch(`/pocs/${pocId}`);
+                const response = await fetch(`/pocs/${pocId}`);
         
         if (!response.ok) {
             throw new Error('Error loading POC details');
@@ -206,16 +185,14 @@ async function showPocDetails(pocId) {
         const poc = await response.json();
         console.log('POC details loaded:', poc);
         
-        // Obtener equipos asociados
-        const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+                const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
         let equipment = [];
         
         if (equipmentResponse.ok) {
             const pocEquipment = await equipmentResponse.json();
             console.log('POC Equipment relations:', pocEquipment);
             
-            // Cargar detalles de cada equipo desde la tabla equipment
-            if (pocEquipment.length > 0) {
+                        if (pocEquipment.length > 0) {
                 equipment = await Promise.all(
                     pocEquipment.map(async (pe) => {
                         try {
@@ -242,20 +219,17 @@ async function showPocDetails(pocId) {
         
         console.log('Equipment loaded:', equipment);
         
-        // Crear y mostrar modal
-        createPocModal(poc, equipment);
+                createPocModal(poc, equipment);
     } catch (error) {
         console.error('Error loading POC details:', error);
         showNotification('Error al cargar los detalles de la POC', 'error');
     }
 }
 
-// --- Helpers: parseo y formateo de precios ---
 function parsePriceValue(price) {
     if (price === null || price === undefined) return 0;
     if (typeof price === 'number') return price;
-    // quitar todo lo que no sea dígito, punto o guión
-    const cleaned = String(price).replace(/[^0-9.-]/g, '');
+        const cleaned = String(price).replace(/[^0-9.-]/g, '');
     const n = parseFloat(cleaned);
     return isNaN(n) ? 0 : n;
 }
@@ -280,10 +254,8 @@ function formatTotalValue(equipmentArray) {
     return formatCurrencyUSD(total);
 }
 
-// --- Crear modal con detalles (modificado para mostrar total) ---
 function createPocModal(poc, equipment) {
-    // Remover modal existente si hay uno
-    const existingModal = document.getElementById('poc-modal');
+        const existingModal = document.getElementById('poc-modal');
     if (existingModal) existingModal.remove();
     
     const statusClass = poc.is_approved === null ? 'pending' : 
@@ -299,8 +271,7 @@ function createPocModal(poc, equipment) {
         new Date(poc.completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 
         'N/A';
     
-    // Formatear cada precio individual si existe
-    const equipmentHtml = (equipment.length > 0) ? `
+        const equipmentHtml = (equipment.length > 0) ? `
         <ul class="equipment-list">
             ${equipment.map(item => {
                 const priceNum = parsePriceValue(item && item.price);
@@ -387,8 +358,7 @@ function createPocModal(poc, equipment) {
     
     document.body.appendChild(modal);
     
-    // Agregar estilos del modal si no existen
-    if (!document.getElementById('modal-styles')) {
+        if (!document.getElementById('modal-styles')) {
         const styles = document.createElement('style');
         styles.id = 'modal-styles';
         styles.textContent = `
@@ -529,8 +499,7 @@ function createPocModal(poc, equipment) {
         `;
         document.head.appendChild(styles);
     }
-    // --- Animaciones y efectos adicionales para el modal ---
-if (!document.getElementById('modal-extra-styles')) {
+    if (!document.getElementById('modal-extra-styles')) {
     const extraStyles = document.createElement('style');
     extraStyles.id = 'modal-extra-styles';
     extraStyles.textContent = `
@@ -599,7 +568,6 @@ if (!document.getElementById('modal-extra-styles')) {
 }
 
 
-// Actualizar closePocModal para animación de salida
 function closePocModal() {
     const modal = document.getElementById('poc-modal');
     if (modal) {
@@ -615,24 +583,20 @@ function closePocModal() {
     }
 }
 
-// Filtrar POCs
 function filterPocs(pocs) {
     const searchTerm = document.querySelector('.search-input').value.toLowerCase();
     
     let filtered = pocs;
     
-    // Aplicar filtro de estado
-    if (currentFilter === 'approved') {
+        if (currentFilter === 'approved') {
         filtered = filtered.filter(poc => poc.is_approved === true);
     } else if (currentFilter === 'rejected') {
         filtered = filtered.filter(poc => poc.is_approved === false);
     } else if (currentFilter === 'pending') {
         filtered = filtered.filter(poc => poc.is_approved === null);
     }
-    // 'all' no filtra nada
-    
-    // Aplicar búsqueda
-    if (searchTerm) {
+        
+        if (searchTerm) {
         filtered = filtered.filter(poc => 
             (poc.client_user_name && poc.client_user_name.toLowerCase().includes(searchTerm)) ||
             (poc.company_name && poc.company_name.toLowerCase().includes(searchTerm)) ||
@@ -643,25 +607,20 @@ function filterPocs(pocs) {
     return filtered;
 }
 
-// Configurar event listeners
 function setupEventListeners() {
-    // Búsqueda en tiempo real
-    const searchInput = document.querySelector('.search-input');
+        const searchInput = document.querySelector('.search-input');
     if (searchInput) {
         searchInput.addEventListener('input', renderPocs);
     }
     
-    // Botón de filtro
-    const filterBtn = document.querySelector('.filter-btn');
+        const filterBtn = document.querySelector('.filter-btn');
     if (filterBtn) {
         filterBtn.addEventListener('click', showFilterMenu);
     }
 }
 
-// Mostrar menú de filtros
 function showFilterMenu() {
-    // Remover menú existente si ya está abierto
-    const existingMenu = document.getElementById('filter-menu');
+        const existingMenu = document.getElementById('filter-menu');
     if (existingMenu) {
         existingMenu.remove();
         return;
@@ -730,8 +689,7 @@ function showFilterMenu() {
     
     document.body.appendChild(menu);
     
-    // Cerrar al hacer click fuera del menú
-    setTimeout(() => {
+        setTimeout(() => {
         document.addEventListener('click', function closeMenu(e) {
             if (!menu.contains(e.target) && e.target !== filterBtn) {
                 menu.remove();
@@ -741,7 +699,6 @@ function showFilterMenu() {
     }, 100);
 }
 
-// Mostrar notificación
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.style.cssText = `
@@ -768,7 +725,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Agregar animaciones para las notificaciones
 if (!document.getElementById('notification-styles')) {
     const styles = document.createElement('style');
     styles.id = 'notification-styles';

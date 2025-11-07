@@ -1,4 +1,3 @@
-// static/js/analytics.js
 
 class AnalyticsDashboard {
     constructor() {
@@ -21,8 +20,7 @@ class AnalyticsDashboard {
             
             if (data.error) throw new Error(data.error);
 
-            // Actualizar KPIs
-            document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = 
+                        document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = 
                 this.formatCurrency(data.total_revenue);
             document.querySelector('.kpi-card:nth-child(2) .kpi-value').textContent = 
                 `${data.approval_rate}%`;
@@ -178,7 +176,6 @@ class AnalyticsDashboard {
     }
 }
 
-// Inicializar el dashboard cuando la página cargue
 document.addEventListener('DOMContentLoaded', () => {
     new AnalyticsDashboard();
 });
