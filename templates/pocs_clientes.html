@@ -9,8 +9,7 @@
   <link rel="stylesheet" href="/static/css/sistema_modal.css">
 </head>
 <body>
-  <!-- Header con navegación -->
-  <header class="header">
+    <header class="header">
     <div class="header-left">
       <a href="home_cliente.html">
         <img class="logo" 
@@ -28,15 +27,13 @@
     </nav>
   </header>
 
-  <!-- Main Container -->
-  <main class="main-container">
+    <main class="main-container">
     <div class="page-title">
       <h1>My POCs</h1>
       <p>View and manage your Proof of Concepts</p>
     </div>
 
-    <!-- Filtros -->
-    <div class="filters-section">
+        <div class="filters-section">
       <div class="filter-group">
         <label for="status-filter">Status:</label>
         <select id="status-filter" onchange="filterPOCs()">
@@ -51,21 +48,18 @@
       </button>
     </div>
 
-    <!-- Lista de POCs -->
-    <div id="pocs-container" class="pocs-grid">
+        <div id="pocs-container" class="pocs-grid">
       <div class="loading">Loading your POCs...</div>
     </div>
 
-    <!-- Mensaje si no hay POCs -->
-    <div id="no-pocs-message" style="display: none; text-align: center; padding: 3rem;">
+        <div id="no-pocs-message" style="display: none; text-align: center; padding: 3rem;">
       <h3>No POCs found</h3>
       <p>You haven't created any POCs yet.</p>
 
     </div>
   </main>
 
-  <!-- Scripts - Orden correcto -->
-  <script src="/static/js/create_pocs.js"></script>
+    <script src="/static/js/create_pocs.js"></script>
   <script src="/static/js/pocs_clientes.js"></script>
 </body>
 </html>

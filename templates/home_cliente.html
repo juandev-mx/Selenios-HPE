@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Customer Dashboard - HPE</title>
   <link rel="stylesheet" href="/static/css/home_cliente.css">
-  <!-- Agregar CSS del sistema de modales -->
-  <link rel="stylesheet" href="/static/css/sistema_modal.css">
+    <link rel="stylesheet" href="/static/css/sistema_modal.css">
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
+    <header class="header">
     <div class="header-left">
       <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo">
       <h2 class="customer-text">Customer</h2>
@@ -24,16 +22,13 @@
     </nav>
   </header>
 
-  <!-- Main Container -->
-  <main class="main-container">
-    <!-- Page Title -->
-    <div class="page-title">
+    <main class="main-container">
+        <div class="page-title">
       <h1>Customer Dashboard</h1>
       <p>Welcome back, <span id="customer-name">Customer</span>!</p>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="stats-grid">
+        <div class="stats-grid">
       <div class="stat-card">
         <h3>Pending</h3>
         <div class="number" id="pending-count">0</div>
@@ -48,8 +43,7 @@
       </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
+        <div class="quick-actions">
       <h2>Quick Actions</h2>
       <div class="actions-buttons">
         <button class="btn btn-primary" onclick="window.openCreatePOC()">
@@ -65,10 +59,8 @@
       </div>
     </div>
 
-    <!-- Content Grid -->
-    <div class="content-grid">
-      <!-- News & Alerts -->
-      <div class="news-section">
+        <div class="content-grid">
+            <div class="news-section">
         <h2>News & Alerts</h2>
         
         <div id="alerts-container">
@@ -82,8 +74,7 @@
         </div>
       </div>
 
-      <!-- Solutions Catalog -->
-      <div class="catalog-section">
+            <div class="catalog-section">
         <h2>Solutions Catalog</h2>
         
         <div class="solution-card">
@@ -107,8 +98,7 @@
     </div>
   </main>
 
-  <!-- Agregar JavaScript del sistema de modales -->
-  <script src="/static/js/create_pocs.js"></script>
+    <script src="/static/js/create_pocs.js"></script>
   <script src="/static/js/client-dashboard.js"></script>
 </body> 
 </html>
