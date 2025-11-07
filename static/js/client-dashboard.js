@@ -388,3 +388,19 @@ async function showPOCsList(userId) {
         console.error('Error loading POCs list:', error);
     }
 }
+
+function openViewPOCs() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    
+    if (!user) return;
+
+    window.location.href = `/pocs_clientes.html`;
+}
+
+function openAnalytics() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    
+    if (!user) return;
+
+    window.location.href = `/analytics_cliente.html`;
+}

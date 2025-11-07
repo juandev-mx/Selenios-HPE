@@ -307,3 +307,26 @@
         font-size:24px;
       }
     }
+
+.solution-card{
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:var(--bg);
+      overflow:hidden;
+      margin-bottom:16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .solution-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .solution-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .solution-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }

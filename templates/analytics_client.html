@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analytics - HPE Customer Portal</title>
+  <link rel="stylesheet" href="/static/css/analytics_client.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="window.location.href='/home_cliente.html'" title="Go Back">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <img class="logo" src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188" alt="HPE Logo" onclick="window.location.href='/home_cliente.html'" style="cursor: pointer;">
+      <h2 class="customer-text" id="customer-name">Analytics</h2>
+    </div>
+    
+    <nav class="header-nav">
+      <a href="/home_cliente.html" class="nav-link">Dashboard</a>
+      <a href="/pocs_clientes.html" class="nav-link">My POCs</a>
+      <a href="/solutions_catalog.html" class="nav-link">Solutions Catalog</a>
+      <img class="avatar" src="/static/img/user.png" alt="User Avatar">
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <!-- Page Title -->
+    <div class="page-title">
+      <h1>Analytics Dashboard</h1>
+      <p>Overview of your POCs and expenses</p>
+    </div>
+
+    <!-- Alerts Section -->
+    <div id="alerts-container"></div>
+
+    <!-- POC Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>Total POCs</h3>
+        </div>
+        <div class="number" id="total-pocs">0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>Pending</h3>
+        </div>
+        <div class="number" id="pending-count">0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>Approved</h3>
+        </div>
+        <div class="number" id="approved-count">0</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>Rejected</h3>
+        </div>
+        <div class="number" id="rejected-count">0</div>
+      </div>
+    </div>
+
+    <!-- Financial Stats -->
+    <div class="financial-grid">
+      <div class="stat-card financial">
+        <div class="stat-header">
+          <h3>Total Expenses</h3>
+        </div>
+        <div class="number financial-number" id="total-expenses">$0.00</div>
+      </div>
+
+      <div class="stat-card financial">
+        <div class="stat-header">
+          <h3>Average Expense per POC</h3>
+        </div>
+        <div class="number financial-number" id="avg-expense">$0.00</div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h2>POCs Requested by Month</h2>
+        <canvas id="pocs-by-month-chart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h2>Expenses by Month</h2>
+        <canvas id="expenses-by-month-chart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/static/js/analytics_client.js"></script>
+  <script src="/static/js/create_pocs.js"></script>
+  <script src="/static/js/client-dashboard.js"></script>
+</body>
+</html>

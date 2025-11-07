@@ -32,6 +32,10 @@ def index():
 def login_page():
     return render_template('login.html')
 
+@app.route('/analytics_cliente.html')
+def analytics_cliente():
+    return render_template('analytics_client.html')
+
 @app.route('/solutions_catalog.html')
 def solutions_catalog():
     return render_template('solutions_catalog.html')
