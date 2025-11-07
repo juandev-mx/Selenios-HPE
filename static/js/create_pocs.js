@@ -30,14 +30,12 @@ function createModalStructure() {
                 </div>
                 
                 <div class="modal-body">
-                    <!-- Business Justification -->
-                    <div class="modal-section">
+                                        <div class="modal-section">
                         <label class="modal-label" for="modal-justification">Business Justification</label>
                         <textarea id="modal-justification" class="modal-textarea" placeholder="Enter business justification..." rows="6"></textarea>
                     </div>
 
-                    <!-- Equipment Selection -->
-                    <div class="modal-section">
+                                        <div class="modal-section">
                         <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Select Equipment</h3>
                         <p style="color: #666; font-size: 14px; margin-bottom: 1rem;">
                             Search and select equipment solutions. The equipment items will be shown automatically.
@@ -57,8 +55,7 @@ function createModalStructure() {
                         </div>
                     </div>
 
-                    <!-- Selected Equipment & Items Table -->
-                    <div class="modal-section">
+                                        <div class="modal-section">
                         <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Selected Equipment & Items</h3>
                         <div class="modal-table-wrap">
                             <table class="modal-items-table">
