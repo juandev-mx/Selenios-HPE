@@ -1150,6 +1150,11 @@ def delete_poc_equipment(poc_id, solution_id):
     db.session.commit()
     return jsonify({'message': 'POC Equipment eliminada'})
 
+# Cierra la sesión de SQLAlchemy al final de cada request
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db.session.remove()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
