@@ -503,8 +503,7 @@ function createPocModal(poc, equipment) {
     const extraStyles = document.createElement('style');
     extraStyles.id = 'modal-extra-styles';
     extraStyles.textContent = `
-        /* --- Animaciones del modal --- */
-        @keyframes modalFadeIn {
+                @keyframes modalFadeIn {
             from {
                 opacity: 0;
                 transform: translateY(40px);
@@ -526,8 +525,7 @@ function createPocModal(poc, equipment) {
             }
         }
 
-        /* --- Transiciones del overlay --- */
-        @keyframes overlayFadeIn {
+                @keyframes overlayFadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
@@ -537,8 +535,7 @@ function createPocModal(poc, equipment) {
             to { opacity: 0; }
         }
 
-        /* Aplica animaciones cuando se abre */
-        .modal-overlay {
+                .modal-overlay {
             animation: overlayFadeIn 0.3s ease forwards;
         }
 
@@ -546,8 +543,7 @@ function createPocModal(poc, equipment) {
             animation: modalFadeIn 0.3s ease forwards;
         }
 
-        /* --- Botón Close: hover y presionado --- */
-        .btn-cancel {
+                .btn-cancel {
             transition: background-color 0.25s ease, transform 0.1s ease;
         }
 
