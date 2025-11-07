@@ -1,4 +1,4 @@
-// hpe-dashboard.js
+// hpe-dashboard.js - Script unificado para el dashboard de HPE
 document.addEventListener('DOMContentLoaded', function() {
     // Verificar autenticación
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -30,7 +30,7 @@ function initDashboard(user) {
     // Event listeners
     setupEventListeners(user);
     
-    // Cargar datos iniciales
+    // Cargar datos iniciales del dashboard
     loadDashboardData();
     
     // Crear menú de avatar
@@ -38,22 +38,18 @@ function initDashboard(user) {
 }
 
 function showManagerFeatures() {
-    // Mostrar elementos exclusivos del manager (Users & companies)
     const managerElements = document.querySelectorAll('.manager-only');
     managerElements.forEach(element => {
         element.style.display = '';
     });
-
     console.log('Vista de Manager activada - Acceso completo');
 }
 
 function hideManagerFeatures() {
-    // Ocultar elementos exclusivos del manager
     const managerElements = document.querySelectorAll('.manager-only');
     managerElements.forEach(element => {
         element.style.display = 'none';
     });
-
     console.log('Vista de Representante activada - Acceso limitado');
 }
 
@@ -63,14 +59,11 @@ function createAvatarMenu(user) {
     
     if (!avatar) return;
     
-    // Hacer el avatar clickeable
     avatar.style.cursor = 'pointer';
     
-    // Determinar la compañía
     const company = (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') ? 'HPE' : 
                     (user.client_company_name || 'N/A');
     
-    // Crear el menú desplegable
     const menu = document.createElement('div');
     menu.id = 'avatar-menu';
     menu.className = 'avatar-menu';
@@ -105,13 +98,10 @@ function createAvatarMenu(user) {
         </button>
     `;
     
-    // Insertar después del avatar
     avatarContainer.appendChild(menu);
-    
-    // Agregar estilos
     addAvatarMenuStyles();
     
-    // Toggle del menú al hacer clic en el avatar
+    // Toggle del menú
     avatar.addEventListener('click', function(e) {
         e.stopPropagation();
         const isVisible = menu.style.display === 'block';
@@ -139,30 +129,23 @@ function createAvatarMenu(user) {
         }
     });
     
-   // Logout desde el menú
-const logoutBtn = menu.querySelector('#avatarLogoutBtn');
-logoutBtn.addEventListener('click', async function() {
-    try {
-        // Cerrar sesión en Supabase
-        if (typeof supabase !== 'undefined') {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error cerrando sesión en Supabase:', error.message);
-            } else {
-                console.log('Sesión de Supabase cerrada correctamente');
+    // Logout
+    const logoutBtn = menu.querySelector('#avatarLogoutBtn');
+    logoutBtn.addEventListener('click', async function() {
+        try {
+            if (typeof supabase !== 'undefined') {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error('Error cerrando sesión en Supabase:', error.message);
+                }
             }
+        } catch (err) {
+            console.error('Error en logout:', err);
+        } finally {
+            sessionStorage.removeItem('user');
+            window.location.href = '/login.html';
         }
-    } catch (err) {
-        console.error('Error en logout:', err);
-    } finally {
-        // Limpiar sesión local
-        sessionStorage.removeItem('user');
-
-        // Redirigir al login
-        window.location.href = '/login.html';
-    }
-});
-
+    });
 }
 
 function addAvatarMenuStyles() {
@@ -283,11 +266,6 @@ function addAvatarMenuStyles() {
             background: #fef2f2;
         }
         
-        .avatar-menu-logout svg {
-            width: 16px;
-            height: 16px;
-        }
-        
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -314,23 +292,16 @@ function addAvatarMenuStyles() {
 }
 
 function setupEventListeners(user) {
-
     // Navegación entre secciones
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Remover clase active de todos
             navLinks.forEach(l => l.classList.remove('active'));
-            
-            // Agregar clase active al clickeado
             this.classList.add('active');
             
-            // Obtener sección
             const section = this.getAttribute('data-section');
-            
-            // Mostrar sección correspondiente
             showSection(section, user);
         });
     });
@@ -340,11 +311,8 @@ function setupEventListeners(user) {
     if (logo) {
         logo.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('¡Logo clickeado!');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-    } else {
-        console.warn('No se encontró #hpeLogo');
     }
 }
 
@@ -365,8 +333,6 @@ function showSection(sectionName, user) {
         }
         
         targetSection.style.display = 'block';
-        
-        // Cargar datos específicos de la sección
         loadSectionData(sectionName, user);
     }
 }
@@ -377,11 +343,9 @@ function loadSectionData(section, user) {
             loadDashboardData();
             break;
         case 'approvals':
-            // Redirigir a la página de aprobaciones que tiene su propio JS
             window.location.href = '/PocsHPEManager.html';
             break;
         case 'equipments':
-            // Redirigir a la página de catálogo de soluciones que tiene su propio JS
             window.location.href = '/solutions_catalog.html';
             break;
         case 'users':
@@ -392,9 +356,10 @@ function loadSectionData(section, user) {
     }
 }
 
-// Cargar datos del dashboard dinámicamente
+// ============ FUNCIONES DE CARGA DE DATOS DEL DASHBOARD ============
+
 async function loadDashboardData() {
-    console.log('Cargando dashboard dinámico...');
+    console.log('Cargando dashboard...');
     
     try {
         // Cargar todos los datos en paralelo
@@ -412,72 +377,118 @@ async function loadDashboardData() {
         const pocEquipment = await pocEquipmentResponse.json();
         const users = await usersResponse.json();
 
-        // Calcular KPIs
-        // Ingresos totales: solo equipos que están en algún POC
-        const equipmentInPOCs = new Set(pocEquipment.map(pe => pe.solution_id));
-        const totalRevenue = equipment
-            .filter(eq => equipmentInPOCs.has(eq.solution_id))
-            .reduce((sum, eq) => sum + parseFloat(eq.price || 0), 0);
-        
-        const approvalRate = pocs.length > 0 ? ((pocs.filter(p => p.is_approved).length / pocs.length) * 100).toFixed(0) : 0;
-        
-        // Clientes activos: número de compañías que tienen al menos un POC
-        const userMap = {};
-        users.forEach(u => userMap[u.id] = u);
-        const activeCompanyIds = new Set(
-            pocs.map(p => userMap[p.client_user_id]?.client_company_id).filter(id => id)
-        );
-        const activeClients = activeCompanyIds.size;
+        // Calcular y actualizar KPIs
+        updateKPIs(pocs, pocEquipment, equipment, users);
 
-        // Actualizar KPIs
-        updateKPIs(totalRevenue, approvalRate, activeClients);
+        // Calcular y actualizar rendimiento de soluciones
+        updateSolutionsPerformance(equipment, pocEquipment);
 
-        // Calcular rendimiento de clientes
+        // Calcular y actualizar rendimiento de clientes
         const clientPerformance = calculateClientPerformance(pocs, pocEquipment, equipment, users, companies);
         updateClientPerformance(clientPerformance);
 
-        // Calcular rendimiento del equipo
+        // Calcular y actualizar rendimiento del equipo
         const teamPerformance = calculateTeamPerformance(equipment, pocEquipment, users);
         updateTeamPerformance(teamPerformance);
+
+        // Calcular y actualizar tendencias de aprobación
+        updateApprovalTrends(pocs);
 
     } catch (error) {
         console.error('Error cargando dashboard:', error);
     }
 }
 
-// Función para formatear montos en K o M
-function formatCurrency(amount) {
-    if (amount >= 1000000) {
-        return `${(amount / 1000000).toFixed(1)}M`;
-    } else if (amount >= 1000) {
-        return `${(amount / 1000).toFixed(1)}K`;
-    } else {
-        return `${amount.toFixed(0)}`;
-    }
+function updateKPIs(pocs, pocEquipment, equipment, users) {
+    // 1. Ingresos totales: solo equipos que están en algún POC
+    const equipmentInPOCs = new Set(pocEquipment.map(pe => pe.solution_id));
+    const totalRevenue = equipment
+        .filter(eq => equipmentInPOCs.has(eq.solution_id))
+        .reduce((sum, eq) => sum + parseFloat(eq.price || 0), 0);
+    
+    // 2. Tasa de aprobación
+    const approvalRate = pocs.length > 0 ? 
+        ((pocs.filter(p => p.is_approved).length / pocs.length) * 100).toFixed(0) : 0;
+    
+    // 3. Clientes activos: compañías que tienen al menos un POC
+    const userMap = {};
+    users.forEach(u => userMap[u.id] = u);
+    const activeCompanyIds = new Set(
+        pocs.map(p => userMap[p.client_user_id]?.client_company_id).filter(id => id)
+    );
+    const activeClients = activeCompanyIds.size;
+
+    // Actualizar en el DOM - USAR formatCurrencyFull para el KPI principal
+    const revenueElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
+    if (revenueElement) revenueElement.textContent = formatCurrencyFull(totalRevenue);
+
+    const approvalElement = document.querySelector('.kpi-card:nth-child(2) .kpi-value');
+    if (approvalElement) approvalElement.textContent = `${approvalRate}%`;
+
+    const clientsElement = document.querySelector('.kpi-card:nth-child(3) .kpi-value');
+    if (clientsElement) clientsElement.textContent = activeClients;
 }
 
-function updateKPIs(totalRevenue, approvalRate, activeClients) {
-    // Actualizar Ingresos Totales
-    const revenueElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
-    if (revenueElement) {
-        revenueElement.textContent = formatCurrency(totalRevenue);
+function updateSolutionsPerformance(equipment, pocEquipment) {
+    // Contar uso de cada solución
+    const solutionUsage = {};
+    pocEquipment.forEach(pe => {
+        solutionUsage[pe.solution_id] = (solutionUsage[pe.solution_id] || 0) + 1;
+    });
+
+    // Calcular revenue por solución
+    const solutions = equipment.map(eq => ({
+        solution_id: eq.solution_id,
+        name: eq.product_description || eq.product_number || 'N/A',
+        revenue: parseFloat(eq.price || 0) * (solutionUsage[eq.solution_id] || 0),
+        usage: solutionUsage[eq.solution_id] || 0
+    }));
+
+    // Filtrar solo las que tienen uso
+    const usedSolutions = solutions.filter(s => s.usage > 0);
+    
+    // Ordenar por revenue
+    usedSolutions.sort((a, b) => b.revenue - a.revenue);
+
+    // Tomar top 5
+    const topSolutions = usedSolutions.slice(0, 5);
+
+    // Actualizar gráfica de barras
+    updateSolutionsChart(topSolutions);
+
+    // Actualizar revenue total de soluciones
+    const totalSolutionsRevenue = topSolutions.reduce((sum, s) => sum + s.revenue, 0);
+    const chartValue = document.querySelector('.chart-grid .chart-box:nth-child(1) .chart-value');
+    if (chartValue) chartValue.textContent = formatCurrency(totalSolutionsRevenue);
+}
+
+function updateSolutionsChart(solutions) {
+    const chartBars = document.querySelector('.chart-bars');
+    if (!chartBars) return;
+
+    chartBars.innerHTML = '';
+
+    if (solutions.length === 0) {
+        chartBars.innerHTML = '<p style="text-align:center; color: #618975;">No hay datos disponibles</p>';
+        return;
     }
 
-    // Actualizar Tasa de Aprobación
-    const approvalElement = document.querySelector('.kpi-card:nth-child(2) .kpi-value');
-    if (approvalElement) {
-        approvalElement.textContent = `${approvalRate}%`;
-    }
-
-    // Actualizar Clientes Activos
-    const clientsElement = document.querySelector('.kpi-card:nth-child(3) .kpi-value');
-    if (clientsElement) {
-        clientsElement.textContent = activeClients;
-    }
+    const maxRevenue = Math.max(...solutions.map(s => s.revenue));
+    
+    solutions.forEach(solution => {
+        const barHeight = maxRevenue > 0 ? (solution.revenue / maxRevenue) * 100 : 0;
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.innerHTML = `
+            <div class="bar" style="height: ${barHeight}px;"></div>
+            <div class="bar-label">${truncateText(solution.name, 15)}</div>
+        `;
+        chartBars.appendChild(bar);
+    });
 }
 
 function calculateClientPerformance(pocs, pocEquipment, equipment, users, companies) {
-    // Crear mapa de equipos por POC
+    // Mapa de equipos por POC
     const equipmentByPoc = {};
     pocEquipment.forEach(pe => {
         if (!equipmentByPoc[pe.poc_id]) {
@@ -486,7 +497,7 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         equipmentByPoc[pe.poc_id].push(pe.solution_id);
     });
 
-    // Mapa de precios de equipos
+    // Mapa de precios
     const equipmentPrices = {};
     equipment.forEach(eq => {
         equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
@@ -504,25 +515,20 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
             clientRevenue[userId] = 0;
         }
         
-        // Sumar precios de equipos en este POC
         const pocEquipmentIds = equipmentByPoc[poc.poc_id] || [];
         pocEquipmentIds.forEach(eqId => {
             clientRevenue[userId] += equipmentPrices[eqId] || 0;
         });
     });
 
-    // Mapear usuarios con compañías
+    // Mapear usuarios y compañías
     const userMap = {};
-    users.forEach(u => {
-        userMap[u.id] = u;
-    });
+    users.forEach(u => userMap[u.id] = u);
 
     const companyMap = {};
-    companies.forEach(c => {
-        companyMap[c.id] = c;
-    });
+    companies.forEach(c => companyMap[c.id] = c);
 
-    // Crear array de rendimiento de clientes
+    // Crear array de rendimiento
     const performance = [];
     Object.keys(clientRevenue).forEach(userId => {
         const user = userMap[userId];
@@ -538,10 +544,8 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         });
     });
 
-    // Ordenar por ingresos (mayor a menor)
+    // Ordenar y devolver top 4
     performance.sort((a, b) => b.revenue - a.revenue);
-
-    // Devolver solo los top 4
     return performance.slice(0, 4);
 }
 
@@ -550,7 +554,7 @@ function updateClientPerformance(clientPerformance) {
     if (!tbody) return;
 
     if (clientPerformance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #618975;">No data available</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #618975;">No hay datos disponibles</td></tr>';
         return;
     }
 
@@ -568,10 +572,8 @@ function updateClientPerformance(clientPerformance) {
 }
 
 function calculateTeamPerformance(equipment, pocEquipment, users) {
-    // Filtrar solo HPE_REP
     const hpeReps = users.filter(u => u.role === 'HPE_REP');
 
-    // Mapa de managers
     const managerMap = {};
     users.forEach(u => {
         if (u.role === 'HPE_MANAGER') {
@@ -579,24 +581,29 @@ function calculateTeamPerformance(equipment, pocEquipment, users) {
         }
     });
 
-    // Crear set de equipos que están en POCs
-    const equipmentInPOCs = new Set(pocEquipment.map(pe => pe.solution_id));
+    // Crear mapa de precios de equipos
+    const equipmentPrices = {};
+    equipment.forEach(eq => {
+        equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
+    });
 
-    // Calcular rendimiento por HPE_REP
     const repPerformance = hpeReps.map(rep => {
         // Equipos creados por este rep
-        const repEquipment = equipment.filter(eq => eq.created_by === rep.id);
+        const repEquipmentIds = equipment
+            .filter(eq => eq.created_by === rep.id)
+            .map(eq => eq.solution_id);
         
-        // Calcular ingresos totales: solo equipos que están en POCs
-        const totalRevenue = repEquipment
-            .filter(eq => equipmentInPOCs.has(eq.solution_id))
-            .reduce((sum, eq) => sum + parseFloat(eq.price || 0), 0);
+        // Calcular revenue: sumar el precio de cada equipo por cada vez que aparece en un POC
+        let totalRevenue = 0;
+        let usageCount = 0;
         
-        // Contar cuántas veces se usaron sus equipos en POCs
-        const equipmentIds = repEquipment.map(eq => eq.solution_id);
-        const usageCount = pocEquipment.filter(pe => equipmentIds.includes(pe.solution_id)).length;
+        pocEquipment.forEach(pe => {
+            if (repEquipmentIds.includes(pe.solution_id)) {
+                totalRevenue += equipmentPrices[pe.solution_id] || 0;
+                usageCount++;
+            }
+        });
         
-        // Obtener nombre del manager
         const managerName = rep.reports_to ? (managerMap[rep.reports_to] || 'N/A') : 'N/A';
 
         return {
@@ -607,13 +614,8 @@ function calculateTeamPerformance(equipment, pocEquipment, users) {
         };
     });
 
-    // Filtrar solo los que tienen equipos creados en POCs
     const activeReps = repPerformance.filter(rep => rep.revenue > 0);
-
-    // Ordenar por ingresos (mayor a menor)
     activeReps.sort((a, b) => b.revenue - a.revenue);
-
-    // Devolver top 5
     return activeReps.slice(0, 5);
 }
 
@@ -622,7 +624,7 @@ function updateTeamPerformance(teamPerformance) {
     if (!tbody) return;
 
     if (teamPerformance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #618975;">No data available</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #618975;">No hay datos disponibles</td></tr>';
         return;
     }
 
@@ -636,19 +638,36 @@ function updateTeamPerformance(teamPerformance) {
     `).join('');
 }
 
-// Cargar usuarios y compañías (SOLO MANAGER)
-/*
+function updateApprovalTrends(pocs) {
+    // Calcular tasa de aprobación actual
+    const approvalRate = pocs.length > 0 ? 
+        ((pocs.filter(p => p.is_approved).length / pocs.length) * 100) : 0;
+
+    const chartValue = document.querySelector('.chart-grid .chart-box:nth-child(2) .chart-value');
+    if (chartValue) chartValue.textContent = `${approvalRate.toFixed(0)}%`;
+
+    // Mostrar cambio (simplificado - en producción calcularías por trimestre)
+    const changeElement = document.querySelector('.chart-grid .chart-box:nth-child(2) .kpi-change');
+    if (changeElement) {
+        const change = 0; // Placeholder
+        changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+        changeElement.className = `kpi-change ${change >= 0 ? 'positive' : 'negative'}`;
+    }
+}
+
 async function loadUsersAndCompanies() {
     const container = document.getElementById('users-content');
+    if (!container) return;
+
     container.innerHTML = '<p>Cargando datos...</p>';
 
     try {
-        // Cargar compañías
-        const companiesResponse = await fetch('/client_company');
-        const companies = await companiesResponse.json();
+        const [companiesResponse, usersResponse] = await Promise.all([
+            fetch('/client_company'),
+            fetch('/users')
+        ]);
 
-        // Cargar usuarios
-        const usersResponse = await fetch('/users');
+        const companies = await companiesResponse.json();
         const users = await usersResponse.json();
 
         container.innerHTML = `
@@ -716,4 +735,29 @@ async function loadUsersAndCompanies() {
         container.innerHTML = '<div class="section-card"><p>Error al cargar datos</p></div>';
         console.error('Error:', error);
     }
-}*/
+}
+
+// ============ UTILIDADES ============
+
+function formatCurrency(amount) {
+    if (amount >= 1000000) {
+        return `$${(amount / 1000000).toFixed(1)}M`;
+    } else if (amount >= 1000) {
+        return `$${(amount / 1000).toFixed(1)}K`;
+    } else {
+        return `$${amount.toFixed(0)}`;
+    }
+}
+
+function formatCurrencyFull(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+}
+
+function truncateText(text, maxLength) {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+}
