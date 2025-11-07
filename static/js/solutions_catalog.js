@@ -321,6 +321,7 @@ async function loadEquipment() {
       const itemCount = itemsCountMap[equip.solution_id] || 0;
       
       const row = document.createElement('tr');
+      row.dataset.solutionId = equip.solution_id; // Agregar data attribute
       row.innerHTML = `
         <td>${equip.product_number || 'N/A'}</td>
         <td class="description">${equip.product_description || 'N/A'}</td>
@@ -328,17 +329,44 @@ async function loadEquipment() {
         <td>${itemCount}</td>
         <td>${formatPrice(equip.price || 0)}</td>
         <td>
-          <a href="#" class="view-link" onclick="loadItems(${equip.solution_id}); return false;">View items</a>
+          <span class="view-link">View items</span>
         </td>
       `;
       tbody.appendChild(row);
     });
+    
+    // Agregar event listener para hacer toda la fila clickeable
+    setupRowClickHandlers();
     
   } catch (error) {
     console.error('Error cargando equipos:', error);
     const tbody = document.querySelector('.solutions-section tbody');
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: red;">Error loading equipment</td></tr>';
   }
+}
+
+// Nueva función para manejar clicks en las filas
+function setupRowClickHandlers() {
+  const tbody = document.querySelector('.solutions-section tbody');
+  
+  tbody.addEventListener('click', function(e) {
+    const row = e.target.closest('tr');
+    
+    // Si no hay row o no tiene solution_id, salir
+    if (!row || !row.dataset.solutionId) return;
+    
+    // Remover clase 'selected' de todas las filas
+    document.querySelectorAll('.solutions-section tbody tr').forEach(r => {
+      r.classList.remove('selected');
+    });
+    
+    // Agregar clase 'selected' a la fila clickeada
+    row.classList.add('selected');
+    
+    // Cargar items de ese equipment
+    const solutionId = parseInt(row.dataset.solutionId);
+    loadItems(solutionId);
+  });
 }
 
 // Cargar items de un equipo específico
