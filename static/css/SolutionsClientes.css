@@ -53,6 +53,13 @@
       line-height:28px;
     }
 
+    .representative-text {
+  color:var(--dark-blue);
+  font-size: 32px;
+  font-weight: 700;
+  margin-left: 28px;
+}
+
     .header-nav{
       display:flex;
       align-items:center;
@@ -156,6 +163,8 @@
     .search-input::placeholder{
       color:var(--green-search-text);
     }
+
+    
 
     .table-container {
       max-height: 400px;
@@ -343,40 +352,34 @@
         padding:12px 16px;
       }
     }
-    /* Fondo blanco solo para las tablas */
-    .table-container {
-        background-color: #ffffff;
-        border-radius: 0.75rem;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
+/* Fondo blanco solo para las tablas */
+.table-container {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
 
-    table {
-        background-color: #ffffff;
-        width: 100%;
-    }
+table {
+    background-color: #ffffff;
+    width: 100%;
+}
 
-    /* Fondo blanco para las filas */
-    tbody tr {
-        background-color: #ffffff;
-    }
+/* Fondo blanco para las filas */
+tbody tr {
+    background-color: #ffffff;
+}
 
-    /* Efecto hover para las filas de solutions */
-    .solutions-section tbody tr {
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
+/* Efecto hover para las filas de solutions */
+.solutions-section tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
 
-    .solutions-section tbody tr:hover {
-        background-color: #f9fafb;
-    }
+.solutions-section tbody tr:hover {
+    background-color: #f9fafb;
+}
 
-    /* Estilo para la fila seleccionada */
-    .solutions-section tbody tr.selected {
-        background-color: #e8f5f0;
-    }
-
-    /* Fondo alterno para las filas de items (opcional) */
-    .items-section tbody tr:nth-child(even) {
-        background-color: #f9fafb;
-    }
+/* Estilo para la fila seleccionada */
+.solutions-section tbody tr.selected {
+    background-color: #e8f5f0;
+}

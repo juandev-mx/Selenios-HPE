@@ -487,76 +487,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Actualizar el encabezado dinámicamente según el rol
-  const headerText = document.querySelector('.customer-text');
-  if (headerText) {
-    if (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') {
-      headerText.textContent = 'Data Management';
-    } else if (user.role === 'CLIENT') {
-      headerText.textContent = 'Customer';
-    }
-  }
-
+  // ===== CONFIGURAR HEADER Y NAVEGACIÓN SEGÚN ROL =====
+  setupHeaderAndNav(user);
+  
   // Crear menú de avatar
   createAvatarMenu(user);
-
-  // ----- REDIRECCIÓN Y TEXTO DEL DASHBOARD -----
-  const dashboardLink = document.querySelector('.nav-link.dashboard-link');
-  if (dashboardLink) {
-    dashboardLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (user.role === 'CLIENT') {
-        window.location.href = '/home_cliente.html';
-      } else if (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') {
-        window.location.href = '/home_hpe.html';
-      } else {
-        alert('Rol no permitido');
-      }
-    });
-  }
-
-  // ----- REDIRECCIÓN Y TEXTO DEL POCs -----
-  const pocsLink = document.querySelector('.nav-link.pocs-link');
-  if (pocsLink) {
-    if (user.role === 'CLIENT') {
-      pocsLink.textContent = 'My POCs';
-      pocsLink.href = '/pocs_clientes.html';
-    } else if (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') {
-      pocsLink.textContent = 'Approvals';
-      pocsLink.href = '/PocsHPEManager.html';
-    }
-
-    pocsLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.location.href = pocsLink.href;
-    });
-  }
-
-  // ----- REDIRECCIÓN Y TEXTO DEL CATALOG -----
-  const catalogLink = document.querySelector('.nav-link.catalog-link');
-  if (catalogLink) {
-    if (user.role === 'CLIENT') {
-      catalogLink.textContent = 'Solutions Catalog';
-      catalogLink.href = '/solutions_catalog.html';
-    } else if (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') {
-      catalogLink.textContent = 'Equipments';
-      catalogLink.href = '/solutions_catalog.html';
-    }
-
-    catalogLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.location.href = catalogLink.href;
-    });
-  }
 
   // Cargar equipments y configurar búsquedas
   loadEquipment();
   setupSolutionsSearch();
   setupItemsSearch();
   
-  // Mostrar mensaje por defecto en items (en lugar de cargar todos)
+  // Mostrar mensaje por defecto en items
   const itemsTbody = document.querySelector('.items-section tbody');
   if (itemsTbody) {
     itemsTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #666; padding: 2rem;">Select an equipment to view its items</td></tr>';
   }
 });
+
+// Nueva función para configurar header y navegación
+function setupHeaderAndNav(user) {
+  const headerRoleText = document.getElementById('header-role-text');
+  const logoLink = document.getElementById('logo-link');
+  const mainNav = document.getElementById('main-nav');
+  
+  if (user.role === 'CLIENT') {
+    // Vista de Cliente
+    headerRoleText.textContent = 'Customer';
+    headerRoleText.className = 'customer-text';
+    logoLink.href = '/home_cliente.html';
+    
+    mainNav.innerHTML = `
+      <a href="/home_cliente.html" class="nav-link">Dashboard</a>
+      <a href="/pocs_clientes.html" class="nav-link">My POCs</a>
+      <a href="/solutions_catalog.html" class="nav-link active">Solutions Catalog</a>
+      <img class="avatar" src="static/img/user.png" alt="User Avatar">
+    `;
+    
+  } else if (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') {
+    // Vista de HPE
+    headerRoleText.textContent = 'Data Management';
+    headerRoleText.className = 'representative-text';
+    logoLink.href = '/home_hpe.html';
+    
+    const managerLink = user.role === 'HPE_MANAGER' ? 
+      '<a href="/home_hpe.html#users" class="nav-link">Users & companies</a>' : '';
+    
+    mainNav.innerHTML = `
+      <a href="/home_hpe.html" class="nav-link">Dashboard</a>
+      <a href="/PocsHPEManager.html" class="nav-link">Approvals</a>
+      <a href="/solutions_catalog.html" class="nav-link active">Equipments</a>
+      ${managerLink}
+      <a href="/home_hpe.html#section-reportes" class="nav-link">Reportes</a>
+      <img class="avatar" src="static/img/admin.png" alt="User Avatar">
+    `;
+  }
+}
