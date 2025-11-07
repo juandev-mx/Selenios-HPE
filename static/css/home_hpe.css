@@ -459,3 +459,37 @@
             line-height: 1.2;
             max-height: 2.4em; /* 1.2 * 2 líneas */
         }
+        /* Estilo especial para barras de aprobación */
+        .approval-bar {
+            background: linear-gradient(180deg, rgba(17, 212, 115, 0.6) 0%, rgba(17, 212, 115, 0.3) 100%);
+            border: 2px solid var(--primary-green);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .approval-bar:hover {
+            background: linear-gradient(180deg, rgba(17, 212, 115, 0.8) 0%, rgba(17, 212, 115, 0.5) 100%);
+            transform: scaleY(1.05);
+        }
+        .chart-line {
+            width: 100%;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-line svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .chart-box canvas {
+            max-height: 200px;
+        }
+
+        #approvalTrendValue {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #000;
+        }

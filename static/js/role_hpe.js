@@ -444,7 +444,8 @@ async function loadDashboardData() {
         const teamPerformance = calculateTeamPerformance(equipment, pocEquipment, users);
         updateTeamPerformance(teamPerformance);
 
-        // Calcular y actualizar tendencias de aprobación
+        // ⭐ REEMPLAZAR updateApprovalTrends con la nueva función
+        // updateApprovalTrends(pocs); // ❌ COMENTAR O ELIMINAR ESTA LÍNEA
         updateApprovalTrends(pocs);
         
         console.log('✅ Dashboard cargado completamente');
@@ -627,6 +628,135 @@ function updateClientPerformance(clientPerformance) {
     `).join('');
 }
 
+function updateApprovalLineChart(data) {
+    const canvas = document.getElementById('approvalLineChart');
+    if (!canvas) {
+        console.error('❌ Canvas approvalLineChart no encontrado');
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    // Destruir gráfica anterior solo si existe y es una instancia válida de Chart
+    if (window.approvalLineChart && typeof window.approvalLineChart.destroy === 'function') {
+        window.approvalLineChart.destroy();
+    }
+
+    // Validar que hay datos
+    if (!data || data.length === 0) {
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#618975';
+        ctx.textAlign = 'center';
+        ctx.fillText('No hay datos disponibles', canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    window.approvalLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(item => item.equipment), // Nombres de los equipos en el eje X
+            datasets: [{
+                label: 'Approval Rate (%)',
+                data: data.map(item => item.approvalRate),
+                borderColor: '#01a982',
+                backgroundColor: 'rgba(1, 169, 130, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointBackgroundColor: '#01a982',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: '#00875a',
+                pointHoverBorderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: '#1f2937',
+                        font: { 
+                            size: 12, 
+                            weight: '600',
+                            family: "'Inter', sans-serif"
+                        },
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        title: (context) => {
+                            return data[context[0].dataIndex].equipment;
+                        },
+                        label: (context) => {
+                            const item = data[context.dataIndex];
+                            return [
+                                `Tasa: ${item.approvalRate.toFixed(1)}%`,
+                                `Aprobados: ${item.approved}/${item.total}`
+                            ];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#6b7280',
+                        font: { 
+                            size: 11,
+                            family: "'Inter', sans-serif"
+                        },
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: false
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        color: '#6b7280',
+                        font: { 
+                            size: 11,
+                            family: "'Inter', sans-serif"
+                        },
+                        callback: (value) => `${value}%`,
+                        stepSize: 20
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+
+    console.log('✅ Gráfica de línea creada con', data.length, 'equipos');
+}
+
+
 function calculateTeamPerformance(equipment, pocEquipment, users) {
     const hpeReps = users.filter(u => u.role === 'HPE_REP');
 
@@ -694,22 +824,115 @@ function updateTeamPerformance(teamPerformance) {
     `).join('');
 }
 
-function updateApprovalTrends(pocs) {
-    // Calcular tasa de aprobación actual
-    const approvalRate = pocs.length > 0 ? 
-        ((pocs.filter(p => p.is_approved).length / pocs.length) * 100) : 0;
+// ✅ Nueva versión de updateApprovalTrends — agrupando POCs por equipment
+async function updateApprovalTrends(pocs) {
+    try {
+        // Traer tabla de relacion POC ↔ Equipment
+        const pocEquipmentResponse = await fetch('/poc_equipment');
+        const equipmentResponse = await fetch('/equipment');
 
-    const chartValue = document.querySelector('.chart-grid .chart-box:nth-child(2) .chart-value');
-    if (chartValue) chartValue.textContent = `${approvalRate.toFixed(0)}%`;
+        if (!pocEquipmentResponse.ok || !equipmentResponse.ok) {
+            throw new Error('Error al obtener datos de equipos o relaciones');
+        }
 
-    // Mostrar cambio (simplificado - en producción calcularías por trimestre)
-    const changeElement = document.querySelector('.chart-grid .chart-box:nth-child(2) .kpi-change');
-    if (changeElement) {
-        const change = 0; // Placeholder
-        changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
-        changeElement.className = `kpi-change ${change >= 0 ? 'positive' : 'negative'}`;
+        const pocEquipment = await pocEquipmentResponse.json();
+        const equipment = await equipmentResponse.json();
+
+        // Crear mapa de nombre de equipo
+        const equipmentMap = {};
+        equipment.forEach(eq => {
+            equipmentMap[eq.solution_id] = eq.product_description || eq.product_number || 'N/A';
+        });
+
+        // Agrupar POCs por equipment
+        const statsByEquipment = {};
+
+        pocEquipment.forEach(pe => {
+            const poc = pocs.find(p => p.poc_id === pe.poc_id);
+            if (!poc) return;
+
+            const equipmentId = pe.solution_id;
+            if (!statsByEquipment[equipmentId]) {
+                statsByEquipment[equipmentId] = { total: 0, approved: 0 };
+            }
+
+            statsByEquipment[equipmentId].total++;
+            if (poc.is_approved) statsByEquipment[equipmentId].approved++;
+        });
+
+        // Convertir a array ordenado por porcentaje
+        const data = Object.keys(statsByEquipment).map(eqId => {
+            const stats = statsByEquipment[eqId];
+            const rate = (stats.approved / stats.total) * 100;
+            return {
+                equipment: equipmentMap[eqId] || 'N/A',
+                approvalRate: rate,
+                approved: stats.approved,
+                total: stats.total
+            };
+        });
+
+        // Ordenar de mayor a menor porcentaje
+        data.sort((a, b) => b.approvalRate - a.approvalRate);
+
+        // Tomar top 6 equipos
+        const topData = data.slice(0, 6);
+
+        // Calcular promedio de tasa de aprobación para el KPI
+        const averageApprovalRate = topData.length > 0 
+            ? (topData.reduce((sum, item) => sum + item.approvalRate, 0) / topData.length).toFixed(1)
+            : 0;
+
+        // Actualizar el valor promedio en el nuevo elemento
+        const approvalValueElement = document.getElementById('approvalTrendValue');
+        if (approvalValueElement) {
+            approvalValueElement.textContent = `${averageApprovalRate}%`;
+        }
+
+        // DEBUG: Verificar datos
+        console.log('📊 Datos para gráfica:', topData);
+        console.log('📊 Promedio de aprobación:', averageApprovalRate + '%');
+
+        // Dibujar gráfica con los datos procesados
+        if (topData.length > 0) {
+            updateApprovalLineChart(topData);
+            console.log('✅ Gráfica de aprobación dibujada correctamente');
+        } else {
+            console.warn('⚠️ No hay datos para mostrar en la gráfica');
+            // Mostrar mensaje en el canvas
+            const ctx = document.getElementById('approvalLineChart');
+            if (ctx) {
+                const context = ctx.getContext('2d');
+                context.font = '14px Arial';
+                context.fillStyle = '#618975';
+                context.textAlign = 'center';
+                context.fillText('No hay datos disponibles', ctx.width / 2, ctx.height / 2);
+            }
+        }
+
+        console.log('📈 Datos de aprobación por equipo cargados:', topData);
+
+    } catch (err) {
+        console.error('❌ Error al calcular tendencias de aprobación:', err);
+        
+        // En caso de error, mostrar valores por defecto
+        const approvalValueElement = document.getElementById('approvalTrendValue');
+        if (approvalValueElement) {
+            approvalValueElement.textContent = 'Error';
+        }
+        
+        // Mostrar mensaje de error en el canvas
+        const ctx = document.getElementById('approvalLineChart');
+        if (ctx) {
+            const context = ctx.getContext('2d');
+            context.font = '14px Arial';
+            context.fillStyle = '#dc2626';
+            context.textAlign = 'center';
+            context.fillText('Error al cargar datos', ctx.width / 2, ctx.height / 2);
+        }
     }
 }
+
 
 async function loadUsersAndCompanies() {
     const container = document.getElementById('users-content');

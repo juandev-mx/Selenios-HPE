@@ -96,21 +96,14 @@
                             </div>
 
                             <div class="chart-box">
-                                <div class="chart-label">Tendencia de Aprobaciones</div>
-                                <div class="chart-value">0Pen%</div>
+                                <div class="chart-label">Tendencia de Aprobaciones por Equipo</div>
+                                <div class="chart-value" id="approvalTrendValue">...</div>
                                 <div class="chart-info">
-                                    <span class="chart-period">Este Trimestre</span>
-                                    <span class="kpi-change negative">-0Pen%</span>
+                                    <span class="chart-period">Top 6 Equipments</span>
                                 </div>
-                                <svg width="100%" height="97" viewBox="0 0 310 98" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-top: 2rem;">
-                                    <path d="M2.12811 70.9935C13.8712 70.9935 13.8712 14.0691 25.6144 14.0691C37.3575 14.0691 37.3575 27.0065 49.1007 27.0065C60.8438 27.0065 60.8438 60.6436 72.587 60.6436C84.3302 60.6436 84.3302 21.8315 96.0735 21.8315C107.817 21.8315 107.817 65.8186 119.559 65.8186C131.303 65.8186 131.303 39.9438 143.046 39.9438C154.789 39.9438 154.789 29.5939 166.532 29.5939C178.276 29.5939 178.276 78.7559 190.019 78.7559C201.761 78.7559 201.761 96.8682 213.505 96.8682C225.248 96.8682 225.248 1.13171 236.991 1.13171C248.734 1.13171 248.734 52.8812 260.478 52.8812C272.22 52.8812 272.22 83.9309 283.964 83.9309C295.707 83.9309 295.707 16.6566 307.45 16.6566V96.8682H213.505H2.12811V70.9935Z" fill="url(#paint0_linear_99_62)"/>
-                                    <defs>
-                                        <linearGradient id="paint0_linear_99_62" x1="154.789" y1="1.13171" x2="154.789" y2="96.8682" gradientUnits="userSpaceOnUse">
-                                            <stop stop-color="#11D473" stop-opacity="0.2"/>
-                                            <stop offset="1" stop-color="#11D473" stop-opacity="0"/>
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
+                                <div style="margin-top: 1rem; height: 200px;">
+                                    <canvas id="approvalLineChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -245,6 +238,7 @@
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/static/js/role_hpe.js"></script>
     <script src="/static/js/reports.js"></script>
 </body>
