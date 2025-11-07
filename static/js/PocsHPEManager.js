@@ -113,8 +113,9 @@ function createActionButtons(poc) {
         return `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                 <span class="action-text" style="font-size: 0.75rem; color: var(--muted-text);">In Progress...</span>
-                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})" style="padding: 0.375rem 0.8rem; background-color: var(--primary-dark); color: var(--white); border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">View</button>
+                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})">View</button>
             </div>
+
         `;
     } else {
         // Approved o Rejected - mostrar estado y fecha en líneas separadas + view
@@ -249,7 +250,37 @@ async function showPocDetails(pocId) {
     }
 }
 
-// Crear modal con detalles
+// --- Helpers: parseo y formateo de precios ---
+function parsePriceValue(price) {
+    if (price === null || price === undefined) return 0;
+    if (typeof price === 'number') return price;
+    // quitar todo lo que no sea dígito, punto o guión
+    const cleaned = String(price).replace(/[^0-9.-]/g, '');
+    const n = parseFloat(cleaned);
+    return isNaN(n) ? 0 : n;
+}
+
+function formatCurrencyUSD(value, options = { minimumFractionDigits: 2, maximumFractionDigits: 2 }) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: options.minimumFractionDigits,
+        maximumFractionDigits: options.maximumFractionDigits
+    }).format(value);
+}
+
+function calculateTotalValue(equipmentArray) {
+    return (equipmentArray || []).reduce((sum, item) => {
+        return sum + parsePriceValue(item && item.price);
+    }, 0);
+}
+
+function formatTotalValue(equipmentArray) {
+    const total = calculateTotalValue(equipmentArray);
+    return formatCurrencyUSD(total);
+}
+
+// --- Crear modal con detalles (modificado para mostrar total) ---
 function createPocModal(poc, equipment) {
     // Remover modal existente si hay uno
     const existingModal = document.getElementById('poc-modal');
@@ -268,6 +299,36 @@ function createPocModal(poc, equipment) {
         new Date(poc.completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 
         'N/A';
     
+    // Formatear cada precio individual si existe
+    const equipmentHtml = (equipment.length > 0) ? `
+        <ul class="equipment-list">
+            ${equipment.map(item => {
+                const priceNum = parsePriceValue(item && item.price);
+                const priceLabel = priceNum > 0 ? ` | ${formatCurrencyUSD(priceNum)}` : '';
+                return `
+                    <li>
+                        <div>
+                            <strong>${item.product_description || item.product_number}</strong>
+                            <br>
+                            <small style="color: var(--muted-text);">
+                                ${item.product_number || ''} 
+                                ${item.company_program ? ` | ${item.company_program}` : ''}
+                                ${priceLabel}
+                            </small>
+                        </div>
+                    </li>
+                `;
+            }).join('')}
+        </ul>
+        <div style="margin-top: 1rem; display:flex; justify-content:space-between; align-items:center;">
+            <div></div>
+            <div class="total-badge">
+                <span>Total value</span>
+                <strong style="margin-left:0.5rem;">${formatTotalValue(equipment)}</strong>
+            </div>
+        </div>
+    ` : `<p style="color: var(--muted-text);">No equipment specified</p>`;
+
     const modal = document.createElement('div');
     modal.id = 'poc-modal';
     modal.innerHTML = `
@@ -313,35 +374,13 @@ function createPocModal(poc, equipment) {
                     
                     <div class="detail-group">
                         <label>Equipment Requested:</label>
-                        ${equipment.length > 0 ? `
-                            <ul class="equipment-list">
-                                ${equipment.map(item => `
-                                    <li>
-                                        <div>
-                                            <strong>${item.product_description || item.product_number}</strong>
-                                            <br>
-                                            <small style="color: var(--muted-text);">
-                                                ${item.product_number || ''} 
-                                                ${item.company_program ? ` | ${item.company_program}` : ''}
-                                                ${item.price ? ` | $${item.price}` : ''}
-                                            </small>
-                                        </div>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        ` : '<p style="color: var(--muted-text);">No equipment specified</p>'}
+                        ${equipmentHtml}
                     </div>
                 </div>
                 
-                ${poc.is_approved === null ? `
-                    <div class="modal-footer">
-                        <button class="btn-cancel" onclick="closePocModal()">Close</button>
-                    </div>
-                ` : `
-                    <div class="modal-footer">
-                        <button class="btn-cancel" onclick="closePocModal()">Close</button>
-                    </div>
-                `}
+                <div class="modal-footer">
+                    <button class="btn-cancel" onclick="closePocModal()">Close</button>
+                </div>
             </div>
         </div>
     `;
@@ -449,6 +488,19 @@ function createPocModal(poc, equipment) {
             .equipment-list li:last-child {
                 margin-bottom: 0;
             }
+
+            .total-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: linear-gradient(90deg, #edf7f2, #e6fff3);
+                border: 1px solid #d1f3df;
+                padding: 0.5rem 0.75rem;
+                border-radius: 999px;
+                color: #064e3b;
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
             
             .modal-footer {
                 padding: 1.5rem;
@@ -477,12 +529,90 @@ function createPocModal(poc, equipment) {
         `;
         document.head.appendChild(styles);
     }
+    // --- Animaciones y efectos adicionales para el modal ---
+if (!document.getElementById('modal-extra-styles')) {
+    const extraStyles = document.createElement('style');
+    extraStyles.id = 'modal-extra-styles';
+    extraStyles.textContent = `
+        /* --- Animaciones del modal --- */
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes modalFadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+        }
+
+        /* --- Transiciones del overlay --- */
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes overlayFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Aplica animaciones cuando se abre */
+        .modal-overlay {
+            animation: overlayFadeIn 0.3s ease forwards;
+        }
+
+        .modal-content {
+            animation: modalFadeIn 0.3s ease forwards;
+        }
+
+        /* --- Botón Close: hover y presionado --- */
+        .btn-cancel {
+            transition: background-color 0.25s ease, transform 0.1s ease;
+        }
+
+        .btn-cancel:hover {
+            background-color: #d6d8d7;
+        }
+
+        .btn-cancel:active {
+            background-color: #c0c3c2;
+            transform: scale(0.97);
+        }
+    `;
+    document.head.appendChild(extraStyles);
 }
 
-// Cerrar modal
+
+
+}
+
+
+// Actualizar closePocModal para animación de salida
 function closePocModal() {
     const modal = document.getElementById('poc-modal');
-    if (modal) modal.remove();
+    if (modal) {
+        const overlay = modal.querySelector('.modal-overlay');
+        const content = modal.querySelector('.modal-content');
+        if (overlay && content) {
+            overlay.style.animation = 'overlayFadeOut 0.25s ease forwards';
+            content.style.animation = 'modalFadeOut 0.25s ease forwards';
+            setTimeout(() => modal.remove(), 250);
+        } else {
+            modal.remove();
+        }
+    }
 }
 
 // Filtrar POCs
@@ -555,6 +685,12 @@ function showFilterMenu() {
         border: 1px solid var(--border-gray);
     `;
     
+    const filters = [
+        { value: 'all', label: 'All POCs', icon: '📋' },
+        { value: 'pending', label: 'Pending', icon: '⏳' },
+        { value: 'approved', label: 'Accepted', icon: '✅' },
+        { value: 'rejected', label: 'Rejected', icon: '❌' }
+    ];
     
     filters.forEach(filter => {
         const option = document.createElement('div');
