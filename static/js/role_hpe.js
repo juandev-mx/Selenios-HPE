@@ -637,6 +637,7 @@ function updateTeamPerformance(teamPerformance) {
 }
 
 // Cargar usuarios y compañías (SOLO MANAGER)
+/*
 async function loadUsersAndCompanies() {
     const container = document.getElementById('users-content');
     container.innerHTML = '<p>Cargando datos...</p>';
@@ -715,4 +716,4 @@ async function loadUsersAndCompanies() {
         container.innerHTML = '<div class="section-card"><p>Error al cargar datos</p></div>';
         console.error('Error:', error);
     }
-}
+}*/
