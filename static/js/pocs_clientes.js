@@ -1,4 +1,4 @@
-// pocs_clientes.js - Sistema de 30 días con aprobación/denegación
+// pocs_clientes.js - Con sistema de aprobación/denegación
 
 let userPOCs = [];
 let currentUser = null;
@@ -6,8 +6,9 @@ let currentEditingPOC = null;
 let allPOCEquipment = [];
 let equipmentDetailsMap = {};
 
-// Funciones globales
+// Hacer funciones globales
 window.editPOC = editPOC;
+window.deletePOC = deletePOC;
 window.viewPOCDetails = viewPOCDetails;
 window.filterPOCs = filterPOCs;
 window.closeEditModal = closeEditModal;
@@ -17,18 +18,7 @@ window.addEquipmentToPOC = addEquipmentToPOC;
 window.removeEquipmentFromPOC = removeEquipmentFromPOC;
 window.searchEquipmentForEdit = searchEquipmentForEdit;
 window.approvePOC = approvePOC;
-window.denyPOC = denyPOC;
-
-// Calcular días restantes del periodo de prueba
-function getDaysRemaining(trialEndDate) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const endDate = new Date(trialEndDate);
-    endDate.setHours(0, 0, 0, 0);
-    const diffTime = endDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-}
+window.rejectPOC = rejectPOC;
 
 // Crear menú de avatar
 function createAvatarMenu(user) {
@@ -186,103 +176,6 @@ function addAvatarMenuStyles() {
             from { opacity: 1; transform: translateY(0); }
             to { opacity: 0; transform: translateY(-10px); }
         }
-        
-        /* Estilos para timer y decisiones */
-        .trial-timer {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1rem;
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            border-left: 4px solid #ffc107;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #856404;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .trial-timer.urgent {
-            background: linear-gradient(135deg, #f8d7da 0%, #ffb3b3 100%);
-            border-left-color: #dc3545;
-            color: #721c24;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.85; }
-        }
-        .trial-timer.expired {
-            background: linear-gradient(135deg, #d4edda 0%, #a3d9a5 100%);
-            border-left-color: #28a745;
-            color: #155724;
-        }
-        .decision-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .decision-badge.approved {
-            background: linear-gradient(135deg, #d4edda 0%, #a3d9a5 100%);
-            color: #155724;
-            border: 2px solid #28a745;
-        }
-        .decision-badge.denied {
-            background: linear-gradient(135deg, #f8d7da 0%, #ffb3b3 100%);
-            color: #721c24;
-            border: 2px solid #dc3545;
-        }
-        .btn-approve {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .btn-approve:hover {
-            background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
-        }
-        .btn-deny {
-            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .btn-deny:hover {
-            background: linear-gradient(135deg, #c82333 0%, #c0392b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
-        }
-        .poc-actions-row {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
     `;
     document.head.appendChild(styles);
 }
@@ -358,8 +251,8 @@ async function loadUserPOCs() {
             equipmentDetailsMap[eq.solution_id] = eq;
         });
         
-        console.log('✅ POCs loaded:', userPOCs.length);
-        console.log('✅ Equipment map created:', Object.keys(equipmentDetailsMap).length);
+        console.log('POCs loaded:', userPOCs.length);
+        console.log('Equipment map created:', Object.keys(equipmentDetailsMap).length);
 
         if (userPOCs.length === 0) {
             container.style.display = 'none';
@@ -390,80 +283,31 @@ function displayPOCs(pocs) {
         return;
     }
 
-    container.innerHTML = pocs.map((poc) => {
-        const status = poc.status || 'in_trial';
-        const createdDate = new Date(poc.created_date).toLocaleDateString();
+    container.innerHTML = pocs.map((poc, index) => {
+        let status, statusLabel, statusClass;
         
-        let statusHTML = '';
-        let timerHTML = '';
-        let actionsHTML = '';
-        
-        // Sistema de estados y timer
-        if (status === 'in_trial') {
-            const daysRemaining = getDaysRemaining(poc.trial_end_date);
-            const timerClass = daysRemaining <= 5 ? 'urgent' : (daysRemaining <= 0 ? 'expired' : '');
-            
-            let timerText = '';
-            if (daysRemaining > 0) {
-                timerText = `⏰ ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining in trial period`;
-            } else {
-                timerText = '⏰ Trial period ended - Will be auto-approved';
-            }
-            
-            timerHTML = `
-                <div class="trial-timer ${timerClass}">
-                    ${timerText}
-                </div>
-            `;
-            statusHTML = '<span class="poc-status status-pending">In Trial</span>';
-            
-            // Botones de acción durante el periodo de prueba
-            actionsHTML = `
-                <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">👁️ View Details</button>
-                <div class="poc-actions-row">
-                    <button class="btn-approve" onclick="approvePOC(${poc.poc_id})">
-                        ✓ Approve
-                    </button>
-                    <button class="btn-deny" onclick="denyPOC(${poc.poc_id})">
-                        ✗ Deny
-                    </button>
-                    <button class="btn-edit" onclick="editPOC(${poc.poc_id})">✏️ Edit</button>
-                </div>
-            `;
-        } else if (status === 'approved') {
-            const decisionDate = poc.decision_date ? new Date(poc.decision_date).toLocaleDateString() : 'N/A';
-            statusHTML = '<span class="poc-status status-approved">Approved</span>';
-            timerHTML = `
-                <div class="decision-badge approved">
-                    ✓ Approved on ${decisionDate}
-                </div>
-            `;
-            // Solo ver detalles una vez aprobada
-            actionsHTML = `
-                <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">👁️ View Details</button>
-            `;
-        } else if (status === 'denied') {
-            const decisionDate = poc.decision_date ? new Date(poc.decision_date).toLocaleDateString() : 'N/A';
-            statusHTML = '<span class="poc-status status-denied" style="background: linear-gradient(135deg, #f8d7da 0%, #ffb3b3 100%); color: #721c24; border: 2px solid #dc3545;">Denied</span>';
-            timerHTML = `
-                <div class="decision-badge denied">
-                    ✗ Denied on ${decisionDate}
-                </div>
-            `;
-            // Solo ver detalles una vez denegada
-            actionsHTML = `
-                <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">👁️ View Details</button>
-            `;
+        if (poc.is_approved === true) {
+            status = 'approved';
+            statusLabel = 'Approved';
+            statusClass = 'status-approved';
+        } else if (poc.is_approved === false) {
+            status = 'rejected';
+            statusLabel = 'Rejected';
+            statusClass = 'status-rejected';
+        } else {
+            status = 'pending';
+            statusLabel = 'Pending Approval';
+            statusClass = 'status-pending';
         }
+        
+        const createdDate = new Date(poc.created_date).toLocaleDateString();
         
         return `
             <div class="poc-card" data-status="${status}">
                 <div class="poc-header">
                     <h3>My POC</h3>
-                    ${statusHTML}
+                    <span class="poc-status ${statusClass}">${statusLabel}</span>
                 </div>
-                
-                ${timerHTML}
                 
                 <div class="poc-body">
                     <div class="poc-info">
@@ -473,24 +317,124 @@ function displayPOCs(pocs) {
                     
                     <div class="poc-meta">
                         <div class="poc-date">
-                            <span>📅 Created:</span>
+                            <span>Created:</span>
                             <span>${createdDate}</span>
                         </div>
-                        ${poc.trial_end_date ? `
+                        ${poc.is_approved !== null && poc.completion_date ? `
                             <div class="poc-date">
-                                <span>🏁 Trial Ends:</span>
-                                <span>${new Date(poc.trial_end_date).toLocaleDateString()}</span>
+                                <span>${poc.is_approved ? 'Approved on:' : 'Rejected on:'}</span>
+                                <span>${new Date(poc.completion_date).toLocaleDateString()}</span>
                             </div>
                         ` : ''}
                     </div>
                 </div>
                 
                 <div class="poc-footer">
-                    ${actionsHTML}
+                    <div class="poc-footer-left">
+                        <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">
+                            View Details
+                        </button>
+                        ${poc.is_approved === null ? `
+                            <button class="btn-edit" onclick="editPOC(${poc.poc_id})">
+                                Edit
+                            </button>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="poc-footer-right">
+                        ${poc.is_approved === null ? `
+                            <button class="btn-approve" onclick="approvePOC(${poc.poc_id})">
+                                Approve
+                            </button>
+                            <button class="btn-reject" onclick="rejectPOC(${poc.poc_id})">
+                                Reject
+                            </button>
+                        ` : `
+                            <button class="btn-delete" onclick="deletePOC(${poc.poc_id})">
+                                Delete
+                            </button>
+                        `}
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
+    
+    addPOCCardStyles();
+}
+
+function addPOCCardStyles() {
+    if (document.getElementById('poc-card-styles')) return;
+    
+    const styles = document.createElement('style');
+    styles.id = 'poc-card-styles';
+    styles.textContent = `
+        .poc-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .poc-footer-left,
+        .poc-footer-right {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-approve {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-approve:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-reject:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        @media (max-width: 768px) {
+            .poc-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .poc-footer-left,
+            .poc-footer-right {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    `;
+    document.head.appendChild(styles);
 }
 
 function filterPOCs() {
@@ -499,65 +443,63 @@ function filterPOCs() {
     let filteredPOCs = userPOCs;
     
     if (filter === 'pending') {
-        filteredPOCs = userPOCs.filter(p => p.status === 'in_trial');
+        filteredPOCs = userPOCs.filter(p => p.is_approved === null);
     } else if (filter === 'approved') {
-        filteredPOCs = userPOCs.filter(p => p.status === 'approved');
-    } else if (filter === 'denied') {
-        filteredPOCs = userPOCs.filter(p => p.status === 'denied');
+        filteredPOCs = userPOCs.filter(p => p.is_approved === true);
+    } else if (filter === 'rejected') {
+        filteredPOCs = userPOCs.filter(p => p.is_approved === false);
     }
     
     displayPOCs(filteredPOCs);
 }
 
-// Aprobar POC
 async function approvePOC(pocId) {
-    if (!confirm('✅ ¿Aprobar esta POC?\n\nEsta decisión es permanente y no se puede deshacer.')) {
+    if (!confirm('Are you sure you want to approve this POC?\n\nOnce approved, it cannot be edited.')) {
         return;
     }
     
     try {
-        const response = await fetch(`/pocs/${pocId}/decision`, {
+        const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ decision: 'approve' })
+            body: JSON.stringify({is_approved: true})
         });
         
         if (response.ok) {
-            alert('✅ POC approved successfully!');
+            alert('POC approved successfully!');
             await loadUserPOCs();
         } else {
-            const error = await response.json();
-            throw new Error(error.error || 'Error approving POC');
+            const data = await response.json();
+            throw new Error(data.error || 'Error approving POC');
         }
     } catch (error) {
         console.error('Error approving POC:', error);
-        alert('Error: ' + error.message);
+        alert('Error approving POC: ' + error.message);
     }
 }
 
-// Denegar POC
-async function denyPOC(pocId) {
-    if (!confirm('❌ ¿Denegar esta POC?\n\nEsta decisión es permanente y no se puede deshacer.')) {
+async function rejectPOC(pocId) {
+    if (!confirm('Are you sure you want to reject this POC?\n\nOnce rejected, it cannot be edited.')) {
         return;
     }
     
     try {
-        const response = await fetch(`/pocs/${pocId}/decision`, {
+        const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ decision: 'deny' })
+            body: JSON.stringify({is_approved: false})
         });
         
         if (response.ok) {
-            alert('❌ POC denied successfully!');
+            alert('POC rejected successfully!');
             await loadUserPOCs();
         } else {
-            const error = await response.json();
-            throw new Error(error.error || 'Error denying POC');
+            const data = await response.json();
+            throw new Error(data.error || 'Error rejecting POC');
         }
     } catch (error) {
-        console.error('Error denying POC:', error);
-        alert('Error: ' + error.message);
+        console.error('Error rejecting POC:', error);
+        alert('Error rejecting POC: ' + error.message);
     }
 }
 
@@ -587,57 +529,13 @@ function showDetailsModal(poc, equipment, items) {
         createDetailsModal();
     }
     
-    const status = poc.status || 'in_trial';
-    let statusBadge = '';
-    let timerHTML = '';
-    
-    if (status === 'in_trial') {
-        const daysRemaining = getDaysRemaining(poc.trial_end_date);
-        statusBadge = '<span class="poc-status status-pending">In Trial</span>';
-        
-        let timerText = '';
-        let timerClass = '';
-        if (daysRemaining > 0) {
-            timerText = `⏰ ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} remaining to make a decision`;
-            timerClass = daysRemaining <= 5 ? 'urgent' : '';
-        } else {
-            timerText = '⏰ Trial ended - Will be auto-approved after review';
-            timerClass = 'expired';
-        }
-        
-        timerHTML = `
-            <div class="details-section">
-                <h3>Trial Period Status</h3>
-                <div class="trial-timer ${timerClass}">
-                    ${timerText}
-                </div>
-                <p style="color: #666; font-size: 14px; margin-top: 0.5rem;">
-                    You can approve or deny this POC before the trial period ends.
-                </p>
-            </div>
-        `;
-    } else if (status === 'approved') {
-        const decisionDate = poc.decision_date ? new Date(poc.decision_date).toLocaleDateString() : 'N/A';
+    let statusBadge;
+    if (poc.is_approved === true) {
         statusBadge = '<span class="poc-status status-approved">Approved</span>';
-        timerHTML = `
-            <div class="details-section">
-                <h3>Decision</h3>
-                <div class="decision-badge approved">
-                    ✓ This POC was approved on ${decisionDate}
-                </div>
-            </div>
-        `;
-    } else if (status === 'denied') {
-        const decisionDate = poc.decision_date ? new Date(poc.decision_date).toLocaleDateString() : 'N/A';
-        statusBadge = '<span class="poc-status status-denied" style="background: linear-gradient(135deg, #f8d7da 0%, #ffb3b3 100%); color: #721c24; border: 2px solid #dc3545;">Denied</span>';
-        timerHTML = `
-            <div class="details-section">
-                <h3>Decision</h3>
-                <div class="decision-badge denied">
-                    ✗ This POC was denied on ${decisionDate}
-                </div>
-            </div>
-        `;
+    } else if (poc.is_approved === false) {
+        statusBadge = '<span class="poc-status status-rejected">Rejected</span>';
+    } else {
+        statusBadge = '<span class="poc-status status-pending">Pending Approval</span>';
     }
     
     const totalPrice = equipment.reduce((sum, eq) => sum + parseFloat(eq.price || 0), 0);
@@ -650,8 +548,6 @@ function showDetailsModal(poc, equipment, items) {
             ${statusBadge}
         </div>
         
-        ${timerHTML}
-        
         <div class="details-section">
             <h3>Business Justification</h3>
             <p class="justification-text">${poc.business_justification}</p>
@@ -663,16 +559,6 @@ function showDetailsModal(poc, equipment, items) {
                 <div>
                     <strong>Created:</strong> ${new Date(poc.created_date).toLocaleDateString()}
                 </div>
-                ${poc.trial_end_date ? `
-                    <div>
-                        <strong>Trial Ends:</strong> ${new Date(poc.trial_end_date).toLocaleDateString()}
-                    </div>
-                ` : ''}
-                ${poc.decision_date ? `
-                    <div>
-                        <strong>Decision Date:</strong> ${new Date(poc.decision_date).toLocaleDateString()}
-                    </div>
-                ` : ''}
                 ${poc.completion_date ? `
                     <div>
                         <strong>Completed:</strong> ${new Date(poc.completion_date).toLocaleDateString()}
@@ -692,7 +578,7 @@ function showDetailsModal(poc, equipment, items) {
                                 <p>${eq.product_number}</p>
                                 ${eq.company_program ? `<span class="eq-program">${eq.company_program}</span>` : ''}
                             </div>
-                            <div class="eq-price">${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                            <div class="eq-price">$${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                         </div>
                     `).join('')}
                 </div>
@@ -711,7 +597,7 @@ function showDetailsModal(poc, equipment, items) {
                             </div>
                             <div>
                                 <span class="item-qty">Qty: ${item.qty}</span>
-                                <span class="item-price">${parseFloat(item.unit_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                                <span class="item-price">$${parseFloat(item.unit_price).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                             </div>
                         </div>
                     `).join('')}
@@ -721,7 +607,7 @@ function showDetailsModal(poc, equipment, items) {
         
         <div class="details-total">
             <strong>Total Equipment Value:</strong>
-            <span class="total-amount">${totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+            <span class="total-amount">$${totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
         </div>
     `;
     
@@ -758,10 +644,14 @@ function closeDetailsModal() {
 async function editPOC(pocId) {
     console.log('editPOC called with ID:', pocId);
     
-    // Verificar si está en periodo de prueba
     const poc = userPOCs.find(p => p.poc_id === pocId);
-    if (poc && poc.status !== 'in_trial') {
-        alert('⚠️ Cannot edit a POC that has been approved or denied.');
+    if (!poc) {
+        alert('POC not found');
+        return;
+    }
+    
+    if (poc.is_approved !== null) {
+        alert('Cannot edit an approved or rejected POC');
         return;
     }
     
@@ -789,44 +679,79 @@ function openEditModal(poc, pocEquipment) {
         createEditModal();
     }
     
+    if (!allEquipment || allEquipment.length === 0) {
+        alert('Equipment data is not loaded yet. Please wait a moment and try again.');
+        console.error('Equipment data not available');
+        return;
+    }
+    
+    document.getElementById('edit-modal-title').textContent = `Edit My POC`;
+    document.getElementById('edit-poc-id').value = poc.poc_id;
     document.getElementById('edit-justification').value = poc.business_justification;
     
-    displayEditEquipmentList(pocEquipment);
+    loadPOCEquipment(poc.poc_id, pocEquipment);
     
     document.getElementById('editPOCModal').classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    console.log('Edit modal opened. Equipment available:', allEquipment.length);
 }
 
 function createEditModal() {
     const modalHTML = `
         <div id="editPOCModal" class="modal-overlay">
-            <div class="modal-container" style="max-width: 800px;">
+            <div class="modal-container">
                 <div class="modal-header">
-                    <h2 class="modal-title">Edit POC</h2>
+                    <h2 class="modal-title" id="edit-modal-title">Edit POC</h2>
                     <button class="modal-close" onclick="closeEditModal()">&times;</button>
                 </div>
+                
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="edit-justification">Business Justification</label>
-                        <textarea id="edit-justification" rows="4" class="form-control" placeholder="Enter business justification..."></textarea>
-                    </div>
+                    <input type="hidden" id="edit-poc-id">
                     
-                    <div class="form-group">
-                        <label>Equipment</label>
-                        <div id="edit-equipment-list"></div>
+                    <div class="modal-section">
+                        <label class="modal-label" for="edit-justification">Business Justification</label>
+                        <textarea id="edit-justification" class="modal-textarea" placeholder="Enter business justification..." rows="6"></textarea>
                     </div>
-                    
-                    <div class="form-group">
-                        <label>Add More Equipment</label>
-                        <div class="search-box">
-                            <input type="text" id="edit-equipment-search" class="form-control" placeholder="Search equipment..." oninput="searchEquipmentForEdit()">
+
+                    <div class="modal-section">
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Current Equipment</h3>
+                        <div id="current-equipment-list"></div>
+                        <p style="color: #666; font-size: 13px; margin-top: 0.5rem;">
+                            A POC must have at least one equipment item
+                        </p>
+                    </div>
+
+                    <div class="modal-section">
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Add More Equipment</h3>
+                        <p style="color: #666; font-size: 14px; margin-bottom: 1rem;">
+                            Type at least 2 characters to search for equipment
+                        </p>
+                        <div class="modal-grid">
+                            <div class="modal-field">
+                                <label class="modal-label" for="edit-modal-equipment">Search Equipment</label>
+                                <div class="modal-search">
+                                    <input id="edit-modal-equipment" class="modal-input" type="text" 
+                                           placeholder="Search and select equipment"
+                                           oninput="searchEquipmentForEdit(this.value)" />
+                                    <svg class="modal-icon" viewBox="0 0 24 24">
+                                        <path d="M19.6 21L13.3 14.7C12.8 15.1 12.225 15.4167 11.575 15.65C10.925 15.8833 10.2333 16 9.5 16C7.68333 16 6.14583 15.3708 4.8875 14.1125C3.62917 12.8542 3 11.3167 3 9.5C3 7.68333 3.62917 6.14583 4.8875 4.8875C6.14583 3.62917 7.68333 3 9.5 3C11.3167 3 12.8542 3.62917 14.1125 4.8875C15.3708 6.14583 16 7.68333 16 9.5C16 10.2333 15.8833 10.925 15.65 11.575C15.4167 12.225 15.1 12.8 14.7 13.3L21 19.6L19.6 21ZM9.5 14C10.75 14 11.8125 13.5625 12.6875 12.6875C13.5625 11.8125 14 10.75 14 9.5C14 8.25 13.5625 7.1875 12.6875 6.3125C11.8125 5.4375 10.75 5 9.5 5C8.25 5 7.1875 5.4375 6.3125 6.3125C5.4375 7.1875 5 8.25 5 9.5C5 10.75 5.4375 11.8125 6.3125 12.6875C7.1875 13.5625 8.25 14 9.5 14Z" fill="currentColor"/>
+                                    </svg>
+                                    <div id="edit-equipment-dropdown" class="modal-dropdown"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div id="edit-equipment-results" class="search-results"></div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button class="modal-btn-cancel" onclick="closeEditModal()">Cancel</button>
-                    <button class="modal-btn-save" onclick="saveEditedPOC()">Save Changes</button>
+                    <div style="color: #618975; font-size: 14px;">
+                        <span id="edit-items-count">Loading...</span>
+                    </div>
+                    <div class="modal-footer-actions">
+                        <button class="modal-btn-cancel" onclick="closeEditModal()">Cancel</button>
+                        <button class="modal-btn-primary" onclick="saveEditedPOC()">Save Changes</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -834,142 +759,236 @@ function createEditModal() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-function displayEditEquipmentList(pocEquipment) {
-    const container = document.getElementById('edit-equipment-list');
-    
-    if (!pocEquipment || pocEquipment.length === 0) {
-        container.innerHTML = '<p style="color: #666;">No equipment added yet</p>';
-        return;
-    }
-    
-    container.innerHTML = pocEquipment.map(pe => {
-        const eq = equipmentDetailsMap[pe.solution_id];
-        if (!eq) return '';
-        
-        return `
-            <div class="equipment-item-edit" data-solution-id="${eq.solution_id}">
-                <div class="eq-details">
-                    <strong>${eq.product_description}</strong>
-                    <small>${eq.product_number}</small>
-                </div>
-                <button class="btn-remove" onclick="removeEquipmentFromPOC('${eq.solution_id}')">Remove</button>
-            </div>
-        `;
-    }).join('');
-}
-
-function searchEquipmentForEdit() {
-    const searchTerm = document.getElementById('edit-equipment-search').value.toLowerCase();
-    const resultsContainer = document.getElementById('edit-equipment-results');
-    
-    if (searchTerm.length < 2) {
-        resultsContainer.innerHTML = '';
-        return;
-    }
-    
-    const currentEquipmentIds = Array.from(document.querySelectorAll('.equipment-item-edit'))
-        .map(el => el.dataset.solutionId);
-    
-    const filteredEquipment = Object.values(equipmentDetailsMap).filter(eq => {
-        const matchesSearch = 
-            eq.product_description.toLowerCase().includes(searchTerm) ||
-            eq.product_number.toLowerCase().includes(searchTerm);
-        const notAlreadyAdded = !currentEquipmentIds.includes(eq.solution_id);
-        return matchesSearch && notAlreadyAdded;
-    }).slice(0, 5);
-    
-    if (filteredEquipment.length === 0) {
-        resultsContainer.innerHTML = '<p style="color: #666; padding: 1rem;">No equipment found</p>';
-        return;
-    }
-    
-    resultsContainer.innerHTML = filteredEquipment.map(eq => `
-        <div class="search-result-item" onclick="addEquipmentToPOC('${eq.solution_id}')">
-            <div>
-                <strong>${eq.product_description}</strong>
-                <small>${eq.product_number}</small>
-            </div>
-            <span class="add-icon">+</span>
-        </div>
-    `).join('');
-}
-
-async function addEquipmentToPOC(solutionId) {
-    try {
-        const response = await fetch('/poc_equipment', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                poc_id: currentEditingPOC,
-                solution_id: solutionId
-            })
-        });
-        
-        if (response.ok) {
-            const updatedEquipment = await fetch(`/poc_equipment?poc_id=${currentEditingPOC}`).then(r => r.json());
-            displayEditEquipmentList(updatedEquipment);
-            document.getElementById('edit-equipment-search').value = '';
-            document.getElementById('edit-equipment-results').innerHTML = '';
-        }
-    } catch (error) {
-        console.error('Error adding equipment:', error);
-        alert('Error adding equipment');
-    }
-}
-
-async function removeEquipmentFromPOC(solutionId) {
-    if (!confirm('Remove this equipment?')) return;
-    
-    try {
-        const response = await fetch(`/poc_equipment/${currentEditingPOC}/${solutionId}`, {
-            method: 'DELETE'
-        });
-        
-        if (response.ok) {
-            const updatedEquipment = await fetch(`/poc_equipment?poc_id=${currentEditingPOC}`).then(r => r.json());
-            displayEditEquipmentList(updatedEquipment);
-        }
-    } catch (error) {
-        console.error('Error removing equipment:', error);
-        alert('Error removing equipment');
-    }
-}
-
-async function saveEditedPOC() {
-    const justification = document.getElementById('edit-justification').value.trim();
-    
-    if (!justification) {
-        alert('Please enter business justification');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`/pocs/${currentEditingPOC}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                business_justification: justification
-            })
-        });
-        
-        if (response.ok) {
-            alert('POC updated successfully!');
-            closeEditModal();
-            await loadUserPOCs();
-        } else {
-            throw new Error('Error updating POC');
-        }
-    } catch (error) {
-        console.error('Error saving POC:', error);
-        alert('Error saving changes');
-    }
-}
-
 function closeEditModal() {
     const modal = document.getElementById('editPOCModal');
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = '';
-        currentEditingPOC = null;
+    }
+}
+
+async function loadPOCEquipment(pocId, pocEquipment) {
+    const container = document.getElementById('current-equipment-list');
+    const countSpan = document.getElementById('edit-items-count');
+    
+    if (pocEquipment.length === 0) {
+        container.innerHTML = '<p style="color: #618975; padding: 1rem; background: #f8f9fa; border-radius: 8px;">No equipment added yet.</p>';
+        countSpan.textContent = '0 items';
+        return;
+    }
+
+    try {
+        const equipmentDetails = await Promise.all(
+            pocEquipment.map(async (pe) => {
+                const response = await fetch(`/equipment/${pe.solution_id}`);
+                return await response.json();
+            })
+        );
+
+        container.innerHTML = `
+            <div class="equipment-list">
+                ${equipmentDetails.map(eq => `
+                    <div class="equipment-item">
+                        <div class="equipment-info">
+                            <strong>${eq.product_description}</strong>
+                            <small>${eq.product_number} - ${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}</small>
+                        </div>
+                        <button class="btn-remove-small" onclick="removeEquipmentFromPOC(${pocId}, ${eq.solution_id})">
+                            Remove
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        countSpan.textContent = `${equipmentDetails.length} item${equipmentDetails.length !== 1 ? 's' : ''}`;
+
+    } catch (error) {
+        console.error('Error loading equipment details:', error);
+        container.innerHTML = '<p style="color: #dc3545;">Error loading equipment</p>';
+    }
+}
+
+function searchEquipmentForEdit(query) {
+    const dropdown = document.getElementById('edit-equipment-dropdown');
+    
+    if (!query || query.length < 2) {
+        dropdown.classList.remove('active');
+        return;
+    }
+
+    if (!allEquipment || allEquipment.length === 0) {
+        console.error('Equipment data not loaded!');
+        dropdown.innerHTML = '<div class="modal-dropdown-item" style="color: #dc3545;">Equipment data not available. Please refresh the page.</div>';
+        dropdown.classList.add('active');
+        return;
+    }
+
+    console.log('Searching equipment with query:', query);
+    console.log('Available equipment:', allEquipment.length);
+
+    const filtered = allEquipment.filter(eq => 
+        eq.product_description.toLowerCase().includes(query.toLowerCase()) ||
+        eq.product_number.toLowerCase().includes(query.toLowerCase())
+    );
+
+    console.log('Filtered results:', filtered.length);
+
+    if (filtered.length > 0) {
+        dropdown.innerHTML = filtered.map(eq => `
+            <div class="modal-dropdown-item" onclick="addEquipmentToPOC(${eq.solution_id})">
+                <strong>${eq.product_description}</strong><br>
+                <small style="color: #618975;">${eq.product_number} - ${parseFloat(eq.price).toLocaleString('en-US', {minimumFractionDigits: 2})}</small>
+            </div>
+        `).join('');
+        dropdown.classList.add('active');
+    } else {
+        dropdown.innerHTML = '<div class="modal-dropdown-item" style="color: #618975;">No results found</div>';
+        dropdown.classList.add('active');
+    }
+}
+
+async function addEquipmentToPOC(equipmentId) {
+    const pocId = document.getElementById('edit-poc-id').value;
+    
+    try {
+        const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+        const currentEquipment = await equipmentResponse.json();
+        
+        const alreadyExists = currentEquipment.some(eq => eq.solution_id === equipmentId);
+        
+        if (alreadyExists) {
+            alert('This equipment is already added to the POC!');
+            document.getElementById('edit-modal-equipment').value = '';
+            document.getElementById('edit-equipment-dropdown').classList.remove('active');
+            return;
+        }
+        
+        const response = await fetch('/poc_equipment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify([{
+                poc_id: parseInt(pocId),
+                solution_id: equipmentId
+            }])
+        });
+
+        if (response.ok) {
+            const updatedEquipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+            const pocEquipment = await updatedEquipmentResponse.json();
+            loadPOCEquipment(pocId, pocEquipment);
+            
+            document.getElementById('edit-modal-equipment').value = '';
+            document.getElementById('edit-equipment-dropdown').classList.remove('active');
+            
+            alert('Equipment added successfully!');
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error adding equipment');
+        }
+    } catch (error) {
+        console.error('Error adding equipment:', error);
+        alert('Error adding equipment: ' + error.message);
+    }
+}
+
+async function removeEquipmentFromPOC(pocId, solutionId) {
+    try {
+        const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+        const currentEquipment = await equipmentResponse.json();
+        
+        console.log('Current equipment count:', currentEquipment.length);
+        
+        if (currentEquipment.length <= 1) {
+            alert('Cannot remove the last equipment!\n\nA POC must have at least one equipment item.\n\nPlease add another equipment before removing this one.');
+            return;
+        }
+        
+        if (!confirm('Remove this equipment from the POC?')) return;
+        
+        const response = await fetch(`/poc_equipment/${pocId}/${solutionId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            const updatedEquipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+            const pocEquipment = await updatedEquipmentResponse.json();
+            loadPOCEquipment(pocId, pocEquipment);
+            alert('Equipment removed successfully!');
+        } else {
+            throw new Error('Error removing equipment');
+        }
+    } catch (error) {
+        console.error('Error removing equipment:', error);
+        alert('Error removing equipment: ' + error.message);
+    }
+}
+
+async function saveEditedPOC() {
+    const pocId = document.getElementById('edit-poc-id').value;
+    const justification = document.getElementById('edit-justification').value.trim();
+
+    if (!justification) {
+        alert('Please enter a business justification');
+        return;
+    }
+
+    const saveBtn = document.querySelector('#editPOCModal .modal-btn-primary');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    try {
+        const response = await fetch(`/pocs/${pocId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({business_justification: justification})
+        });
+
+        if (response.ok) {
+            alert('POC updated successfully!');
+            closeEditModal();
+            loadUserPOCs();
+        } else {
+            const data = await response.json();
+            throw new Error(data.error || 'Error updating POC');
+        }
+    } catch (error) {
+        console.error('Error updating POC:', error);
+        alert('Error updating POC: ' + error.message);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+    }
+}
+
+async function deletePOC(pocId) {
+    if (!confirm(`Are you sure you want to delete this POC?\n\nThis action cannot be undone.`)) {
+        return;
+    }
+    
+    try {
+        const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
+        const pocEquipment = await equipmentResponse.json();
+        
+        for (const eq of pocEquipment) {
+            await fetch(`/poc_equipment/${pocId}/${eq.solution_id}`, {
+                method: 'DELETE'
+            });
+        }
+        
+        const response = await fetch(`/pocs/${pocId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            alert('POC deleted successfully');
+            loadUserPOCs();
+        } else {
+            throw new Error('Error deleting POC');
+        }
+        
+    } catch (error) {
+        console.error('Error deleting POC:', error);
+        alert('Error deleting POC: ' + error.message);
     }
 }
