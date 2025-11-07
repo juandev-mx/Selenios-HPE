@@ -480,14 +480,13 @@ function setupHeaderAndNav(user) {
     headerRoleText.className = 'representative-text';
     logoLink.href = '/home_hpe.html';
     
-    const managerLink = user.role === 'HPE_MANAGER' ? 
-      '<a href="/home_hpe.html#users" class="nav-link">Users & companies</a>' : '';
+    
     
     mainNav.innerHTML = `
       <a href="/home_hpe.html" class="nav-link">Dashboard</a>
       <a href="/PocsHPEManager.html" class="nav-link">Approvals</a>
       <a href="/solutions_catalog.html" class="nav-link active">Equipments</a>
-      ${managerLink}
+      
       <a href="/home_hpe.html#section-reportes" class="nav-link">Reportes</a>
       <img class="avatar" src="static/img/admin.png" alt="User Avatar">
     `;
