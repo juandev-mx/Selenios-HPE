@@ -334,7 +334,7 @@ async function submitPOC() {
         const pocData = {
             client_user_id: user.id,
             business_justification: justification,
-            created_date: new Date().toISOString().split('T')[0]
+            created_date: getLocalDate()
         };
         
         console.log('Sending POC data:', pocData);
@@ -425,4 +425,12 @@ if (!document.getElementById('pocs-container')) {
         console.log('create_pocs.js loaded (home)');
         loadEquipmentData();
     });
+}
+// Función helper para obtener fecha local en formato YYYY-MM-DD
+function getLocalDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
