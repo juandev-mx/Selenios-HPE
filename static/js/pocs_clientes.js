@@ -287,62 +287,70 @@ async function loadUserPOCs() {
 // MOSTRAR POCs - SIN peticiones HTTP
 function displayPOCs(pocs) {
     const container = document.getElementById('pocs-container');
-    
+
     if (pocs.length === 0) {
         container.innerHTML = '<p style="text-align: center; padding: 2rem; color: #618975;">No POCs match your filters.</p>';
         return;
     }
 
-    container.innerHTML = pocs.map((poc, index) => {
+    const now = new Date();
+
+    container.innerHTML = pocs.map(poc => {
+        const createdDate = new Date(poc.created_date);
+        const diffDays = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+        const remainingDays = Math.max(0, 30 - diffDays);
+
+        // Auto-aprobar si ya pasaron 30 días
+        if (remainingDays === 0 && !poc.is_approved) {
+            autoApprovePOC(poc.poc_id);
+            poc.is_approved = true;
+        }
+
         const status = poc.is_approved ? 'approved' : 'pending';
         const statusLabel = poc.is_approved ? 'Approved' : 'Pending Approval';
         const statusClass = poc.is_approved ? 'status-approved' : 'status-pending';
-        const createdDate = new Date(poc.created_date).toLocaleDateString();
-        
+        const createdDateFormatted = createdDate.toLocaleDateString();
+
         return `
             <div class="poc-card" data-status="${status}">
                 <div class="poc-header">
                     <h3>My POC</h3>
                     <span class="poc-status ${statusClass}">${statusLabel}</span>
                 </div>
-                
+
                 <div class="poc-body">
                     <div class="poc-info">
                         <strong>Business Justification:</strong>
                         <p>${poc.business_justification.substring(0, 100)}${poc.business_justification.length > 100 ? '...' : ''}</p>
                     </div>
-                    
+
                     <div class="poc-meta">
                         <div class="poc-date">
                             <span>Created:</span>
-                            <span>${createdDate}</span>
+                            <span>${createdDateFormatted}</span>
                         </div>
-                        ${poc.completion_date ? `
-                            <div class="poc-date">
-                                <span> Completed:</span>
-                                <span>${new Date(poc.completion_date).toLocaleDateString()}</span>
-                            </div>
-                        ` : ''}
+                        <div class="poc-date">
+                            <span>Trial Time:</span>
+                            <span>${remainingDays} days left</span>
+                        </div>
                     </div>
                 </div>
-                
+
                 <div class="poc-footer">
-                    <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">
-                        View Details
-                    </button>
-                    ${!poc.is_approved ? `
-                        <button class="btn-edit" onclick="editPOC(${poc.poc_id})">
-                            Edit
-                        </button>
-                        <button class="btn-delete" onclick="deletePOC(${poc.poc_id})">
-                            Delete
-                        </button>
+                    <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">View</button>
+                    <button class="btn-edit" onclick="editPOC(${poc.poc_id})">Edit</button>
+                    <button class="btn-delete" onclick="deletePOC(${poc.poc_id})">Delete</button>
+
+                    ${!poc.is_approved && remainingDays > 0 ? `
+                        <button class="btn-accept" onclick="approvePOC(${poc.poc_id}, true)">Accept</button>
+                        <button class="btn-deny" onclick="approvePOC(${poc.poc_id}, false)">Deny</button>
                     ` : ''}
                 </div>
             </div>
         `;
     }).join('');
 }
+
 
 // Filtrar POCs - instantáneo
 function filterPOCs() {
@@ -755,6 +763,40 @@ async function addEquipmentToPOC(equipmentId) {
     } catch (error) {
         console.error('Error adding equipment:', error);
         alert('Error adding equipment: ' + error.message);
+    }
+}
+// ✅ Aprobar / Denegar manualmente
+async function approvePOC(pocId, approved) {
+    try {
+        const response = await fetch(`/pocs/${pocId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_approved: approved })
+        });
+
+        if (!response.ok) throw new Error('Error updating POC status');
+
+        alert(approved ? 'POC accepted successfully ✅' : 'POC denied ❌');
+        await loadUserPOCs();
+    } catch (error) {
+        console.error('Error updating POC:', error);
+        alert('Error updating POC status: ' + error.message);
+    }
+}
+
+// ⏱️ Auto-aprobar si vencen los 30 días
+async function autoApprovePOC(pocId) {
+    try {
+        const response = await fetch(`/pocs/${pocId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_approved: true })
+        });
+
+        if (!response.ok) console.warn('Auto-approval failed for POC:', pocId);
+        else console.log(`POC ${pocId} auto-approved after 30 days`);
+    } catch (err) {
+        console.error('Auto approval error:', err);
     }
 }
 
