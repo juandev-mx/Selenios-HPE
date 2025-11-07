@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from models import db, ClientCompany, User, Equipment, EquipmentItem, POC, POCEquipment
+from analytics import analytics_bp
 import re
 
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ app = Flask(__name__,
 
 # Habilitar CORS para desarrollo
 CORS(app)
-
+app.register_blueprint(analytics_bp)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
