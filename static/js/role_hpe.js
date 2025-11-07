@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initDashboard(user) {
+    console.log('Initializing dashboard for user:', user);
     // Control de acceso basado en rol
     if (user.role === 'HPE_MANAGER') {
         showManagerFeatures();
@@ -31,6 +32,7 @@ function initDashboard(user) {
     setupEventListeners(user);
     
     // Cargar datos iniciales del dashboard
+    console.log('Loading initial dashboard data...');
     loadDashboardData();
     
     // Crear menú de avatar
@@ -291,32 +293,51 @@ function addAvatarMenuStyles() {
     document.head.appendChild(styles);
 }
 
+// Reemplazar la función setupEventListeners en role_hpe.js
+
 function setupEventListeners(user) {
     // Navegación entre secciones
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
+            const section = this.getAttribute('data-section');
+            
+            // Si no tiene data-section, no hacer nada (dejar que navegue normalmente)
+            if (!section) return;
+            
             e.preventDefault();
             
+            // Remover clase active de todos
             navLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
             
-            const section = this.getAttribute('data-section');
+            // Mostrar la sección correspondiente
             showSection(section, user);
         });
     });
 
     // Scroll al hacer click en el logo
-    const logo = document.getElementById('hpeLogo');
-    if (logo) {
-        logo.addEventListener('click', (e) => {
+    const logo = document.querySelector('.logo');
+    if (logo && logo.parentElement) {
+        logo.parentElement.addEventListener('click', (e) => {
             e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Mostrar dashboard
+            showSection('dashboard', user);
+            // Marcar Dashboard como activo
+            navLinks.forEach(l => {
+                if (l.getAttribute('data-section') === 'dashboard') {
+                    l.classList.add('active');
+                } else {
+                    l.classList.remove('active');
+                }
+            });
         });
     }
 }
 
 function showSection(sectionName, user) {
+    console.log('Showing section:', sectionName);
+    
     // Ocultar todas las secciones
     const allSections = document.querySelectorAll('.section-content');
     allSections.forEach(section => {
@@ -329,11 +350,26 @@ function showSection(sectionName, user) {
         // Verificar permisos para Users & Companies
         if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
             alert('Acceso denegado. Solo los Managers pueden acceder a esta sección.');
+            // Volver a mostrar dashboard
+            showSection('dashboard', user);
             return;
         }
         
         targetSection.style.display = 'block';
-        loadSectionData(sectionName, user);
+        
+        // Cargar datos según la sección
+        if (sectionName === 'dashboard') {
+            loadDashboardData();
+        } else if (sectionName === 'users' && user.role === 'HPE_MANAGER') {
+            loadUsersAndCompanies();
+        } else if (sectionName === 'reportes') {
+            // La sección de reportes ya está en el HTML, solo mostrarla
+            console.log('Mostrando sección de reportes');
+        }
+        // No cargar datos para approvals y equipments ya que son páginas separadas
+        
+    } else {
+        console.warn('Section not found:', sectionName);
     }
 }
 
@@ -359,7 +395,7 @@ function loadSectionData(section, user) {
 // ============ FUNCIONES DE CARGA DE DATOS DEL DASHBOARD ============
 
 async function loadDashboardData() {
-    console.log('Cargando dashboard...');
+    console.log('🔄 Cargando dashboard...');
     
     try {
         // Cargar todos los datos en paralelo
@@ -371,11 +407,28 @@ async function loadDashboardData() {
             fetch('/users')
         ]);
 
+        console.log('✅ Respuestas recibidas');
+        
+        // Verificar que todas las respuestas sean OK
+        if (!pocsResponse.ok) throw new Error('Error loading POCs');
+        if (!companiesResponse.ok) throw new Error('Error loading companies');
+        if (!equipmentResponse.ok) throw new Error('Error loading equipment');
+        if (!pocEquipmentResponse.ok) throw new Error('Error loading poc_equipment');
+        if (!usersResponse.ok) throw new Error('Error loading users');
+
         const pocs = await pocsResponse.json();
         const companies = await companiesResponse.json();
         const equipment = await equipmentResponse.json();
         const pocEquipment = await pocEquipmentResponse.json();
         const users = await usersResponse.json();
+
+        console.log('📊 Datos cargados:', {
+            pocs: pocs.length,
+            companies: companies.length,
+            equipment: equipment.length,
+            pocEquipment: pocEquipment.length,
+            users: users.length
+        });
 
         // Calcular y actualizar KPIs
         updateKPIs(pocs, pocEquipment, equipment, users);
@@ -393,9 +446,12 @@ async function loadDashboardData() {
 
         // Calcular y actualizar tendencias de aprobación
         updateApprovalTrends(pocs);
+        
+        console.log('✅ Dashboard cargado completamente');
 
     } catch (error) {
-        console.error('Error cargando dashboard:', error);
+        console.error('❌ Error cargando dashboard:', error);
+        alert('Error cargando datos del dashboard. Por favor, recarga la página.');
     }
 }
 
