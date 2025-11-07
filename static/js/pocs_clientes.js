@@ -489,22 +489,10 @@ async function rejectPOC(pocId) {
         const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-<<<<<<< HEAD
-<<<<<<< HEAD
-            body: JSON.stringify({
-                is_approved: false,
-                completion_date: new Date().toISOString()             })
-=======
-=======
->>>>>>> 91a2a8998d3b1426ed746dba2a963a8ccf6c64e8
         body: JSON.stringify({
             is_approved: false,
             completion_date: getLocalDate()
         })
-<<<<<<< HEAD
->>>>>>> d48c7f60931f6ac8a184c0593f1761adb665b569
-=======
->>>>>>> 91a2a8998d3b1426ed746dba2a963a8ccf6c64e8
         });
         
         if (response.ok) {
