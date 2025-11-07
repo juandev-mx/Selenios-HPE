@@ -104,33 +104,48 @@ def get_clients_performance():
 @analytics_bp.route('/api/analytics/team-performance')
 def get_team_performance():
     try:
-        # Rendimiento del equipo (HPE Reps)
-        team_performance = (
-            db.session.query(
-            User.name,
-            User.user_id,
-            func.sum(Equipment.price).label('total_revenue'),
-            func.count(POCEquipment.poc_equipment_id).label('equipment_used')
-        )
-        .join(POC, POC.client_user_id == User.user_id)
-        .join(POCEquipment, POCEquipment.poc_id == POC.poc_id)
-        .join(Equipment, Equipment.solution_id == POCEquipment.solution_id)
-        .filter(POC.is_approved == True, User.role == 'HPE_REP')
-        .group_by(User.user_id, User.name)
-        .order_by(func.sum(Equipment.price).desc()).all()
-        )
+        from datetime import datetime, date
+        current_date = datetime.now()
+        
+        # Obtener el primer y último día del mes actual
+        first_day_of_month = date(current_date.year, current_date.month, 1)
+        if current_date.month == 12:
+            last_day_of_month = date(current_date.year + 1, 1, 1)
+        else:
+            last_day_of_month = date(current_date.year, current_date.month + 1, 1)
 
-        # Obtener información de managers
+        # Subconsulta para obtener los nombres de los gerentes
+        manager_subquery = db.session.query(
+            User.user_id,
+            User.name
+        ).filter(User.role == 'HPE_MANAGER').subquery()
+
+        # Consulta principal para el rendimiento del equipo
+        team_performance = db.session.query(
+            User.name.label('rep_name'),
+            User.user_id,
+            manager_subquery.c.name.label('manager_name'),
+            func.coalesce(func.sum(Equipment.price), 0).label('total_revenue'),
+            func.count(POCEquipment.poc_equipment_id).label('equipment_used')
+        ).select_from(User)\
+         .filter(User.role == 'HPE_REP')\
+         .outerjoin(manager_subquery, manager_subquery.c.user_id == User.reports_to)\
+         .join(POC, POC.client_user_id == User.user_id)\
+         .join(POCEquipment, POCEquipment.poc_id == POC.poc_id)\
+         .join(Equipment, Equipment.solution_id == POCEquipment.solution_id)\
+         .filter(
+             POC.is_approved == True,
+             POC.created_date >= first_day_of_month,
+             POC.created_date < last_day_of_month
+         )\
+         .group_by(User.user_id, User.name, manager_subquery.c.name)\
+         .order_by(func.sum(Equipment.price).desc()).all()
+
         team_data = []
         for member in team_performance:
-            # Buscar el manager (usuario al que reporta)
-            manager = db.session.query(User.name).filter(
-                User.user_id == member.user_id
-            ).first() if member.user_id else None
-
             team_data.append({
-                'rep_name': member.name,
-                'manager_name': manager.name if manager else 'Sin manager',
+                'rep_name': member.rep_name,
+                'manager_name': member.manager_name or 'Sin manager',
                 'revenue': float(member.total_revenue),
                 'equipment_used': member.equipment_used
             })

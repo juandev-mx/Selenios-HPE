@@ -6,11 +6,6 @@ let allEquipment = [];
 let allEquipmentItems = [];
 let modalCreated = false;
 
-// Inicializar al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('POCs.js loaded');
-    loadEquipmentData();
-});
 
 // Cargar datos de equipos
 async function loadEquipmentData() {
@@ -406,13 +401,6 @@ function openViewPOCs() {
     window.location.href = '/pocs_clientes.html';
 }
 
-// Cerrar dropdowns al hacer clic fuera
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.modal-search')) {
-        const dropdowns = document.querySelectorAll('.modal-dropdown');
-        dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
-    }
-});
 
 // Al final de create_pocs.js - ANTES de cerrar el archivo
 
@@ -428,3 +416,13 @@ document.addEventListener('click', function(e) {
 window.openCreatePOC = openCreatePOC;
 window.closeCreatePOC = closeCreatePOC;
 window.openViewPOCs = openViewPOCs;
+window.loadEquipmentData = loadEquipmentData;
+
+// Inicializar SOLO si NO estamos en pocs_clientes.html
+if (!document.getElementById('pocs-container')) {
+    // Estamos en home_cliente.html u otra página
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('create_pocs.js loaded (home)');
+        loadEquipmentData();
+    });
+}
