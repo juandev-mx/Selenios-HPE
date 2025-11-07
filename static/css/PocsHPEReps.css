@@ -344,27 +344,6 @@
             transition: background-color 0.3s ease;
             text-transform: capitalize;
         }
-        .btn-view {
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.4rem 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.25s ease, transform 0.15s ease;
-        }
-
-        .btn-view:hover {
-            background-color: #1e40af; /* un azul más fuerte */
-            transform: scale(1.05); /* ligero aumento al pasar */
-        }
-
-        .btn-view:active {
-            transform: scale(0.95);
-            background-color: #1d4ed8; /* otro tono al presionar */
-        }
-
 
         .btn-approve:hover {
             background-color: #018f71;
@@ -406,44 +385,28 @@
                 width: 100%;
             }
         }
-        /* ===== ANIMACIONES PARA EL MODAL ===== */
-
-        /* Efecto de aparición suave */
-        .modal-overlay {
-            opacity: 0;
-            animation: fadeIn 0.4s forwards;
+        /* Botón VIEW */
+        .btn-view {
+            padding: 0.375rem 0.8rem;
+            background-color: var(--accent-green); /* cambia el color base del botón */
+            color: var(--white);
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: var(--font-family);
+            cursor: pointer;
+            text-transform: capitalize;
+            transition: background-color 0.3s ease, transform 0.1s ease;
         }
 
-        .modal-content {
-            transform: translateY(-20px);
-            opacity: 0;
-            animation: slideIn 0.4s forwards;
+        /* Efectos */
+        .btn-view:hover {
+            background-color: var(--primary-green); /* más oscuro al pasar el mouse */
+            transform: scale(1.03);
         }
 
-        /* Keyframes de entrada */
-        @keyframes fadeIn {
-            to { opacity: 1; }
+        .btn-view:active {
+            background-color: var(--primary-dark); /* tono más fuerte al presionar */
+            transform: scale(0.97);
         }
-
-        @keyframes slideIn {
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Efecto al cerrar (fade-out y desplazamiento suave) */
-        .modal-overlay.fade-out {
-            animation: fadeOut 0.3s forwards;
-        }
-        .modal-content.fade-out {
-            animation: slideOut 0.3s forwards;
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateY(0); opacity: 1; }
-            to { transform: translateY(-20px); opacity: 0; }
-        }
-

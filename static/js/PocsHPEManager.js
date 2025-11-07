@@ -113,8 +113,9 @@ function createActionButtons(poc) {
         return `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                 <span class="action-text" style="font-size: 0.75rem; color: var(--muted-text);">In Progress...</span>
-                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})" style="padding: 0.375rem 0.8rem; background-color: var(--primary-dark); color: var(--white); border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">View</button>
+                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})">View</button>
             </div>
+
         `;
     } else {
         // Approved o Rejected - mostrar estado y fecha en líneas separadas + view
@@ -528,24 +529,91 @@ function createPocModal(poc, equipment) {
         `;
         document.head.appendChild(styles);
     }
+    // --- Animaciones y efectos adicionales para el modal ---
+if (!document.getElementById('modal-extra-styles')) {
+    const extraStyles = document.createElement('style');
+    extraStyles.id = 'modal-extra-styles';
+    extraStyles.textContent = `
+        /* --- Animaciones del modal --- */
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes modalFadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+        }
+
+        /* --- Transiciones del overlay --- */
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes overlayFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Aplica animaciones cuando se abre */
+        .modal-overlay {
+            animation: overlayFadeIn 0.3s ease forwards;
+        }
+
+        .modal-content {
+            animation: modalFadeIn 0.3s ease forwards;
+        }
+
+        /* --- Botón Close: hover y presionado --- */
+        .btn-cancel {
+            transition: background-color 0.25s ease, transform 0.1s ease;
+        }
+
+        .btn-cancel:hover {
+            background-color: #d6d8d7;
+        }
+
+        .btn-cancel:active {
+            background-color: #c0c3c2;
+            transform: scale(0.97);
+        }
+    `;
+    document.head.appendChild(extraStyles);
 }
 
 
+
+}
+
+
+// Actualizar closePocModal para animación de salida
 function closePocModal() {
     const modal = document.getElementById('poc-modal');
-    if (!modal) return;
-
-    const overlay = modal.querySelector('.modal-overlay');
-    const content = modal.querySelector('.modal-content');
-
-    // Agregar clases para la animación de salida
-    overlay.classList.add('fade-out');
-    content.classList.add('fade-out');
-
-    // Eliminar el modal tras la animación
-    setTimeout(() => modal.remove(), 300);
+    if (modal) {
+        const overlay = modal.querySelector('.modal-overlay');
+        const content = modal.querySelector('.modal-content');
+        if (overlay && content) {
+            overlay.style.animation = 'overlayFadeOut 0.25s ease forwards';
+            content.style.animation = 'modalFadeOut 0.25s ease forwards';
+            setTimeout(() => modal.remove(), 250);
+        } else {
+            modal.remove();
+        }
+    }
 }
-
 
 // Filtrar POCs
 function filterPocs(pocs) {
@@ -617,6 +685,12 @@ function showFilterMenu() {
         border: 1px solid var(--border-gray);
     `;
     
+    const filters = [
+        { value: 'all', label: 'All POCs', icon: '📋' },
+        { value: 'pending', label: 'Pending', icon: '⏳' },
+        { value: 'approved', label: 'Accepted', icon: '✅' },
+        { value: 'rejected', label: 'Rejected', icon: '❌' }
+    ];
     
     filters.forEach(filter => {
         const option = document.createElement('div');
