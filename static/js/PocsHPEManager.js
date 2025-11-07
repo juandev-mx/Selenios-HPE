@@ -104,9 +104,17 @@ function createActionButtons(poc) {
 
         `;
     } else {
+<<<<<<< HEAD
                 const completionDate = poc.completion_date ? 
             new Date(poc.completion_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 
             'N/A';
+=======
+        const completionDate = poc.completion_date
+        ? new Date(poc.completion_date + 'T00:00:00').toLocaleDateString('es-MX')
+        : 'N/A';
+
+
+>>>>>>> d48c7f60931f6ac8a184c0593f1761adb665b569
         const actionText = poc.is_approved ? 'Accepted' : 'Rejected';
         return `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
@@ -267,9 +275,11 @@ function createPocModal(poc, equipment) {
         new Date(poc.created_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 
         'N/A';
     
-    const completionDate = poc.completion_date ? 
-        new Date(poc.completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 
-        'N/A';
+        const completionDate = poc.completion_date
+        ? new Date(poc.completion_date + 'T00:00:00').toLocaleDateString('es-MX')
+        : 'N/A';
+
+
     
         const equipmentHtml = (equipment.length > 0) ? `
         <ul class="equipment-list">

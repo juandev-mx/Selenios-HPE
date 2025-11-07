@@ -296,7 +296,8 @@ function displayPOCs(pocs) {
             statusClass = 'status-pending';
         }
         
-        const createdDate = new Date(poc.created_date).toLocaleDateString();
+        const createdDate = poc.created_date;
+
         
         return `
             <div class="poc-card" data-status="${status}">
@@ -319,9 +320,10 @@ function displayPOCs(pocs) {
                         ${poc.is_approved !== null && poc.completion_date ? `
                             <div class="poc-date">
                                 <span>${poc.is_approved ? 'Approved on:' : 'Rejected on:'}</span>
-                                <span>${new Date(poc.completion_date).toLocaleDateString()}</span>
+                                <span>${poc.completion_date}</span>
                             </div>
                         ` : ''}
+
                     </div>
                 </div>
                 
@@ -459,10 +461,10 @@ async function approvePOC(pocId) {
         const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                is_approved: true,
-                completion_date: new Date().toISOString()
-            })
+        body: JSON.stringify({
+            is_approved: true,
+            completion_date: getLocalDate()
+        })
         });
         
         if (response.ok) {
@@ -487,9 +489,16 @@ async function rejectPOC(pocId) {
         const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
+<<<<<<< HEAD
             body: JSON.stringify({
                 is_approved: false,
                 completion_date: new Date().toISOString()             })
+=======
+        body: JSON.stringify({
+            is_approved: false,
+            completion_date: getLocalDate()
+        })
+>>>>>>> d48c7f60931f6ac8a184c0593f1761adb665b569
         });
         
         if (response.ok) {
@@ -559,13 +568,14 @@ function showDetailsModal(poc, equipment, items) {
             <h3>Timeline</h3>
             <div class="timeline-info">
                 <div>
-                    <strong>Created:</strong> ${new Date(poc.created_date).toLocaleDateString()}
+                    <strong>Created:</strong> ${poc.created_date}
                 </div>
                 ${poc.completion_date ? `
                     <div>
-                        <strong>Completed:</strong> ${new Date(poc.completion_date).toLocaleDateString()}
+                        <strong>Completed:</strong> ${poc.completion_date}
                     </div>
                 ` : ''}
+
             </div>
         </div>
         
@@ -993,4 +1003,13 @@ async function deletePOC(pocId) {
         console.error('Error deleting POC:', error);
         alert('Error deleting POC: ' + error.message);
     }
+}
+
+// Función helper para obtener fecha local en formato YYYY-MM-DD
+function getLocalDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
