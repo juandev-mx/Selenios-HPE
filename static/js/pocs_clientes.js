@@ -266,7 +266,7 @@ async function loadUserPOCs() {
         `;
     }
 }
-// 🔹 Estilos y orden de botones POC
+
 function fixPOCButtonsLayout() {
     const style = document.createElement("style");
     style.textContent = `
@@ -311,14 +311,14 @@ function fixPOCButtonsLayout() {
     `;
     document.head.appendChild(style);
 
-    // 🔹 Reordenar botones (si no vienen en ese orden)
+    
     document.querySelectorAll(".poc-footer").forEach(footer => {
         const viewBtn = footer.querySelector(".btn-view");
         const editBtn = footer.querySelector(".btn-edit");
         const approveBtn = footer.querySelector(".btn-approve, [onclick^='approvePOC']");
         const rejectBtn = footer.querySelector(".btn-reject, [onclick^='rejectPOC']");
 
-        // Crear contenedor nuevo para orden fijo
+        
         const newFooter = document.createElement("div");
         newFooter.classList.add("poc-footer");
         [viewBtn, editBtn, approveBtn, rejectBtn].forEach(btn => {
@@ -329,7 +329,7 @@ function fixPOCButtonsLayout() {
     });
 }
 
-// Ejecutar al cargar
+
 document.addEventListener("DOMContentLoaded", fixPOCButtonsLayout);
 
 
@@ -1061,7 +1061,7 @@ async function deletePOC(pocId) {
     }
 }
 
-// Función helper para obtener fecha local en formato YYYY-MM-DD
+
 function getLocalDate() {
     const now = new Date();
     const year = now.getFullYear();

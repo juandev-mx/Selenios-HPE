@@ -361,7 +361,7 @@ function loadSectionData(section, user) {
     }
 }
 
-// ============ FUNCIONES DE CARGA DE DATOS DEL DASHBOARD ============
+
 
 async function loadDashboardData() {
     console.log('🔄 Cargando dashboard...');
@@ -940,7 +940,7 @@ async function loadUsersAndCompanies() {
     }
 }
 
-// ============ UTILIDADES ============
+
 
 function formatCurrency(amount) {
     if (amount >= 1000000) {

@@ -1,23 +1,23 @@
-// client-dashboard.js - Analytics para cliente basado en BD real
+
 
 document.addEventListener('DOMContentLoaded', async function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
-    // Verificar que existe usuario en sesión
+    
     if (!user) {
         alert('Sesión no encontrada. Por favor inicia sesión.');
         window.location.href = '/login.html';
         return;
     }
 
-    // Verificar que el usuario tiene rol de CLIENT
+    
     if (user.role !== 'CLIENT') {
         alert('Acceso denegado. Esta página es solo para clientes.');
         window.location.href = '/login.html';
         return;
     }
 
-    // Cargar información de la compañía si existe
+    
     if (user.client_company_id) {
         try {
             const response = await fetch(`/client_company/${user.client_company_id}`);
@@ -28,16 +28,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // Actualizar nombre del cliente en el dashboard
+    
     const customerNameElement = document.getElementById('customer-name');
     if (customerNameElement) {
         customerNameElement.textContent = user.name;
     }
 
-    // Crear menú del avatar
+    
     createAvatarMenu(user);
 
-    // Cargar analytics del cliente
+    
     await loadClientAnalytics(user.id || user.user_id);
 });
 
@@ -200,12 +200,12 @@ function addAvatarMenuStyles() {
     document.head.appendChild(styles);
 }
 
-// FUNCIÓN PRINCIPAL: Cargar analytics basado en la BD real
+
 async function loadClientAnalytics(userId) {
     try {
         console.log('📊 Cargando analytics para usuario:', userId);
         
-        // Cargar POCs del usuario, equipos asociados y precios
+        
         const [pocsResponse, pocEquipmentResponse, equipmentResponse] = await Promise.all([
             fetch(`/pocs?client_user_id=${userId}`),
             fetch('/poc_equipment'),
@@ -224,24 +224,24 @@ async function loadClientAnalytics(userId) {
             equipment: allEquipment.length
         });
 
-        // Crear mapa de precios de equipos
+        
         const equipmentPrices = {};
         allEquipment.forEach(eq => {
             equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
         });
 
-        // Calcular estadísticas
+        
         const stats = calculatePOCStats(pocs, allPocEquipment, equipmentPrices);
         
-        // Actualizar UI
+        
         updateStatsCards(stats);
         
-        // Crear gráficas
+        
         createCharts(pocs, allPocEquipment, equipmentPrices);
 
     } catch (error) {
         console.error('❌ Error loading analytics:', error);
-        // Mostrar valores por defecto en caso de error
+        
         updateStatsCards({
             totalPOCs: 0,
             pending: 0,
@@ -253,7 +253,7 @@ async function loadClientAnalytics(userId) {
     }
 }
 
-// Calcular estadísticas de POCs
+
 function calculatePOCStats(pocs, allPocEquipment, equipmentPrices) {
     const totalPOCs = pocs.length;
     const pending = pocs.filter(p => p.is_approved === null || p.is_approved === undefined).length;
@@ -279,7 +279,7 @@ function calculatePOCStats(pocs, allPocEquipment, equipmentPrices) {
     return { totalPOCs, pending, approved, rejected, totalExpenses, avgExpense };
 }
 
-// Actualizar tarjetas de estadísticas
+
 function updateStatsCards(stats) {
     const totalPocsElement = document.getElementById('total-pocs');
     const pendingElement = document.getElementById('pending-count');
@@ -298,7 +298,7 @@ function updateStatsCards(stats) {
     console.log('✅ Stats actualizadas en UI');
 }
 
-// Crear gráficas
+
 function createCharts(pocs, allPocEquipment, equipmentPrices) {
     const monthlyData = {};
     
@@ -348,7 +348,7 @@ function createCharts(pocs, allPocEquipment, equipmentPrices) {
     }
 }
 
-// Formatear moneda
+
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 }
