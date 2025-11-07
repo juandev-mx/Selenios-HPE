@@ -105,16 +105,22 @@ function createActionButtons(poc) {
         `;
     } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 const completionDate = poc.completion_date ? 
             new Date(poc.completion_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : 
             'N/A';
 =======
+=======
+>>>>>>> 91a2a8998d3b1426ed746dba2a963a8ccf6c64e8
         const completionDate = poc.completion_date
         ? new Date(poc.completion_date + 'T00:00:00').toLocaleDateString('es-MX')
         : 'N/A';
 
 
+<<<<<<< HEAD
 >>>>>>> d48c7f60931f6ac8a184c0593f1761adb665b569
+=======
+>>>>>>> 91a2a8998d3b1426ed746dba2a963a8ccf6c64e8
         const actionText = poc.is_approved ? 'Accepted' : 'Rejected';
         return `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
