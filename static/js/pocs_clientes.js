@@ -270,6 +270,72 @@ async function loadUserPOCs() {
         `;
     }
 }
+// 🔹 Estilos y orden de botones POC
+function fixPOCButtonsLayout() {
+    const style = document.createElement("style");
+    style.textContent = `
+        /* --- Alinear botones en una sola línea --- */
+        .poc-footer {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            flex-wrap: nowrap !important;
+            gap: 0.8rem !important;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* --- Asegurar orden y estilo de los botones --- */
+        .poc-footer button {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            padding: 0.5rem 1.2rem !important;
+            border-radius: 6px !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        /* --- Colores personalizados --- */
+        .btn-view { background-color: #05AD7A !important; color: white !important; }
+        .btn-edit { background-color: #ffc107 !important; color: black !important; } /* amarillo */
+        .btn-delete { background-color: #dc3545 !important; color: white !important; }
+        .btn-approve { background-color: #0d6efd !important; color: white !important; }
+        .btn-reject { background-color: #dc3545 !important; color: white !important; }
+
+        /* --- Hover --- */
+        .btn-view:hover { background-color: #049b6d !important; }
+        .btn-edit:hover { background-color: #e0a800 !important; }
+        .btn-approve:hover { background-color: #0b5ed7 !important; }
+        .btn-reject:hover { background-color: #bb2d3b !important; }
+    `;
+    document.head.appendChild(style);
+
+    // 🔹 Reordenar botones (si no vienen en ese orden)
+    document.querySelectorAll(".poc-footer").forEach(footer => {
+        const viewBtn = footer.querySelector(".btn-view");
+        const editBtn = footer.querySelector(".btn-edit");
+        const approveBtn = footer.querySelector(".btn-approve, [onclick^='approvePOC']");
+        const rejectBtn = footer.querySelector(".btn-reject, [onclick^='rejectPOC']");
+
+        // Crear contenedor nuevo para orden fijo
+        const newFooter = document.createElement("div");
+        newFooter.classList.add("poc-footer");
+        [viewBtn, editBtn, approveBtn, rejectBtn].forEach(btn => {
+            if (btn) newFooter.appendChild(btn);
+        });
+
+        footer.replaceWith(newFooter);
+    });
+}
+
+// Ejecutar al cargar
+document.addEventListener("DOMContentLoaded", fixPOCButtonsLayout);
+
 
 function displayPOCs(pocs) {
     const container = document.getElementById('pocs-container');
@@ -341,10 +407,10 @@ function displayPOCs(pocs) {
                     
                     <div class="poc-footer-right">
                         ${poc.is_approved === null ? `
-                            <button class="btn-approve" onclick="approvePOC(${poc.poc_id})">
+                            <button class="btn-view" onclick="approvePOC(${poc.poc_id})">
                                 Approve
                             </button>
-                            <button class="btn-reject" onclick="rejectPOC(${poc.poc_id})">
+                            <button class="btn-delete" onclick="rejectPOC(${poc.poc_id})">
                                 Reject
                             </button>
                         ` : `
