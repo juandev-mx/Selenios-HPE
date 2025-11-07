@@ -24,7 +24,7 @@
     <a href="#" class="nav-link active" data-section="dashboard">Dashboard</a>
     <a href="PocsHPEManager.html" class="nav-link">Approvals</a>
     <a href="/solutions_catalog.html" class="nav-link">Equipments</a>
-            <a href="#" class="nav-link" data-section="reportes">Reportes</a>
+            <a href="#" class="nav-link" data-section="reportes">Reports</a>
 </nav>
 
                 <div class="user-info-header">
@@ -38,25 +38,25 @@
         <div class="content-wrapper">
                         <div id="section-dashboard" class="section-content">
                 <div class="page-header">
-                    <h2 class="page-title">Panel de Rendimiento</h2>
-                    <p class="page-subtitle">Resumen de los indicadores clave de rendimiento para el negocio.</p>
+                    <h2 class="page-title">Performance Panel</h2>
+                    <p class="page-subtitle">Summary of key performance indicators for the business.</p>
                 </div>
 
                 <div class="kpi-grid">
                     <div class="kpi-card">
-                        <div class="kpi-label">Ingresos Totales</div>
+                        <div class="kpi-label">Total Revenue</div>
                         <div class="kpi-value">$0</div>
                         <div class="kpi-change positive">+0%</div>
                     </div>
 
                     <div class="kpi-card">
-                        <div class="kpi-label">Tasa de Aprobación</div>
+                        <div class="kpi-label">Approval Rate</div>
                         <div class="kpi-value">0%</div>
                         <div class="kpi-change negative">-0%</div>
                     </div>
 
                     <div class="kpi-card">
-                        <div class="kpi-label">Clientes Activos</div>
+                        <div class="kpi-label">Active Clients</div>
                         <div class="kpi-value">0</div>
                         <div class="kpi-change positive">+0%</div>
                     </div>
@@ -64,14 +64,14 @@
 
                 <div class="section-grid">
                     <div class="section-card">
-                        <h3 class="section-title">Rendimiento de Soluciones Clave</h3>
+                        <h3 class="section-title">Key Solutions Performance</h3>
                         
                         <div class="chart-grid">
                             <div class="chart-box">
-                                <div class="chart-label">Ingresos por Solución</div>
+                                <div class="chart-label">Solution Revenue</div>
                                 <div class="chart-value">$0</div>
                                 <div class="chart-info">
-                                    <span class="chart-period">Este Trimestre</span>
+                                    <span class="chart-period">This Quarter</span>
                                     <span class="kpi-change positive">+0%</span>
                                 </div>
                                 <div class="chart-bars">
@@ -91,7 +91,7 @@
                             </div>
 
                             <div class="chart-box">
-                                <div class="chart-label">Tendencia de Aprobaciones por Equipo</div>
+                                <div class="chart-label">Approval Trends by Team</div>
                                 <div class="chart-value" id="approvalTrendValue">...</div>
                                 <div class="chart-info">
                                     <span class="chart-period">Top 6 Equipments</span>
@@ -104,15 +104,15 @@
                     </div>
 
                     <div class="section-card">
-                        <h3 class="section-title">Rendimiento de Clientes Clave</h3>
+                        <h3 class="section-title">Key Customer Performance</h3>
                         
                         <div class="table-wrapper">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Cliente</th>
-                                        <th>Ingresos</th>
-                                        <th>Estado</th>
+                                        <th>Customer</th>
+                                        <th>Income</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -123,15 +123,15 @@
                 </div>
 
                 <div class="section-card full-width">
-                    <h3 class="section-title">Rendimiento del Equipo</h3>
+                    <h3 class="section-title">Team Performance</h3>
                     
                     <div class="table-wrapper">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Representante</th>
-                                    <th>Gerente</th>
-                                    <th>Ingresos</th>
+                                    <th>Representative</th>
+                                    <th>Manager</th>
+                                    <th>Income</th>
                                     <th>Used equipment</th>
                                 </tr>
                             </thead>
@@ -144,77 +144,77 @@
 
                         <div id="section-approvals" class="section-content" style="display: none;">
                 <div class="page-header">
-                    <h2 class="page-title">Aprobaciones</h2>
-                    <p class="page-subtitle">Gestión de POCs pendientes de aprobación.</p>
+                    <h2 class="page-title">Approvals</h2>
+                    <p class="page-subtitle">Management of POCs pending approval.</p>
                 </div>
                 <div id="approvals-content"></div>
             </div>
 
                         <div id="section-equipments" class="section-content" style="display: none;">
                 <div class="page-header">
-                    <h2 class="page-title">Equipamiento</h2>
-                    <p class="page-subtitle">Catálogo de soluciones y equipos disponibles.</p>
+                    <h2 class="page-title">Equipment</h2>
+                    <p class="page-subtitle">Catalog of available solutions and equipment.</p>
                 </div>
                 <div id="equipments-content"></div>
             </div>
 
                         <div id="section-reportes" class="section-content" style="display: none;">
                 <div class="page-header">
-                    <h2 class="page-title">Generar Reportes</h2>
-                    <p class="page-subtitle">Selecciona el tipo de reporte que deseas generar en PDF.</p>
+                    <h2 class="page-title">Generate Reports</h2>
+                    <p class="page-subtitle">Select the type of report you want to generate in PDF.</p>
                 </div>
 
                 <div class="reports-grid">
                                         <div class="report-category">
-                        <h3>Clientes y Empresas</h3>
+                        <h3>Customers and Companies</h3>
                         <div class="report-buttons">
-                            <button class="report-btn" data-report="total_empresas">Total de Empresas Registradas</button>
-                            <button class="report-btn" data-report="pocs_por_empresa">PoCs por Empresa</button>
-                            <button class="report-btn" data-report="tasa_aprobacion_empresa">Tasa de Aprobación por Empresa</button>
-                            <button class="report-btn" data-report="clientes_pocs_completados">Clientes con más PoCs Completados</button>
-                            <button class="report-btn" data-report="tiempo_promedio_pocs">Tiempo Promedio de Ejecución</button>
+                            <button class="report-btn" data-report="total_empresas">Total number of registered companies</button>
+                            <button class="report-btn" data-report="pocs_por_empresa">PoCs by Company</button>
+                            <button class="report-btn" data-report="tasa_aprobacion_empresa">Approval Rate per Company</button>
+                            <button class="report-btn" data-report="clientes_pocs_completados">Customers with the most completed PoCs</button>
+                            <button class="report-btn" data-report="tiempo_promedio_pocs">Average Execution Time</button>
                         </div>
                     </div>
 
                                         <div class="report-category">
                         <h3>Proof of Concept (PoCs)</h3>
                         <div class="report-buttons">
-                            <button class="report-btn" data-report="total_pocs">Total de PoCs Registrados</button>
-                            <button class="report-btn" data-report="pocs_aprobados_vs_no">PoCs Aprobados vs No Aprobados</button>
-                            <button class="report-btn" data-report="pocs_curso_vs_completados">PoCs en Curso vs Completados</button>
-                                                                                    <button class="report-btn" data-report="proyectos_justificacion">Proyectos con Mayor Justificación</button>
+                            <button class="report-btn" data-report="total_pocs">Total number of registered PoCs</button>
+                            <button class="report-btn" data-report="pocs_aprobados_vs_no">Approved and Not Approved PoCs</button>
+                            <button class="report-btn" data-report="pocs_curso_vs_completados">PoCs in Progress vs Completed</button>
+                            <button class="report-btn" data-report="proyectos_justificacion">Projects with Greater Justification</button>
                         </div>
                     </div>
 
                                         <div class="report-category">
-                        <h3>Equipos y Soluciones</h3>
+                        <h3>Equipment and Solutions</h3>
                         <div class="report-buttons">
-                            <button class="report-btn" data-report="total_equipos_por_solucion">Total de Equipos por Solución</button>
-                            <button class="report-btn" data-report="costo_total_equipos_poc">Costo Total de Equipos por PoC</button>
-                            <button class="report-btn" data-report="equipos_mas_utilizados">Equipos Más Utilizados en PoCs</button>
-                            <button class="report-btn" data-report="soluciones_mayor_inversion">Soluciones con Mayor Inversión</button>
-                            <button class="report-btn" data-report="equipamiento_promedio_poc">Equipamiento Promedio por PoC</button>
-                            <button class="report-btn" data-report="comparacion_soluciones_equipos">Comparación Soluciones vs Usadas</button>
+                            <button class="report-btn" data-report="total_equipos_por_solucion">Total number of devices per solution</button>
+                            <button class="report-btn" data-report="costo_total_equipos_poc">Total Equipment Cost per PoC</button>
+                            <button class="report-btn" data-report="equipos_mas_utilizados">Most Used Equipment in PoCs</button>
+                            <button class="report-btn" data-report="soluciones_mayor_inversion">Solutions with Higher Investment</button>
+                            <button class="report-btn" data-report="equipamiento_promedio_poc">Average Equipment per PoC</button>
+                            <button class="report-btn" data-report="comparacion_soluciones_equipos">Comparison of Solutions vs. Used Products</button>
                         </div>
                     </div>
 
                                         <div class="report-category">
-                        <h3>Usuarios</h3>
+                        <h3>Users</h3>
                         <div class="report-buttons">
-                            <button class="report-btn" data-report="usuarios_mas_pocs">Usuarios con Más PoCs</button>
-                            <button class="report-btn" data-report="relacion_usuarios_clientes">Relación Usuarios y Clientes</button>
-                            <button class="report-btn" data-report="usuarios_internos_externos">Usuarios Internos vs Externos</button>
-                            <button class="report-btn" data-report="usuarios_activos">Usuarios Activos</button>
+                            <button class="report-btn" data-report="usuarios_mas_pocs">Users with More PoCs</button>
+                            <button class="report-btn" data-report="relacion_usuarios_clientes">User and Customer Relationship</button>
+                            <button class="report-btn" data-report="usuarios_internos_externos">Internal vs. External Users</button>
+                            <button class="report-btn" data-report="usuarios_activos">Active Users</button>
                         </div>
                     </div>
 
                                         <div class="report-category">
-                        <h3>Estadísticas Financieras</h3>
+                        <h3>Financial Statistics</h3>
                         <div class="report-buttons">
-                            <button class="report-btn" data-report="costo_total_poc">Costo Total por PoC</button>
-                            <button class="report-btn" data-report="soluciones_mas_caras">Soluciones Más Caras</button>
-                            <button class="report-btn" data-report="pocs_mayor_inversion">PoCs con Mayor Inversión</button>
-                            <button class="report-btn" data-report="empresa_mayor_inversion">Empresa con Mayor Inversión</button>
+                            <button class="report-btn" data-report="costo_total_poc">Total Cost per PoC</button>
+                            <button class="report-btn" data-report="soluciones_mas_caras">More Expensive Solutions</button>
+                            <button class="report-btn" data-report="pocs_mayor_inversion">PoCs with Highest Investment</button>
+                            <button class="report-btn" data-report="empresa_mayor_inversion">Company with the Largest Investment</button>
                         </div>
                     </div>
                 </div>
