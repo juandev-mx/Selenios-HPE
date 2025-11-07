@@ -53,6 +53,13 @@
       line-height:28px;
     }
 
+    .representative-text {
+  color:var(--dark-blue);
+  font-size: 32px;
+  font-weight: 700;
+  margin-left: 28px;
+}
+
     .header-nav{
       display:flex;
       align-items:center;
@@ -156,6 +163,8 @@
     .search-input::placeholder{
       color:var(--green-search-text);
     }
+
+    
 
     .table-container {
       max-height: 400px;
