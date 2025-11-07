@@ -531,11 +531,21 @@ function createPocModal(poc, equipment) {
 }
 
 
-// Cerrar modal
 function closePocModal() {
     const modal = document.getElementById('poc-modal');
-    if (modal) modal.remove();
+    if (!modal) return;
+
+    const overlay = modal.querySelector('.modal-overlay');
+    const content = modal.querySelector('.modal-content');
+
+    // Agregar clases para la animación de salida
+    overlay.classList.add('fade-out');
+    content.classList.add('fade-out');
+
+    // Eliminar el modal tras la animación
+    setTimeout(() => modal.remove(), 300);
 }
+
 
 // Filtrar POCs
 function filterPocs(pocs) {
