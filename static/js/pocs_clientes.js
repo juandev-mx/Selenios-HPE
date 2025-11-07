@@ -260,8 +260,8 @@ async function loadUserPOCs() {
             equipmentDetailsMap[eq.solution_id] = eq;
         });
         
-        console.log('✅ POCs loaded:', userPOCs.length);
-        console.log('✅ Equipment map created:', Object.keys(equipmentDetailsMap).length);
+        console.log(' POCs loaded:', userPOCs.length);
+        console.log(' Equipment map created:', Object.keys(equipmentDetailsMap).length);
 
         if (userPOCs.length === 0) {
             container.style.display = 'none';
@@ -314,12 +314,12 @@ function displayPOCs(pocs) {
                     
                     <div class="poc-meta">
                         <div class="poc-date">
-                            <span>📅 Created:</span>
+                            <span>Created:</span>
                             <span>${createdDate}</span>
                         </div>
                         ${poc.completion_date ? `
                             <div class="poc-date">
-                                <span>✅ Completed:</span>
+                                <span> Completed:</span>
                                 <span>${new Date(poc.completion_date).toLocaleDateString()}</span>
                             </div>
                         ` : ''}
@@ -747,7 +747,7 @@ async function addEquipmentToPOC(equipmentId) {
             document.getElementById('edit-modal-equipment').value = '';
             document.getElementById('edit-equipment-dropdown').classList.remove('active');
             
-            alert('✅ Equipment added successfully!');
+            alert(' Equipment added successfully!');
         } else {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Error adding equipment');

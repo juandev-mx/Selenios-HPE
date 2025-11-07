@@ -348,7 +348,7 @@ async function loadRecentAlerts(userId) {
         if (pocs.length === 0) {
             container.innerHTML = `
                 <div class="alert-card">
-                    <div class="alert-icon">💡</div>
+                    <div class="alert-icon"></div>
                     <div class="alert-content">
                         <h3>Welcome to HPE Customer Portal</h3>
                         <p>Create your first POC to get started with our solutions.</p>
@@ -372,7 +372,7 @@ async function loadRecentAlerts(userId) {
                 <div class="alert-card">
                     <div class="alert-icon">${statusIcon}</div>
                     <div class="alert-content">
-                        <h3>POC - ${statusText}</h3>
+                        <h3>POC #${poc.poc_id} - ${statusText}</h3>
                         <p>${poc.business_justification.substring(0, 80)}...</p>
                         <small style="color: #618975;">Created: ${new Date(poc.created_date).toLocaleDateString()}</small>
                     </div>
