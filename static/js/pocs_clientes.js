@@ -298,12 +298,11 @@ function displayPOCs(pocs) {
         const statusLabel = poc.is_approved ? 'Approved' : 'Pending Approval';
         const statusClass = poc.is_approved ? 'status-approved' : 'status-pending';
         const createdDate = new Date(poc.created_date).toLocaleDateString();
-        const userPocNumber = index + 1;
         
         return `
             <div class="poc-card" data-status="${status}">
                 <div class="poc-header">
-                    <h3>My POC #${userPocNumber}</h3>
+                    <h3>My POC</h3>
                     <span class="poc-status ${statusClass}">${statusLabel}</span>
                 </div>
                 
@@ -317,10 +316,6 @@ function displayPOCs(pocs) {
                         <div class="poc-date">
                             <span>📅 Created:</span>
                             <span>${createdDate}</span>
-                        </div>
-                        <div class="poc-date">
-                            <span>🔢 ID:</span>
-                            <span>#${poc.poc_id}</span>
                         </div>
                         ${poc.completion_date ? `
                             <div class="poc-date">
@@ -411,19 +406,18 @@ function showDetailsModal(poc, equipment, items) {
     document.getElementById('details-content').innerHTML = `
         <div class="details-header-info">
             <div>
-                <h2>My POC #${userPocNumber}</h2>
-                <p style="color: #666; margin-top: 0.5rem;">Database ID: #${poc.poc_id}</p>
+                <h2>My POC</h2>
             </div>
             ${statusBadge}
         </div>
         
         <div class="details-section">
-            <h3>📋 Business Justification</h3>
+            <h3>Business Justification</h3>
             <p class="justification-text">${poc.business_justification}</p>
         </div>
         
         <div class="details-section">
-            <h3>📅 Timeline</h3>
+            <h3>Timeline</h3>
             <div class="timeline-info">
                 <div>
                     <strong>Created:</strong> ${new Date(poc.created_date).toLocaleDateString()}
@@ -437,7 +431,7 @@ function showDetailsModal(poc, equipment, items) {
         </div>
         
         <div class="details-section">
-            <h3>🛠️ Equipment (${equipment.length})</h3>
+            <h3>Equipment (${equipment.length})</h3>
             ${equipment.length > 0 ? `
                 <div class="equipment-details-list">
                     ${equipment.map(eq => `
@@ -455,7 +449,7 @@ function showDetailsModal(poc, equipment, items) {
         </div>
         
         <div class="details-section">
-            <h3>📦 Equipment Items (${items.length})</h3>
+            <h3>Equipment Items (${items.length})</h3>
             ${items.length > 0 ? `
                 <div class="items-details-list">
                     ${items.map(item => `
@@ -550,7 +544,7 @@ function openEditModal(poc, pocEquipment) {
     const userPocIndex = userPOCs.findIndex(p => p.poc_id === poc.poc_id);
     const userPocNumber = userPocIndex + 1;
     
-    document.getElementById('edit-modal-title').textContent = `Edit My POC #${userPocNumber}`;
+    document.getElementById('edit-modal-title').textContent = `Edit My POC`;
     document.getElementById('edit-poc-id').value = poc.poc_id;
     document.getElementById('edit-justification').value = poc.business_justification;
     
@@ -584,7 +578,7 @@ function createEditModal() {
                         <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 1rem;">Current Equipment</h3>
                         <div id="current-equipment-list"></div>
                         <p style="color: #666; font-size: 13px; margin-top: 0.5rem;">
-                            ⚠️ A POC must have at least one equipment item
+                            A POC must have at least one equipment item
                         </p>
                     </div>
 
@@ -842,7 +836,7 @@ async function deletePOC(pocId) {
     const userPocIndex = userPOCs.findIndex(p => p.poc_id === pocId);
     const userPocNumber = userPocIndex + 1;
     
-    if (!confirm(`Are you sure you want to delete My POC #${userPocNumber}?\n\nThis action cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to delete My POC?\n\nThis action cannot be undone.`)) {
         return;
     }
     
