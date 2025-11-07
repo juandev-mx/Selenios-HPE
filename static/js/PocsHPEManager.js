@@ -230,7 +230,7 @@ async function showPocDetails(pocId) {
                                 };
                             }
                         } catch (err) {
-                            console.error('Error loading equipment:', err);
+                             console.error('Error loading equipment:', err);
                         }
                         return null;
                     })
