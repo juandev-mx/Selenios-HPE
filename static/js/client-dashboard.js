@@ -348,7 +348,7 @@ async function loadRecentAlerts(userId) {
         if (pocs.length === 0) {
             container.innerHTML = `
                 <div class="alert-card">
-                    <div class="alert-icon">💡</div>
+                    <div class="alert-icon"></div>
                     <div class="alert-content">
                         <h3>Welcome to HPE Customer Portal</h3>
                         <p>Create your first POC to get started with our solutions.</p>

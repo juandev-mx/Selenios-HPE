@@ -161,7 +161,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
-            margin-bottom: 2rem; /* ✅ ESPACIO DESPUÉS DE LOS KPIs */
+            margin-bottom: 2rem; /*  ESPACIO DESPUÉS DE LOS KPIs */
         }
 
         @media (min-width: 768px) {
@@ -209,7 +209,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
-            margin-bottom: 2rem; /* ✅ ESPACIO DESPUÉS DE LA SEGUNDA FILA */
+            margin-bottom: 2rem; /*  ESPACIO DESPUÉS DE LA SEGUNDA FILA */
         }
 
         @media (min-width: 1024px) {

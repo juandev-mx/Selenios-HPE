@@ -555,12 +555,6 @@ function showFilterMenu() {
         border: 1px solid var(--border-gray);
     `;
     
-    const filters = [
-        { value: 'all', label: 'All POCs', icon: '📋' },
-        { value: 'pending', label: 'Pending', icon: '⏳' },
-        { value: 'approved', label: 'Accepted', icon: '✅' },
-        { value: 'rejected', label: 'Rejected', icon: '❌' }
-    ];
     
     filters.forEach(filter => {
         const option = document.createElement('div');

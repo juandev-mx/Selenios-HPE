@@ -383,7 +383,7 @@ async function submitPOC() {
         const equipResponseData = await equipResponse.json();
         console.log('Equipment added:', equipResponseData);
 
-        alert('✅ POC created successfully!');
+        alert(' POC created successfully!');
         closeCreatePOC();
         window.location.reload();
 
