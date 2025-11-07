@@ -1,6 +1,4 @@
-// static/js/solutions_catalog.js
 
-// Función para formatear precio
 function formatPrice(price) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -8,7 +6,6 @@ function formatPrice(price) {
   }).format(price);
 }
 
-// Crear menú de avatar
 function createAvatarMenu(user) {
   const headerNav = document.querySelector('.header-nav');
   const avatar = headerNav ? headerNav.querySelector('.avatar') : null;
@@ -18,24 +15,19 @@ function createAvatarMenu(user) {
     return;
   }
   
-  // Crear contenedor para el avatar y el menú
-  const avatarContainer = document.createElement('div');
+    const avatarContainer = document.createElement('div');
   avatarContainer.className = 'user-info-header';
   avatarContainer.style.position = 'relative';
   
-  // Reemplazar el avatar con el contenedor
-  avatar.parentNode.insertBefore(avatarContainer, avatar);
+    avatar.parentNode.insertBefore(avatarContainer, avatar);
   avatarContainer.appendChild(avatar);
   
-  // Hacer el avatar clickeable
-  avatar.style.cursor = 'pointer';
+    avatar.style.cursor = 'pointer';
   
-  // Determinar la compañía
-  const company = (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') ? 'HPE' : 
+    const company = (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') ? 'HPE' : 
                   (user.company_name || 'N/A');
   
-  // Crear el menú desplegable
-  const menu = document.createElement('div');
+    const menu = document.createElement('div');
   menu.id = 'avatar-menu';
   menu.className = 'avatar-menu';
   menu.style.display = 'none';
@@ -60,8 +52,7 @@ function createAvatarMenu(user) {
       </div>
       <div class="avatar-menu-divider"></div>
       <button class="avatar-menu-logout" id="avatarLogoutBtn">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http:              <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M10.6667 11.3333L14 8L10.6667 4.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -69,14 +60,11 @@ function createAvatarMenu(user) {
       </button>
   `;
   
-  // Insertar después del avatar
-  avatarContainer.appendChild(menu);
+    avatarContainer.appendChild(menu);
   
-  // Agregar estilos
-  addAvatarMenuStyles();
+    addAvatarMenuStyles();
   
-  // Toggle del menú al hacer clic en el avatar
-  avatar.addEventListener('click', function(e) {
+    avatar.addEventListener('click', function(e) {
       e.stopPropagation();
       const isVisible = menu.style.display === 'block';
       
@@ -91,8 +79,7 @@ function createAvatarMenu(user) {
       }
   });
   
-  // Cerrar menú al hacer clic fuera
-  document.addEventListener('click', function(e) {
+    document.addEventListener('click', function(e) {
       if (!avatarContainer.contains(e.target)) {
           if (menu.style.display === 'block') {
               menu.style.animation = 'slideUp 0.3s ease';
@@ -103,12 +90,10 @@ function createAvatarMenu(user) {
       }
   });
   
-  // Logout desde el menú
-  const logoutBtn = menu.querySelector('#avatarLogoutBtn');
+    const logoutBtn = menu.querySelector('#avatarLogoutBtn');
   logoutBtn.addEventListener('click', async function() {
       try {
-          // Cerrar sesión en Supabase (si está disponible)
-          if (typeof supabase !== 'undefined') {
+                    if (typeof supabase !== 'undefined') {
               const { error } = await supabase.auth.signOut();
               if (error) {
                   console.error('Error cerrando sesión en Supabase:', error.message);
@@ -119,11 +104,9 @@ function createAvatarMenu(user) {
       } catch (err) {
           console.error('Error en logout:', err);
       } finally {
-          // Limpiar sesión local
-          sessionStorage.removeItem('user');
+                    sessionStorage.removeItem('user');
 
-          // Redirigir al login
-          window.location.href = '/login.html';
+                    window.location.href = '/login.html';
       }
   });
 }
@@ -276,14 +259,12 @@ function addAvatarMenuStyles() {
   document.head.appendChild(styles);
 }
 
-// Cargar equipos desde la API (OPTIMIZADO - todas las peticiones en paralelo)
 async function loadEquipment() {
   try {
     const tbody = document.querySelector('.solutions-section tbody');
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
     
-    // Hacer todas las peticiones en paralelo
-    const [equipmentResponse, usersResponse, itemsResponse] = await Promise.all([
+        const [equipmentResponse, usersResponse, itemsResponse] = await Promise.all([
       fetch('/equipment'),
       fetch('/users'),
       fetch('/equipment_items')
@@ -293,14 +274,12 @@ async function loadEquipment() {
     const users = await usersResponse.json();
     const allItems = await itemsResponse.json();
     
-    // Crear un mapa de usuarios para búsqueda rápida O(1)
-    const usersMap = {};
+        const usersMap = {};
     users.forEach(user => {
       usersMap[user.id] = user.name;
     });
     
-    // Crear un mapa de conteo de items por solution_id
-    const itemsCountMap = {};
+        const itemsCountMap = {};
     allItems.forEach(item => {
       if (!itemsCountMap[item.solution_id]) {
         itemsCountMap[item.solution_id] = 0;
@@ -308,8 +287,7 @@ async function loadEquipment() {
       itemsCountMap[item.solution_id]++;
     });
     
-    // Limpiar y mostrar todos los datos de una vez
-    tbody.innerHTML = '';
+        tbody.innerHTML = '';
     
     if (equipment.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No equipment found</td></tr>';
@@ -321,8 +299,7 @@ async function loadEquipment() {
       const itemCount = itemsCountMap[equip.solution_id] || 0;
       
       const row = document.createElement('tr');
-      row.dataset.solutionId = equip.solution_id; // Agregar data attribute
-      row.innerHTML = `
+      row.dataset.solutionId = equip.solution_id;       row.innerHTML = `
         <td>${equip.product_number || 'N/A'}</td>
         <td class="description">${equip.product_description || 'N/A'}</td>
         <td>${ownerName}</td>
@@ -335,8 +312,7 @@ async function loadEquipment() {
       tbody.appendChild(row);
     });
     
-    // Agregar event listener para hacer toda la fila clickeable
-    setupRowClickHandlers();
+        setupRowClickHandlers();
     
   } catch (error) {
     console.error('Error cargando equipos:', error);
@@ -345,31 +321,25 @@ async function loadEquipment() {
   }
 }
 
-// Nueva función para manejar clicks en las filas
 function setupRowClickHandlers() {
   const tbody = document.querySelector('.solutions-section tbody');
   
   tbody.addEventListener('click', function(e) {
     const row = e.target.closest('tr');
     
-    // Si no hay row o no tiene solution_id, salir
-    if (!row || !row.dataset.solutionId) return;
+        if (!row || !row.dataset.solutionId) return;
     
-    // Remover clase 'selected' de todas las filas
-    document.querySelectorAll('.solutions-section tbody tr').forEach(r => {
+        document.querySelectorAll('.solutions-section tbody tr').forEach(r => {
       r.classList.remove('selected');
     });
     
-    // Agregar clase 'selected' a la fila clickeada
-    row.classList.add('selected');
+        row.classList.add('selected');
     
-    // Cargar items de ese equipment
-    const solutionId = parseInt(row.dataset.solutionId);
+        const solutionId = parseInt(row.dataset.solutionId);
     loadItems(solutionId);
   });
 }
 
-// Cargar items de un equipo específico
 async function loadItems(solutionId = null) {
   try {
     const tbody = document.querySelector('.items-section tbody');
@@ -383,8 +353,7 @@ async function loadItems(solutionId = null) {
     const response = await fetch(url);
     const items = await response.json();
     
-    // Obtener información del equipment para mostrar el Product Number
-    if (solutionId) {
+        if (solutionId) {
       try {
         const equipResponse = await fetch(`/equipment/${solutionId}`);
         if (equipResponse.ok) {
@@ -399,16 +368,14 @@ async function loadItems(solutionId = null) {
       }
     }
     
-    // Limpiar la tabla
-    tbody.innerHTML = '';
+        tbody.innerHTML = '';
     
     if (items.length === 0) {
       tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No items found</td></tr>';
       return;
     }
     
-    // Mostrar todos los items de una vez
-    items.forEach(item => {
+        items.forEach(item => {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${item.product_number || 'N/A'}</td>
@@ -418,8 +385,7 @@ async function loadItems(solutionId = null) {
       tbody.appendChild(row);
     });
     
-    // Scroll al contenedor de items para que el usuario vea los resultados
-    document.querySelector('.items-section').scrollIntoView({ 
+        document.querySelector('.items-section').scrollIntoView({ 
       behavior: 'smooth', 
       block: 'start' 
     });
@@ -431,7 +397,6 @@ async function loadItems(solutionId = null) {
   }
 }
 
-// Búsqueda en la tabla de solutions
 function setupSolutionsSearch() {
   const searchInput = document.querySelector('.solutions-section .search-input');
   if (!searchInput) return;
@@ -447,7 +412,6 @@ function setupSolutionsSearch() {
   });
 }
 
-// Búsqueda en la tabla de items
 function setupItemsSearch() {
   const searchInput = document.querySelector('.items-section .search-input');
   if (!searchInput) return;
@@ -463,18 +427,15 @@ function setupItemsSearch() {
   });
 }
 
-// Inicializar cuando cargue la página
 document.addEventListener('DOMContentLoaded', async () => {
   const user = JSON.parse(sessionStorage.getItem('user'));
 
-  // Si no hay usuario logueado, ir al login
-  if (!user) {
+    if (!user) {
     window.location.href = '/login.html';
     return;
   }
 
-  // Obtener información de la compañía si es cliente y no tiene company_name
-  if (user.role === 'CLIENT' && user.client_company_id && !user.company_name) {
+    if (user.role === 'CLIENT' && user.client_company_id && !user.company_name) {
     try {
       const response = await fetch(`/client_company/${user.client_company_id}`);
       if (response.ok) {
@@ -487,33 +448,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // ===== CONFIGURAR HEADER Y NAVEGACIÓN SEGÚN ROL =====
-  setupHeaderAndNav(user);
+    setupHeaderAndNav(user);
   
-  // Crear menú de avatar
-  createAvatarMenu(user);
+    createAvatarMenu(user);
 
-  // Cargar equipments y configurar búsquedas
-  loadEquipment();
+    loadEquipment();
   setupSolutionsSearch();
   setupItemsSearch();
   
-  // Mostrar mensaje por defecto en items
-  const itemsTbody = document.querySelector('.items-section tbody');
+    const itemsTbody = document.querySelector('.items-section tbody');
   if (itemsTbody) {
     itemsTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #666; padding: 2rem;">Select an equipment to view its items</td></tr>';
   }
 });
 
-// Nueva función para configurar header y navegación
 function setupHeaderAndNav(user) {
   const headerRoleText = document.getElementById('header-role-text');
   const logoLink = document.getElementById('logo-link');
   const mainNav = document.getElementById('main-nav');
   
   if (user.role === 'CLIENT') {
-    // Vista de Cliente
-    headerRoleText.textContent = 'Customer';
+        headerRoleText.textContent = 'Customer';
     headerRoleText.className = 'customer-text';
     logoLink.href = '/home_cliente.html';
     
@@ -525,8 +480,7 @@ function setupHeaderAndNav(user) {
     `;
     
   } else if (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') {
-    // Vista de HPE
-    headerRoleText.textContent = 'Data Management';
+        headerRoleText.textContent = 'Data Management';
     headerRoleText.className = 'representative-text';
     logoLink.href = '/home_hpe.html';
     

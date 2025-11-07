@@ -1,4 +1,3 @@
-// static/js/reports.js
 class ReportManager {
     constructor() {
         this.initReportEvents();
@@ -17,8 +16,7 @@ class ReportManager {
 
     async generateReport(reportType, buttonElement) {
         try {
-            // Mostrar indicador de carga
-            const originalText = buttonElement.textContent;
+                        const originalText = buttonElement.textContent;
             buttonElement.textContent = 'Generando...';
             buttonElement.disabled = true;
 
@@ -43,14 +41,12 @@ class ReportManager {
             console.error('Error generando reporte:', error);
             alert('Error al generar el reporte. Por favor, intenta nuevamente.');
         } finally {
-            // Restaurar el botón
-            buttonElement.textContent = originalText;
+                        buttonElement.textContent = originalText;
             buttonElement.disabled = false;
         }
     }
 }
 
-// Inicializar cuando la página cargue
 document.addEventListener('DOMContentLoaded', () => {
     new ReportManager();
 });

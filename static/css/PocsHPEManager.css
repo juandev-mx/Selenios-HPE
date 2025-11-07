@@ -378,11 +378,9 @@
                 width: 100%;
             }
         }
-        /* Botón VIEW */
-        .btn-view {
+                .btn-view {
             padding: 0.375rem 0.8rem;
-            background-color: var(--primary-dark); /* cambia el color base del botón */
-            color: var(--white);
+            background-color: var(--primary-dark);             color: var(--white);
             border: none;
             border-radius: 0.5rem;
             font-size: 0.75rem;
@@ -393,14 +391,11 @@
             transition: background-color 0.3s ease, transform 0.1s ease;
         }
 
-        /* Efectos */
-        .btn-view:hover {
-            background-color: var(--primary-dark); /* más oscuro al pasar el mouse */
-            transform: scale(1.03);
+                .btn-view:hover {
+            background-color: var(--primary-dark);             transform: scale(1.03);
         }
 
         .btn-view:active {
-            background-color: var(--primary-dark); /* tono más fuerte al presionar */
-            transform: scale(0.97);
+            background-color: var(--primary-dark);             transform: scale(0.97);
         }
 

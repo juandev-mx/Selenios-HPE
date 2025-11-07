@@ -1,4 +1,3 @@
-// login.js
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
@@ -7,28 +6,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordError = document.getElementById('passwordError');
     const submitBtn = document.getElementById('submitBtn');
 
-    // Validación de email
-    function validateEmail(email) {
+        function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     }
 
-    // Limpiar errores
-    function clearErrors() {
+        function clearErrors() {
         emailError.textContent = '';
         passwordError.textContent = '';
         emailInput.classList.remove('input-error');
         passwordInput.classList.remove('input-error');
     }
 
-    // Mostrar error
-    function showError(input, errorDiv, message) {
+        function showError(input, errorDiv, message) {
         input.classList.add('input-error');
         errorDiv.textContent = message;
     }
 
-    // Validación del formulario
-    loginForm.addEventListener('submit', async function(e) {
+        loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         clearErrors();
 
@@ -36,8 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const password = passwordInput.value.trim();
         let hasError = false;
 
-        // Validar email
-        if (!email) {
+                if (!email) {
             showError(emailInput, emailError, 'El correo es requerido');
             hasError = true;
         } else if (!validateEmail(email)) {
@@ -45,8 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hasError = true;
         }
 
-        // Validar contraseña
-        if (!password) {
+                if (!password) {
             showError(passwordInput, passwordError, 'La contraseña es requerida');
             hasError = true;
         } else if (password.length < 6) {
@@ -56,8 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (hasError) return;
 
-        // Deshabilitar botón mientras se procesa
-        submitBtn.disabled = true;
+                submitBtn.disabled = true;
         submitBtn.textContent = 'Iniciando sesión...';
 
         try {
@@ -75,30 +67,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
-                // Login exitoso
-                console.log('Login exitoso:', data);
+                                console.log('Login exitoso:', data);
                 
-                // Guardar datos del usuario en sessionStorage
-                sessionStorage.setItem('user', JSON.stringify(data.user));
+                                sessionStorage.setItem('user', JSON.stringify(data.user));
                 
-                // Redirigir según el tipo de usuario
-                redirectUser(data.user.role);
+                                redirectUser(data.user.role);
             } else {
-                // Error en login
-                showError(passwordInput, passwordError, data.error || 'Error al iniciar sesión');
+                                showError(passwordInput, passwordError, data.error || 'Error al iniciar sesión');
             }
         } catch (error) {
             console.error('Error:', error);
             showError(passwordInput, passwordError, 'Error de conexión. Intenta nuevamente.');
         } finally {
-            // Rehabilitar botón
-            submitBtn.disabled = false;
+                        submitBtn.disabled = false;
             submitBtn.textContent = 'Iniciar sesión';
         }
     });
 
-    // Función para redirigir según el rol
-    function redirectUser(role) {
+        function redirectUser(role) {
         switch(role) {
             case 'CLIENT':
                 window.location.href = '/home_cliente.html';
@@ -112,8 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Limpiar errores al escribir
-    emailInput.addEventListener('input', function() {
+        emailInput.addEventListener('input', function() {
         if (emailError.textContent) {
             emailInput.classList.remove('input-error');
             emailError.textContent = '';

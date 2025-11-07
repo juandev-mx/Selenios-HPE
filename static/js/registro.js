@@ -1,9 +1,7 @@
-// register.js
 document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
     
-    // Si no existe el formulario de registro, no hacer nada
-    if (!registerForm) {
+        if (!registerForm) {
         return;
     }
 
@@ -21,20 +19,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const submitBtn = document.getElementById('submitBtn');
 
-    // Validación de email
-    function validateEmail(email) {
+        function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     }
 
-    // Validación de nombre (solo letras y espacios)
-    function validateName(name) {
+        function validateName(name) {
         const re = /^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]+$/;
         return re.test(name);
     }
 
-    // Limpiar errores
-    function clearErrors() {
+        function clearErrors() {
         nameError.textContent = '';
         emailError.textContent = '';
         passwordError.textContent = '';
@@ -48,14 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
         companyInput.classList.remove('input-error');
     }
 
-    // Mostrar error
-    function showError(input, errorDiv, message) {
+        function showError(input, errorDiv, message) {
         input.classList.add('input-error');
         errorDiv.textContent = message;
     }
 
-    // Limpiar errores individuales al escribir
-    fullNameInput.addEventListener('input', function() {
+        fullNameInput.addEventListener('input', function() {
         if (nameError.textContent) {
             fullNameInput.classList.remove('input-error');
             nameError.textContent = '';
@@ -90,8 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Validación del formulario de registro
-    registerForm.addEventListener('submit', async function(e) {
+        registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         clearErrors();
 
@@ -103,8 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let hasError = false;
 
-        // Validar nombre completo
-        if (!fullName) {
+                if (!fullName) {
             showError(fullNameInput, nameError, 'El nombre es requerido');
             hasError = true;
         } else if (!validateName(fullName)) {
@@ -112,8 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hasError = true;
         }
 
-        // Validar email
-        if (!email) {
+                if (!email) {
             showError(emailInput, emailError, 'El correo es requerido');
             hasError = true;
         } else if (!validateEmail(email)) {
@@ -121,8 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hasError = true;
         }
 
-        // Validar contraseña
-        if (!password) {
+                if (!password) {
             showError(passwordInput, passwordError, 'La contraseña es requerida');
             hasError = true;
         } else if (password.length < 6) {
@@ -130,8 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hasError = true;
         }
 
-        // Validar confirmación de contraseña
-        if (!confirmPassword) {
+                if (!confirmPassword) {
             showError(confirmPasswordInput, confirmPasswordError, 'Debes confirmar la contraseña');
             hasError = true;
         } else if (password !== confirmPassword) {
@@ -139,16 +127,14 @@ document.addEventListener('DOMContentLoaded', function() {
             hasError = true;
         }
 
-        // Validar nombre de empresa
-        if (!company) {
+                if (!company) {
             showError(companyInput, companyError, 'El nombre de la empresa es requerido');
             hasError = true;
         }
 
         if (hasError) return;
 
-        // Deshabilitar botón mientras se procesa
-        submitBtn.disabled = true;
+                submitBtn.disabled = true;
         submitBtn.textContent = 'Creando cuenta...';
 
         try {
@@ -168,12 +154,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
-                // Registro exitoso
-                alert('Cuenta creada exitosamente. Ahora puedes iniciar sesión.');
+                                alert('Cuenta creada exitosamente. Ahora puedes iniciar sesión.');
                 window.location.href = '/login.html';
             } else {
-                // Error en registro
-                if (data.error.includes('correo')) {
+                                if (data.error.includes('correo')) {
                     showError(emailInput, emailError, data.error);
                 } else {
                     showError(companyInput, companyError, data.error || 'Error al crear la cuenta');
@@ -183,8 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
             showError(companyInput, companyError, 'Error de conexión. Intenta nuevamente.');
         } finally {
-            // Rehabilitar botón
-            submitBtn.disabled = false;
+                        submitBtn.disabled = false;
             submitBtn.textContent = 'Crear cuenta';
         }
     });

@@ -139,8 +139,7 @@
       cursor: pointer;
       margin-top: 18px;
       transition: background-color 0.2s ease;
-      /* transición suave */
-
+      
     }
 
     .btn:hover {
@@ -194,8 +193,7 @@
     .btn_registro {
       display: flex;
       justify-content: center;
-      /* centra el texto dentro del botón */
-      align-items: center;
+            align-items: center;
       padding: 8px 16px;
       border-radius: 6px;
       background-color: #25c630;
