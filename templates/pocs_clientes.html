@@ -46,8 +46,7 @@
         </select>
       </div>
       
-      <!-- Cambiar onclick por id para manejarlo con addEventListener -->
-      <button id="create-poc-btn" class="btn btn-primary">
+      <button id="create-poc-btn" class="btn btn-primary" onclick="window.openCreatePOC()">
         <span style="font-size:18px">+</span> Create New POC
       </button>
     </div>
@@ -67,33 +66,8 @@
     </div>
   </main>
 
-  <!-- Scripts - IMPORTANTE: create_pocs.js PRIMERO -->
+  <!-- Scripts - Orden correcto -->
   <script src="/static/js/create_pocs.js"></script>
   <script src="/static/js/pocs_clientes.js"></script>
-  
-  <!-- Script inline para asegurar que el botón funcione -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const createBtn = document.getElementById('create-poc-btn');
-      if (createBtn) {
-        createBtn.addEventListener('click', function() {
-          console.log('Create POC button clicked');
-          if (typeof window.openCreatePOC === 'function') {
-            window.openCreatePOC();
-          } else {
-            console.error('openCreatePOC function not found!');
-            // Intentar cargar el modal manualmente
-            setTimeout(() => {
-              if (typeof window.openCreatePOC === 'function') {
-                window.openCreatePOC();
-              } else {
-                alert('Error: Modal function not loaded. Please refresh the page.');
-              }
-            }, 500);
-          }
-        });
-      }
-    });
-  </script>
 </body>
 </html>
