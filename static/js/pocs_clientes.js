@@ -453,6 +453,7 @@ function filterPOCs() {
     displayPOCs(filteredPOCs);
 }
 
+
 async function approvePOC(pocId) {
     if (!confirm('Are you sure you want to approve this POC?\n\nOnce approved, it cannot be edited.')) {
         return;
@@ -462,7 +463,10 @@ async function approvePOC(pocId) {
         const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({is_approved: true})
+            body: JSON.stringify({
+                is_approved: true,
+                completion_date: new Date().toISOString()
+            })
         });
         
         if (response.ok) {
@@ -487,7 +491,10 @@ async function rejectPOC(pocId) {
         const response = await fetch(`/pocs/${pocId}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({is_approved: false})
+            body: JSON.stringify({
+                is_approved: false,
+                completion_date: new Date().toISOString() // Agregar esta línea
+            })
         });
         
         if (response.ok) {
