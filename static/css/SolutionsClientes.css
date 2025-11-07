@@ -11,6 +11,8 @@
       --green-search-text:#479E85;
       --border:#E2E8F0;
       --dark-blue:#00263B;
+      --row-selected-bg:#E8F5F0;
+      --row-hover-bg:#F0F9FF;
     }
     
     *{box-sizing:border-box;margin:0;padding:0}
@@ -45,13 +47,6 @@
     }
 
     .customer-text{
-      color:var(--dark-blue);
-      font-size:32px;
-      font-weight:700;
-      line-height:28px;
-    }
-
-    .representative-text{
       color:var(--dark-blue);
       font-size:32px;
       font-weight:700;
@@ -162,67 +157,78 @@
       color:var(--green-search-text);
     }
 
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
 
+    .table-container table {
+      width: 100%;
+      border-collapse: collapse;
+      position: relative;
+    }
 
-.table-container {
-  max-height: 400px; /* Altura máxima del contenedor */
-  overflow-y: auto; /* Scroll vertical */
-  overflow-x: auto; /* Scroll horizontal si es necesario */
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-top: 16px;
-}
+    .table-container thead {
+      position: sticky;
+      top: 0;
+      background-color: #FFFFFF;
+      z-index: 10;
+    }
 
-/* Hacer que el header de la tabla sea fijo al hacer scroll */
-.table-container table {
-  width: 100%;
-  border-collapse: collapse;
-  position: relative;
-}
+    .table-container thead th {
+      background-color: #FFFFFF;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #e0e0e0;
+    }
 
-.table-container thead {
-  position: sticky;
-  top: 0;
-  background-color: #FFFFFF;
-  z-index: 10;
-}
+    .table-container tbody td {
+      padding: 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
 
-.table-container thead th {
-  background-color: #FFFFFF;
-  padding: 12px;
-  text-align: left;
-  font-weight: 600;
-  border-bottom: 2px solid #e0e0e0;
-}
+    /* Estilos para hacer el row clickeable y mostrar selección */
+    .table-container tbody tr {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
 
-.table-container tbody td {
-  padding: 12px;
-  border-bottom: 1px solid #e0e0e0;
-}
+    .table-container tbody tr:hover {
+      background-color: var(--row-hover-bg);
+    }
 
-.table-container tbody tr:hover {
-  background-color: #FFFFFF;
-}
+    .table-container tbody tr.selected {
+      background-color: var(--row-selected-bg);
+      border-left: 4px solid var(--green-primary);
+    }
 
-/* Estilos para el scrollbar (opcional, para hacerlo más bonito) */
-.table-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+    .table-container tbody tr.selected td:first-child {
+      padding-left: 8px;
+    }
 
-.table-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
+    .table-container::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
 
-.table-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
+    .table-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
 
-.table-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
+    .table-container::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
 
     table{
       width:100%;
@@ -305,10 +311,6 @@
         flex-direction:column;
         gap:12px;
         align-items:flex-start;
-      }
-      
-      .representative-text{
-        font-size:24px;
       }
       
       .header-nav{

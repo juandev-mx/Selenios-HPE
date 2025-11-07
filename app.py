@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from models import db, ClientCompany, User, Equipment, EquipmentItem, POC, POCEquipment
+from analytics import analytics_bp
 import re
 
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ app = Flask(__name__,
 
 # Habilitar CORS para desarrollo
 CORS(app)
-
+app.register_blueprint(analytics_bp)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
@@ -110,40 +111,56 @@ def register():
     if not data:
         return jsonify({"error": "Faltan datos"}), 400
     
+    # Obtener y limpiar datos del request
+    name = data.get('name', '').strip()
+    mail = data.get('mail', '').strip()
+    password = data.get('password', '').strip()
+    company_name = data.get('company_name', '').strip()
+    
     # Validar campos requeridos
-    required_fields = ['name', 'mail', 'password', 'company_name']
-    for field in required_fields:
-        if not data.get(field):
-            return jsonify({"error": f"El campo {field} es requerido"}), 400
-    
-    # Verificar si el correo ya existe
-    existing_user = User.query.filter_by(mail=data['mail']).first()
-    if existing_user:
-        return jsonify({"error": "El correo electrónico ya está registrado"}), 400
-    
-    # Verificar si la compañía existe, si no, crearla
-    company = ClientCompany.query.filter_by(company_name=data['company_name']).first()
-    
-    if not company:
-        # Crear nueva compañía
-        company = ClientCompany(
-            company_name=data['company_name'],
-            manager_client_name=data['name']
-        )
-        db.session.add(company)
-        db.session.flush()
-    
-    # Crear nuevo usuario con rol CLIENT
-    new_user = User(
-        name=data['name'],
-        mail=data['mail'],
-        password=data['password'],
-        role='CLIENT',
-        client_company_id=company.client_company_id,
-        session_started=False
-    )
+    if not all([name, mail, password, company_name]):
+        return jsonify({"error": "Todos los campos son requeridos"}), 400
     
     try:
+        # 1. Verificar si el correo ya existe (case insensitive)
+        existing_user = User.query.filter(
+            db.func.lower(User.mail) == mail.lower()
+        ).first()
+        
+        if existing_user:
+            return jsonify({"error": "El correo electrónico ya está registrado"}), 400
+        
+        # 2. Buscar empresa existente (case insensitive y sin espacios extras)
+        normalized_company_name = company_name.lower().strip()
+        company = ClientCompany.query.filter(
+            db.func.lower(db.func.trim(ClientCompany.company_name)) == normalized_company_name
+        ).first()
+        
+        if company:
+            # La empresa existe, usar su ID y nombre exacto de la BD
+            company_id = company.client_company_id
+            actual_company_name = company.company_name
+        else:
+            # Crear nueva empresa
+            company = ClientCompany(
+                company_name=company_name,
+                manager_client_name=name
+            )
+            db.session.add(company)
+            db.session.flush()  # Para obtener el ID antes del commit
+            company_id = company.client_company_id
+            actual_company_name = company.company_name
+        
+        # 3. Crear nuevo usuario con rol CLIENT
+        new_user = User(
+            name=name,
+            mail=mail,
+            password=password,
+            role='CLIENT',
+            client_company_id=company_id,
+            session_started=False
+        )
+        
         db.session.add(new_user)
         db.session.commit()
         
@@ -154,13 +171,16 @@ def register():
                 "name": new_user.name,
                 "mail": new_user.mail,
                 "role": new_user.role,
-                "company_name": company.company_name
+                "company_name": actual_company_name
             }
         }), 201
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Error al registrar usuario", "detail": str(e)}), 500
+        print(f"Error en registro: {str(e)}")  # Log para debugging
+        return jsonify({
+            "error": "Error al registrar usuario. Intenta nuevamente."
+        }), 500
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
