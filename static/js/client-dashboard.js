@@ -372,7 +372,7 @@ async function loadRecentAlerts(userId) {
                 <div class="alert-card">
                     <div class="alert-icon">${statusIcon}</div>
                     <div class="alert-content">
-                        <h3>POC #${poc.poc_id} - ${statusText}</h3>
+                        <h3>POC - ${statusText}</h3>
                         <p>${poc.business_justification.substring(0, 80)}...</p>
                         <small style="color: #618975;">Created: ${new Date(poc.created_date).toLocaleDateString()}</small>
                     </div>
