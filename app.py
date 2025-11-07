@@ -123,7 +123,9 @@ def register():
         return jsonify({"error": "El correo electrónico ya está registrado"}), 400
     
     # Verificar si la compañía existe, si no, crearla
-    company = ClientCompany.query.filter_by(company_name=data['company_name']).first()
+    company = ClientCompany.query.filter(
+        db.func.lower(db.func.trim(ClientCompany.company_name)) == company_name.lower().strip()
+        ).first()
     
     if not company:
         # Crear nueva compañía
