@@ -385,10 +385,9 @@
                 width: 100%;
             }
         }
-        /* Botón VIEW */
-        .btn-view {
+            .btn-view {
             padding: 0.375rem 0.8rem;
-            background-color: var(--accent-green); /* cambia el color base del botón */
+            background-color: var(--primary-dark);
             color: var(--white);
             border: none;
             border-radius: 0.5rem;
@@ -396,17 +395,17 @@
             font-weight: 700;
             font-family: var(--font-family);
             cursor: pointer;
-            text-transform: capitalize;
-            transition: background-color 0.3s ease, transform 0.1s ease;
+            transition: all 0.3s ease;
         }
 
-        /* Efectos */
         .btn-view:hover {
-            background-color: var(--primary-green); /* más oscuro al pasar el mouse */
-            transform: scale(1.03);
+            background-color: #001a28;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 38, 59, 0.2);
         }
 
         .btn-view:active {
-            background-color: var(--primary-dark); /* tono más fuerte al presionar */
-            transform: scale(0.97);
+            background-color: #000f1a;
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 38, 59, 0.2);
         }
