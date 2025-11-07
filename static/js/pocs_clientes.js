@@ -536,7 +536,7 @@ function openEditModal(poc, pocEquipment) {
     
     // Verificar que los equipos estén cargados
     if (!allEquipment || allEquipment.length === 0) {
-        alert('⚠️ Equipment data is not loaded yet. Please wait a moment and try again.');
+        alert(' Equipment data is not loaded yet. Please wait a moment and try again.');
         console.error('Equipment data not available');
         return;
     }
@@ -724,7 +724,7 @@ async function addEquipmentToPOC(equipmentId) {
         const alreadyExists = currentEquipment.some(eq => eq.solution_id === equipmentId);
         
         if (alreadyExists) {
-            alert('⚠️ This equipment is already added to the POC!');
+            alert(' This equipment is already added to the POC!');
             document.getElementById('edit-modal-equipment').value = '';
             document.getElementById('edit-equipment-dropdown').classList.remove('active');
             return;
@@ -769,7 +769,7 @@ async function removeEquipmentFromPOC(pocId, solutionId) {
         
         // Si solo queda 1 equipo, no permitir eliminarlo
         if (currentEquipment.length <= 1) {
-            alert('⚠️ Cannot remove the last equipment!\n\nA POC must have at least one equipment item.\n\nPlease add another equipment before removing this one.');
+            alert(' Cannot remove the last equipment!\n\nA POC must have at least one equipment item.\n\nPlease add another equipment before removing this one.');
             return;
         }
         
