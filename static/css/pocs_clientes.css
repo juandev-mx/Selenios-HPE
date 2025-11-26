@@ -151,12 +151,12 @@
 }
 
 .btn-view {
-    background: #05AD7A;
+    background: #056fad;
     color: white;
 }
 
 .btn-view:hover {
-    background: #0dbf67;
+    background: #056fad;
 }
 
 .btn-edit {
