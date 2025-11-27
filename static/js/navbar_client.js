@@ -6,11 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    if (user.role !== 'CLIENT') {
-        alert('Acceso denegado. Esta página es solo para clientes.');
-        window.location.href = '/login.html';
-        return;
-    }
+
 
     initNavbarClient(user);
 });

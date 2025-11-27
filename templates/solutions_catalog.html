@@ -6,13 +6,14 @@
   <title>Solutions Catalog - HPE</title>
   <link rel="stylesheet" href="/static/css/SolutionsClientes.css">
   <link rel="stylesheet" href="/static/css/navbar_cliente.css">
+  <link rel="stylesheet" href="/static/css/navbar_hpe.css">
 </head>
 
 <body>
   <div id="navbar-placeholder"></div>
 
-    <main class="main-container">
-        <section class="solutions-section">
+  <main class="main-container">
+    <section class="solutions-section">
       <div class="section-header">
         <h1 class="section-title">Solutions catalog</h1>
         <div class="controls">
@@ -29,7 +30,7 @@
       
       <p class="section-subtitle">This is a read-only view of the available equipment and equipment items. You cannot edit the inventory from this screen.</p>
 
-            <div class="table-container">
+      <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -42,7 +43,7 @@
             </tr>
           </thead>
           <tbody>
-                        <tr>
+            <tr>
               <td colspan="6" style="text-align:center;">Loading...</td>
             </tr>
           </tbody>
@@ -50,7 +51,7 @@
       </div>
     </section>
 
-        <section class="items-section">
+    <section class="items-section">
       <div class="section-header">
         <h2 class="section-title">Items</h2>
         <div class="controls">
@@ -65,7 +66,7 @@
         </div>
       </div>
 
-            <div class="table-container">
+      <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -75,7 +76,7 @@
             </tr>
           </thead>
           <tbody>
-                        <tr>
+            <tr>
               <td colspan="3" style="text-align:center;">Loading...</td>
             </tr>
           </tbody>
@@ -85,30 +86,31 @@
   </main>
 
   <script>
-    // Obtener el rol que guardaste al hacer login
-    // (puede venir de localStorage, sessionStorage o tu lógica actual)
-    const userRole = localStorage.getItem("role"); 
-
-    if (userRole === "CLIENT") {
-        fetch("/components/navbar_cliente.html")
-            .then(response => response.text())
-            .then(html => {
-                // Coloca el HTML dentro del placeholder
-                document.getElementById("navbar-placeholder").innerHTML = html;
-
-                // (Opcional pero recomendado) Marcar la opción activa
-                const links = document.querySelectorAll(".nav-link");
-                links.forEach(link => {
-                    if (link.href === window.location.href) {
-                        link.classList.add("active");
-                    }
-                });
-            })
-            .catch(err => console.error("Error cargando navbar:", err));
+    // Cargar navbar según el role
+    const role = localStorage.getItem('role');
+    
+    if (role === 'CLIENT') {
+        fetch('/components/navbar_cliente.html')
+          .then(r => r.text())
+          .then(html => {
+              document.getElementById('navbar-placeholder').innerHTML = html;
+          })
+          .catch(err => console.error('Error cargando navbar_cliente:', err));
+    } else if (role === 'HPE_REP' || role === 'HPE_MANAGER') {
+        fetch('/components/navbar_hpe.html')
+          .then(r => r.text())
+          .then(html => {
+              document.getElementById('navbar-placeholder').innerHTML = html;
+          })
+          .catch(err => console.error('Error cargando navbar_hpe:', err));
     }
-</script>
+  </script>
 
+  <!-- Cargar el JS del navbar correspondiente -->
+  <script src="/static/js/navbar_hpe.js"></script>
   <script src="/static/js/navbar_client.js"></script>
+  
+  <!-- Script principal de la página -->
   <script src="/static/js/solutions_catalog.js"></script>
 </body>
 </html>

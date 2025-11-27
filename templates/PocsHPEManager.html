@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HPE Data Management - Proof of Concept Historial</title>
     <link rel="stylesheet" href="/static/css/PocsHPEManager.css">
+    <link rel="stylesheet" href="/static/css/navbar_hpe.css">
+
     <style>
                 .table-container {
             border: 1px solid var(--border-gray, #e5e7e6);
@@ -64,32 +66,7 @@
     </style>
 </head>
 <body>
-     <header>
-        <div class="header-container">
-            <div class="header-left">
-                <a href="home_hpe.html">
-        <img class="logo" 
-              src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188"
-              alt="HPE Logo">
-      </a> 
-
-                <h1 class="header-title">Data Management</h1>
-            </div>
-            
-            <div class="header-right">
-<nav>
-    <a href="home_hpe.html" class="nav-link" data-section="dashboard">Dashboard</a>
-    <a href="PocsHPEManager.html" class="nav-link active" data-section="approvals">Approvals</a>
-    <a href="solutions_catalog.html" class="nav-link" data-section="equipments">Equipments</a>
-            <a href="#reportes" class="nav-link" data-section="reportes">Reports</a>
-</nav>
-
-                <div class="user-info-header">
-                                        <img src="static/img/admin.png" alt="User Avatar" class="avatar">
-                                    </div>
-            </div>
-        </div>
-    </header>
+    <div id="navbar-placeholder"></div>
 
 
     <main>
@@ -155,7 +132,20 @@
         </div>
     </main>
     
-        <script src="/static/js/role_hpe.js"></script>
+    <script>
+  // Mostrar navbar solo si el role en localStorage es HPE_REP o HPE_MANAGER
+  const role = localStorage.getItem('role');
+  if (role === 'HPE_REP' || role === 'HPE_MANAGER') {
+      fetch('/components/navbar_hpe.html')
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+        })
+        .catch(err => console.error('Error cargando navbar_hpe:', err));
+  }
+</script>
+    <script src="/static/js/navbar_client.js"></script>
+    <script src="/static/js/role_hpe.js"></script>
     <script src="/static/js/PocsHPEManager.js"></script>
 </body>
 </html>
