@@ -9,11 +9,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Actualizar pip para mejor resolución de dependencias
-RUN pip install --upgrade pip
-
+# Copiar requirements primero para mejor cache de Docker
 COPY requirements.txt .
+
+# Instalar dependencias
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar el resto de la aplicación
 COPY . .
 
 EXPOSE 10000
