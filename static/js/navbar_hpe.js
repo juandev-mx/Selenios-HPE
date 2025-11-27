@@ -2,38 +2,62 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const role = localStorage.getItem('role');
+    console.log('🔐 Role from localStorage:', role);
 
     // Ejecutar solo para HPE_REP o HPE_MANAGER
     if (role === 'HPE_REP' || role === 'HPE_MANAGER') {
+        console.log('✅ Role válido, iniciando navbar HPE');
         initNavbarHPE();
+    } else {
+        console.log('❌ Role no válido para navbar HPE');
     }
 });
 
+function initNavbarHPE() {
+    const avatar = document.getElementById('avatar');
+    if (!avatar) return;
+
+    avatar.addEventListener('click', () => {
+        createHPEAvatarMenu();
+    });
+}
+
+
 async function initNavbarHPE() {
+    console.log('🚀 initNavbarHPE ejecutándose');
+    
     const user = JSON.parse(sessionStorage.getItem('user')) || null;
+    console.log('👤 User from sessionStorage:', user);
 
     // Marcar link activo
     markActiveLink();
 
-    if (!user) return;
+    if (!user) {
+        console.log('❌ No user found, saliendo de initNavbarHPE');
+        return;
+    }
 
     // Cargar nombre de compañía si aplica
     if (user.client_company_id) {
+        console.log('🏢 Cargando información de compañía:', user.client_company_id);
         try {
             const res = await fetch(`/client_company/${user.client_company_id}`);
             if (res.ok) {
                 const company = await res.json();
                 user.client_company_name = company.name;
+                console.log('✅ Compañía cargada:', company.name);
             }
         } catch (err) {
-            console.error("Error cargando información de compañía:", err);
+            console.error("❌ Error cargando información de compañía:", err);
         }
     }
 
     // IMPORTANTE: Inyectar estilos ANTES de crear el menú
+    console.log('🎨 Inyectando estilos del menú');
     addHPEAvatarMenuStyles();
 
     // Crear menú del avatar
+    console.log('📋 Llamando a createHPEAvatarMenu');
     createHPEAvatarMenu(user);
 }
 
@@ -41,6 +65,8 @@ function markActiveLink() {
     const links = document.querySelectorAll('.header-nav .nav-link');
     const currentPath = window.location.pathname;
     const currentHash = window.location.hash;
+    
+    console.log('🔗 Marcando links activos. Path:', currentPath, 'Hash:', currentHash);
     
     // Primero remover todas las clases active
     links.forEach(link => link.classList.remove('active'));
@@ -76,19 +102,32 @@ function markActiveLink() {
 }
 
 function createHPEAvatarMenu(user) {
+    console.log('🖼️ createHPEAvatarMenu iniciando con user:', user);
+    
     const avatar = document.querySelector('.avatar');
-    if (!avatar) return;
+    console.log('🎯 Avatar element encontrado:', avatar);
+    
+    if (!avatar) {
+        console.error('❌ No se encontró el elemento .avatar en el DOM');
+        return;
+    }
 
-    const avatarContainer = document.createElement('div');
-    avatarContainer.className = 'hpe-user-info-header';
+    // Usar el contenedor que ya existe en el HTML en lugar de crear uno nuevo
+    const avatarContainer = document.querySelector('.user-info-header');
+    console.log('📦 Container encontrado:', avatarContainer);
+    
+    if (!avatarContainer) {
+        console.error('❌ No se encontró el contenedor .user-info-header');
+        return;
+    }
+
+    // Asegurarnos de que el contenedor tenga position relative
     avatarContainer.style.position = 'relative';
-
-    avatar.parentNode.insertBefore(avatarContainer, avatar);
-    avatarContainer.appendChild(avatar);
-
     avatar.style.cursor = 'pointer';
+    console.log('✅ Avatar container configurado');
 
     const company = user.client_company_name || user.company_name || 'HPE';
+    console.log('🏢 Company para mostrar:', company);
 
     const menu = document.createElement('div');
     menu.id = 'hpe-avatar-menu';
@@ -121,27 +160,35 @@ function createHPEAvatarMenu(user) {
     `;
 
     avatarContainer.appendChild(menu);
+    console.log('✅ Menú HTML creado e insertado en el DOM');
 
     // Evento abrir/cerrar menú con animación
     avatar.addEventListener('click', (e) => {
+        console.log('🖱️ Click en avatar detectado');
         e.stopPropagation();
         const isVisible = menu.style.display === 'block';
+        console.log('👁️ Menu actualmente visible:', isVisible);
         
         if (isVisible) {
+            console.log('⬆️ Cerrando menú');
             menu.style.animation = 'slideUp 0.25s ease';
             setTimeout(() => {
                 menu.style.display = 'none';
             }, 200);
         } else {
+            console.log('⬇️ Abriendo menú');
             menu.style.display = 'block';
             menu.style.animation = 'slideDown 0.25s ease';
         }
     });
 
+    console.log('✅ Event listener de click agregado al avatar');
+
     // Cerrar menú al hacer clic fuera
     document.addEventListener('click', (e) => {
         if (!avatarContainer.contains(e.target)) {
             if (menu.style.display === 'block') {
+                console.log('🚪 Cerrando menú (click fuera)');
                 menu.style.animation = 'slideUp 0.25s ease';
                 setTimeout(() => {
                     menu.style.display = 'none';
@@ -152,7 +199,10 @@ function createHPEAvatarMenu(user) {
 
     // Logout
     const logoutBtn = menu.querySelector('#hpeAvatarLogoutBtn');
+    console.log('🚪 Botón logout encontrado:', logoutBtn);
+    
     logoutBtn.addEventListener('click', async () => {
+        console.log('🔴 Logout iniciado');
         try {
             if (typeof supabase !== "undefined") {
                 const { error } = await supabase.auth.signOut();
@@ -163,9 +213,12 @@ function createHPEAvatarMenu(user) {
         } finally {
             sessionStorage.removeItem('user');
             localStorage.removeItem('role');
+            console.log('✅ Sesión limpiada, redirigiendo a login');
             window.location.href = '/login.html';
         }
     });
+
+    console.log('✅ createHPEAvatarMenu completado exitosamente');
 }
 
 function escapeHtml(str = '') {
@@ -180,12 +233,15 @@ function escapeHtml(str = '') {
 }
 
 function addHPEAvatarMenuStyles() {
-    if (document.getElementById('hpe-avatar-menu-styles')) return;
+    if (document.getElementById('hpe-avatar-menu-styles')) {
+        console.log('ℹ️ Estilos ya inyectados previamente');
+        return;
+    }
     
     const styles = document.createElement('style');
     styles.id = 'hpe-avatar-menu-styles';
     styles.textContent = `
-        .hpe-user-info-header { 
+        .user-info-header { 
             position: relative; 
         }
         
@@ -327,4 +383,5 @@ function addHPEAvatarMenuStyles() {
     `;
     
     document.head.appendChild(styles);
+    console.log('✅ Estilos HPE avatar menu inyectados');
 }
