@@ -140,10 +140,10 @@ class NotificationManager {
             </div>
             <div class="notification-actions">
                 <button class="notification-btn notification-btn-secondary" onclick="notificationManager.remindLater(this.parentElement.parentElement)">
-                    Recordar después
+                    Remember later
                 </button>
                 <button class="notification-btn notification-btn-primary" onclick="notificationManager.viewPOCs()">
-                    Revisar POCs
+                    Review POCs
                 </button>
             </div>
         `;
