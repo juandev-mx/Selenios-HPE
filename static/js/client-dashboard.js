@@ -81,12 +81,10 @@ async function loadRecentAlerts(userId) {
         const recentPOCs = pocs.slice(0, 3);
 
         recentPOCs.forEach(poc => {
-            const statusIcon = poc.is_approved ? '✓' : '⏳';
             const statusText = poc.is_approved ? 'approved' : 'pending approval';
 
             container.innerHTML += `
                 <div class="alert-card">
-                    <div class="alert-icon">${statusIcon}</div>
                     <div class="alert-content">
                         <h3>POC - ${statusText}</h3>
                         <p>${poc.business_justification.substring(0, 80)}...</p>
