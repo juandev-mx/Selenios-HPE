@@ -3,14 +3,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     
     if (!user) {
-        alert('Session not found. Please log in.');
+        notify.warning('Session not found. Please sign in again.', { title: 'Session expired' });
         window.location.href = '/login.html';
         return;
     }
 
     
     if (user.role !== 'CLIENT') {
-        alert('Access denied. This page is for customers only.');
+        notify.error('This page is available only for customers.', { title: 'Access denied' });
         window.location.href = '/login.html';
         return;
     }
@@ -77,6 +77,7 @@ async function loadClientAnalytics(userId) {
 
     } catch (error) {
         console.error('❌ Error loading analytics:', error);
+        notify.error('We could not load your metrics. Please try again in a few seconds.', { title: 'Analytics error' });
         
         updateStatsCards({
             totalPOCs: 0,

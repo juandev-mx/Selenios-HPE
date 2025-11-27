@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = '/home_hpe.html';
                 break;
             default:
-                alert('Unknown user role');
+                notify.warning('We could not detect the user role. Please contact support.', { title: 'Unknown role' });
         }
     }
 

@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
-                                alert('Account created successfully. You can now log in.');
+                                notify.success('Your account was created successfully. You can now sign in.');
                 window.location.href = '/login.html';
             } else {
                                 if (data.error.includes('email')) {

@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     if (user.role !== 'CLIENT') {
-        alert('Access denied. This page is for customers only.');
+        notify.error('This page is for customers only. Please sign in with a valid account.', { title: 'Access denied' });
         window.location.href = '/login.html';
         return;
     }
@@ -412,9 +412,9 @@ function displayPOCs(pocs) {
                                 Reject
                             </button>
                         ` : `
-                            <!-- <button class="btn-delete" onclick="deletePOC(${poc.poc_id})"> 
+                            <button class="btn-delete" onclick="deletePOC(${poc.poc_id})">
                                 Delete
-                            </button> -->
+                            </button>
                         `}
                     </div>
                 </div>
@@ -517,9 +517,13 @@ function filterPOCs() {
 
 
 async function approvePOC(pocId) {
-    if (!confirm('Are you sure you want to approve this POC?\n\nOnce approved, it cannot be edited.')) {
-        return;
-    }
+    const confirmed = await window.showConfirmDialog({
+        title: 'Approve POC',
+        message: 'Are you sure you want to approve this POC? This action cannot be undone.',
+        confirmText: 'Approve',
+        icon: '✅'
+    });
+    if (!confirmed) return;
     
     try {
         const response = await fetch(`/pocs/${pocId}`, {
@@ -532,7 +536,7 @@ async function approvePOC(pocId) {
         });
         
         if (response.ok) {
-            alert('POC approved successfully!');
+            notify.success('The POC was approved successfully.');
             await loadUserPOCs();
         } else {
             const data = await response.json();
@@ -540,14 +544,18 @@ async function approvePOC(pocId) {
         }
     } catch (error) {
         console.error('Error approving POC:', error);
-        alert('Error approving POC: ' + error.message);
+        notify.error(`We could not approve the POC: ${error.message}`);
     }
 }
 
 async function rejectPOC(pocId) {
-    if (!confirm('Are you sure you want to reject this POC?\n\nOnce rejected, it cannot be edited.')) {
-        return;
-    }
+    const confirmed = await window.showConfirmDialog({
+        title: 'Reject POC',
+        message: 'Are you sure you want to reject this POC? This action cannot be undone.',
+        confirmText: 'Reject',
+        icon: '⚠️'
+    });
+    if (!confirmed) return;
     
     try {
         const response = await fetch(`/pocs/${pocId}`, {
@@ -560,7 +568,7 @@ async function rejectPOC(pocId) {
         });
         
         if (response.ok) {
-            alert('POC rejected successfully!');
+            notify.success('The POC was rejected successfully.');
             await loadUserPOCs();
         } else {
             const data = await response.json();
@@ -568,7 +576,7 @@ async function rejectPOC(pocId) {
         }
     } catch (error) {
         console.error('Error rejecting POC:', error);
-        alert('Error rejecting POC: ' + error.message);
+        notify.error(`We could not reject the POC: ${error.message}`);
     }
 }
 
@@ -589,7 +597,7 @@ async function viewPOCDetails(pocId) {
         
     } catch (error) {
         console.error('Error loading POC details:', error);
-        alert('Error loading POC details');
+        notify.error('We could not load the POC details. Please try again.', { title: 'Details unavailable' });
     }
 }
 
@@ -716,12 +724,12 @@ async function editPOC(pocId) {
     
     const poc = userPOCs.find(p => p.poc_id === pocId);
     if (!poc) {
-        alert('POC not found');
+        notify.error('We could not find this POC.', { title: 'POC not found' });
         return;
     }
     
     if (poc.is_approved !== null) {
-        alert('Cannot edit an approved or rejected POC');
+        notify.warning('You cannot edit a POC that has already been approved or rejected.');
         return;
     }
     
@@ -740,7 +748,7 @@ async function editPOC(pocId) {
         
     } catch (error) {
         console.error('Error loading POC for edit:', error);
-        alert('Error loading POC data: ' + error.message);
+        notify.error(`We could not load the POC information: ${error.message}`);
     }
 }
 
@@ -750,7 +758,7 @@ function openEditModal(poc, pocEquipment) {
     }
     
     if (!allEquipment || allEquipment.length === 0) {
-        alert('Equipment data is not loaded yet. Please wait a moment and try again.');
+        notify.info('We are still loading the equipment catalog. Please try again in a moment.', { title: 'Loading data' });
         console.error('Equipment data not available');
         return;
     }
@@ -928,7 +936,7 @@ async function addEquipmentToPOC(equipmentId) {
         const alreadyExists = currentEquipment.some(eq => eq.solution_id === equipmentId);
         
         if (alreadyExists) {
-            alert('This equipment is already added to the POC!');
+            notify.warning('This equipment is already associated with the POC.');
             document.getElementById('edit-modal-equipment').value = '';
             document.getElementById('edit-equipment-dropdown').classList.remove('active');
             return;
@@ -951,14 +959,14 @@ async function addEquipmentToPOC(equipmentId) {
             document.getElementById('edit-modal-equipment').value = '';
             document.getElementById('edit-equipment-dropdown').classList.remove('active');
             
-            alert('Equipment added successfully!');
+            notify.success('Equipment added successfully.');
         } else {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Error adding equipment');
         }
     } catch (error) {
         console.error('Error adding equipment:', error);
-        alert('Error adding equipment: ' + error.message);
+        notify.error(`We could not add the equipment: ${error.message}`);
     }
 }
 
@@ -970,11 +978,17 @@ async function removeEquipmentFromPOC(pocId, solutionId) {
         console.log('Current equipment count:', currentEquipment.length);
         
         if (currentEquipment.length <= 1) {
-            alert('Cannot remove the last equipment!\n\nA POC must have at least one equipment item.\n\nPlease add another equipment before removing this one.');
+            notify.warning('A POC must have at least one equipment item. Add another before removing this one.');
             return;
         }
         
-        if (!confirm('Remove this equipment from the POC?')) return;
+        const confirmed = await window.showConfirmDialog({
+            title: 'Remove equipment',
+            message: 'Are you sure you want to remove this equipment from the POC?',
+            confirmText: 'Remove',
+            icon: '🗑️'
+        });
+        if (!confirmed) return;
         
         const response = await fetch(`/poc_equipment/${pocId}/${solutionId}`, {
             method: 'DELETE'
@@ -984,13 +998,13 @@ async function removeEquipmentFromPOC(pocId, solutionId) {
             const updatedEquipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
             const pocEquipment = await updatedEquipmentResponse.json();
             loadPOCEquipment(pocId, pocEquipment);
-            alert('Equipment removed successfully!');
+            notify.success('Equipment removed successfully.');
         } else {
             throw new Error('Error removing equipment');
         }
     } catch (error) {
         console.error('Error removing equipment:', error);
-        alert('Error removing equipment: ' + error.message);
+        notify.error(`We could not remove the equipment: ${error.message}`);
     }
 }
 
@@ -999,7 +1013,7 @@ async function saveEditedPOC() {
     const justification = document.getElementById('edit-justification').value.trim();
 
     if (!justification) {
-        alert('Please enter a business justification');
+        notify.warning('Please enter the business justification before saving.');
         return;
     }
 
@@ -1015,7 +1029,7 @@ async function saveEditedPOC() {
         });
 
         if (response.ok) {
-            alert('POC updated successfully!');
+            notify.success('The POC was updated successfully.');
             closeEditModal();
             loadUserPOCs();
         } else {
@@ -1024,7 +1038,7 @@ async function saveEditedPOC() {
         }
     } catch (error) {
         console.error('Error updating POC:', error);
-        alert('Error updating POC: ' + error.message);
+        notify.error(`We could not update the POC: ${error.message}`);
     } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Changes';
@@ -1032,9 +1046,13 @@ async function saveEditedPOC() {
 }
 
 async function deletePOC(pocId) {
-    if (!confirm(`Are you sure you want to delete this POC?\n\nThis action cannot be undone.`)) {
-        return;
-    }
+    const confirmed = await window.showConfirmDialog({
+        title: 'Delete POC',
+        message: 'This action will delete the POC permanently. Do you want to continue?',
+        confirmText: 'Delete',
+        icon: '🗑️'
+    });
+    if (!confirmed) return;
     
     try {
         const equipmentResponse = await fetch(`/poc_equipment?poc_id=${pocId}`);
@@ -1051,7 +1069,7 @@ async function deletePOC(pocId) {
         });
         
         if (response.ok) {
-            alert('POC deleted successfully');
+            notify.success('The POC was deleted successfully.');
             loadUserPOCs();
         } else {
             throw new Error('Error deleting POC');
@@ -1059,7 +1077,7 @@ async function deletePOC(pocId) {
         
     } catch (error) {
         console.error('Error deleting POC:', error);
-        alert('Error deleting POC: ' + error.message);
+        notify.error(`We could not delete the POC: ${error.message}`);
     }
 }
 

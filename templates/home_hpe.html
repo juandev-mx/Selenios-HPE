@@ -23,16 +23,19 @@
                     <div class="kpi-card">
                         <div class="kpi-label">Total Revenue</div>
                         <div class="kpi-value">$0</div>
+                        <div class="kpi-change positive">+0%</div>
                     </div>
 
                     <div class="kpi-card">
                         <div class="kpi-label">Approval Rate</div>
                         <div class="kpi-value">0%</div>
+                        <div class="kpi-change negative">-0%</div>
                     </div>
 
                     <div class="kpi-card">
                         <div class="kpi-label">Active Clients</div>
                         <div class="kpi-value">0</div>
+                        <div class="kpi-change positive">+0%</div>
                     </div>
                 </div>
 
@@ -198,28 +201,21 @@
     </main>
 
 <script>
+  // Mostrar navbar solo si el role en localStorage es HPE_REP o HPE_MANAGER
   const role = localStorage.getItem('role');
-
   if (role === 'HPE_REP' || role === 'HPE_MANAGER') {
-
-    fetch('/components/navbar_hpe.html')
-      .then(r => r.text())
-      .then(html => {
-          document.getElementById('navbar-placeholder').innerHTML = html;
-
-          console.log("🔧 Ejecutando initNavbarHPE DESPUÉS del fetch");
-
-          // 2️⃣ Aquí se ejecuta initNavbarHPE cuando el HTML YA existe
-          if (typeof initNavbarHPE === 'function') {
-              initNavbarHPE();
-          }
-      })
-      .catch(err => console.error('Error cargando navbar_hpe:', err));
+      fetch('/components/navbar_hpe.html')
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+        })
+        .catch(err => console.error('Error cargando navbar_hpe:', err));
   }
 </script>
 
 
 <!-- tus otros scripts -->
+<script src="/static/js/notifications.js"></script>
 <script src="/static/js/navbar_hpe.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/static/js/role_hpe.js"></script>

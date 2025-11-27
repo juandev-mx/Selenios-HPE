@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (user.role !== 'HPE_REP' && user.role !== 'HPE_MANAGER') {
-        alert('Access denied. This page is for HPE personnel only.');
+        notify.error('This page is reserved for HPE personnel only.', { title: 'Access denied' });
         window.location.href = '/login.html';
         return;
     }
@@ -143,7 +143,7 @@ function showSection(sectionName, user) {
     const targetSection = document.getElementById(`section-${sectionName}`);
     if (targetSection) {
         if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
-            alert('Access denied. Only Managers can access this section.');
+            notify.warning('Only HPE Managers can access the users section.', { title: 'Insufficient permissions' });
             showSection('dashboard', user);
             return;
         }
@@ -234,7 +234,7 @@ async function loadDashboardData() {
 
     } catch (error) {
         console.error('❌ Error loading dashboard:', error);
-        alert('Error loading dashboard data. Please reload the page.');
+        notify.error('We could not load the dashboard. Refresh the page or try again later.', { title: 'Data load error' });
     }
 }
 

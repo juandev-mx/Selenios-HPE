@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (user.role !== 'CLIENT') {
-        alert('Acceso denegado. Esta página es solo para clientes.');
+        notify.error('This page is only available for customers. Please sign in with a valid account.', { title: 'Access denied' });
         window.location.href = '/login.html';
         return;
     }
@@ -39,9 +39,9 @@ async function loadPOCStats(userId) {
         const response = await fetch(`/pocs?client_user_id=${userId}`);
         const pocs = await response.json();
 
-        const pending = pocs.filter(p => !p.is_approved && p.is_approved !== true).length;
+        const pending = pocs.filter(p => p.is_approved === null || typeof p.is_approved === 'undefined').length;
         const approved = pocs.filter(p => p.is_approved === true).length;
-        const rejected = 0;
+        const rejected = pocs.filter(p => p.is_approved === false).length;
 
         document.getElementById('pending-count').textContent = pending;
         document.getElementById('approved-count').textContent = approved;
@@ -81,10 +81,12 @@ async function loadRecentAlerts(userId) {
         const recentPOCs = pocs.slice(0, 3);
 
         recentPOCs.forEach(poc => {
+            const statusIcon = poc.is_approved ? '✓' : '⏳';
             const statusText = poc.is_approved ? 'approved' : 'pending approval';
 
             container.innerHTML += `
                 <div class="alert-card">
+                    <div class="alert-icon">${statusIcon}</div>
                     <div class="alert-content">
                         <h3>POC - ${statusText}</h3>
                         <p>${poc.business_justification.substring(0, 80)}...</p>

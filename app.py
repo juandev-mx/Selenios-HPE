@@ -7,7 +7,7 @@ import re
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
-# comentario para que les carguen los archivos...................
+# comentario para que les carguen los archivos................... Hola
 load_dotenv() 
 DATABASE_URL = os.getenv("DATABASE_URL")
 SUPABASE_URL = os.getenv("SUPABASE_URL")

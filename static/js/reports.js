@@ -1,9 +1,5 @@
 class ReportManager {
     constructor() {
-        if (ReportManager.instance) {
-            return ReportManager.instance;
-        }
-        ReportManager.instance = this;
         this.initReportEvents();
     }
 
@@ -61,7 +57,7 @@ class ReportManager {
 
         } catch (error) {
             console.error('Error generating report:', error);
-            alert(`Error generating report: ${error.message}`);
+            notify.error(`We could not generate the report: ${error.message}`, { title: 'Report error' });
         } finally {
             if (resetTimeout) {
                 clearTimeout(resetTimeout);
