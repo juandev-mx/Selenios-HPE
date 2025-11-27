@@ -121,7 +121,7 @@ class NotificationManager {
             </div>
             <div class="notification-content">
                 <p class="notification-message">
-                    Have ${totalPOCs} POC${totalPOCs > 1 ? 's' : ''} earring${totalPOCs > 1 ? 's' : ''} approval by more than ${this.daysThreshold} day${this.daysThreshold > 1 ? 's' : ''}. 
+                    You have ${totalPOCs} POC${totalPOCs > 1 ? 's' : ''} awaiting${totalPOCs > 1 ? 's' : ''} approval for more than ${this.daysThreshold} day${this.daysThreshold > 1 ? 's' : ''}. 
                     ${timeMessage}
                 </p>
                 <div class="notification-pocs">
@@ -185,7 +185,7 @@ class NotificationManager {
             const daysOld = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             if (daysOld > this.daysThreshold) {
-                return `The oldest one has ${daysOld} days.`;
+                return `The oldest one is ${daysOld} days old.`;
             }
         }
         
@@ -201,9 +201,9 @@ class NotificationManager {
             const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
             if (diffDays > 0) {
-                return `Does ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+                return `${diffDays} day${diffDays > 1 ? 's' : ''} old`;
             } else if (diffHours > 0) {
-                return `Does ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+                return `${diffHours} hour${diffHours > 1 ? 's' : ''} old`;
             } else {
                 return 'Today';
             }
