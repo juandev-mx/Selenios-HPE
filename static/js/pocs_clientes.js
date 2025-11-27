@@ -96,10 +96,10 @@ function createAvatarMenu(user) {
         try {
             if (typeof supabase !== 'undefined') {
                 const { error } = await supabase.auth.signOut();
-                if (error) console.error('Error cerrando sesión en Supabase:', error.message);
+                if (error) console.error('Error logging out of Supabase:', error.message);
             }
         } catch (err) {
-            console.error('Error en logout:', err);
+            console.error('Logout error:', err);
         } finally {
             sessionStorage.removeItem('user');
             window.location.href = '/login.html';
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     if (user.role !== 'CLIENT') {
-        alert('Acceso denegado. Esta página es solo para clientes.');
+        alert('Access denied. This page is for customers only.');
         window.location.href = '/login.html';
         return;
     }
@@ -297,14 +297,16 @@ function fixPOCButtonsLayout() {
         }
 
         /* --- Colores personalizados --- */
-        .btn-view { background-color: #05AD7A !important; color: white !important; }
+        .btn-view { background-color: #056fad !important; color: white !important; }
+        .btn-approvePOC1 { background-color: #05AD7A !important; color: white !important; }
         .btn-edit { background-color: #ffc107 !important; color: black !important; } /* amarillo */
         .btn-delete { background-color: #dc3545 !important; color: white !important; }
         .btn-approve { background-color: #0d6efd !important; color: white !important; }
         .btn-reject { background-color: #dc3545 !important; color: white !important; }
 
         /* --- Hover --- */
-        .btn-view:hover { background-color: #049b6d !important; }
+        .btn-view:hover { background-color: #056fad !important; }
+        .btn-approvePOC1:hover { background-color: #05AD7A !important; }
         .btn-edit:hover { background-color: #e0a800 !important; }
         .btn-approve:hover { background-color: #0b5ed7 !important; }
         .btn-reject:hover { background-color: #bb2d3b !important; }
@@ -403,7 +405,7 @@ function displayPOCs(pocs) {
                     
                     <div class="poc-footer-right">
                         ${poc.is_approved === null ? `
-                            <button class="btn-view" onclick="approvePOC(${poc.poc_id})">
+                            <button class="btn-approvePOC1" onclick="approvePOC(${poc.poc_id})">
                                 Approve
                             </button>
                             <button class="btn-delete" onclick="rejectPOC(${poc.poc_id})">

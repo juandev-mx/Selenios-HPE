@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
         if (user.role !== 'HPE_REP' && user.role !== 'HPE_MANAGER') {
-        alert('Acceso denegado. Esta página es solo para personal de HPE.');
+        alert('Access denied. This page is for HPE personnel only.');
         window.location.href = '/login.html';
         return;
     }
@@ -36,7 +36,7 @@ function showManagerFeatures() {
     managerElements.forEach(element => {
         element.style.display = '';
     });
-    console.log('Vista de Manager activada - Acceso completo');
+    console.log('Manager View enabled - Full access');
 }
 
 function hideManagerFeatures() {
@@ -44,7 +44,7 @@ function hideManagerFeatures() {
     managerElements.forEach(element => {
         element.style.display = 'none';
     });
-    console.log('Vista de Representante activada - Acceso limitado');
+    console.log('Representative View enabled - Limited access');
 }
 
 function createAvatarMenu(user) {
@@ -122,7 +122,7 @@ function createAvatarMenu(user) {
             if (typeof supabase !== 'undefined') {
                 const { error } = await supabase.auth.signOut();
                 if (error) {
-                    console.error('Error cerrando sesión en Supabase:', error.message);
+                    console.error('Error logging out of Supabase:', error.message);
                 }
             }
         } catch (err) {
@@ -322,7 +322,7 @@ function showSection(sectionName, user) {
         const targetSection = document.getElementById(`section-${sectionName}`);
     if (targetSection) {
                 if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
-            alert('Acceso denegado. Solo los Managers pueden acceder a esta sección.');
+            alert('Access denied. Only Managers can access this section.');
                         showSection('dashboard', user);
             return;
         }
@@ -334,7 +334,7 @@ function showSection(sectionName, user) {
         } else if (sectionName === 'users' && user.role === 'HPE_MANAGER') {
             loadUsersAndCompanies();
         } else if (sectionName === 'reportes') {
-                        console.log('Mostrando sección de reportes');
+                        console.log('Showing reports section');
         }
                 
     } else {
@@ -364,7 +364,7 @@ function loadSectionData(section, user) {
 
 
 async function loadDashboardData() {
-    console.log('🔄 Cargando dashboard...');
+    console.log('🔄 Loading dashboard...');
     
     try {
                 const [pocsResponse, companiesResponse, equipmentResponse, pocEquipmentResponse, usersResponse] = await Promise.all([
@@ -375,7 +375,7 @@ async function loadDashboardData() {
             fetch('/users')
         ]);
 
-        console.log('✅ Respuestas recibidas');
+        console.log('✅ Responses received');
         
                 if (!pocsResponse.ok) throw new Error('Error loading POCs');
         if (!companiesResponse.ok) throw new Error('Error loading companies');
@@ -389,7 +389,7 @@ async function loadDashboardData() {
         const pocEquipment = await pocEquipmentResponse.json();
         const users = await usersResponse.json();
 
-        console.log('📊 Datos cargados:', {
+        console.log('📊 Data loaded:', {
             pocs: pocs.length,
             companies: companies.length,
             equipment: equipment.length,
@@ -409,11 +409,11 @@ async function loadDashboardData() {
 
                         updateApprovalTrends(pocs);
         
-        console.log('✅ Dashboard cargado completamente');
+        console.log('✅ Dashboard fully loaded');
 
     } catch (error) {
-        console.error('❌ Error cargando dashboard:', error);
-        alert('Error cargando datos del dashboard. Por favor, recarga la página.');
+        console.error('❌ Error loading dashboard:', error);
+        alert('Error loading dashboard data. Please reload the page.');
     }
 }
 
@@ -476,7 +476,7 @@ function updateSolutionsChart(solutions) {
     chartBars.innerHTML = '';
 
     if (solutions.length === 0) {
-        chartBars.innerHTML = '<p style="text-align:center; color: #618975;">No hay datos disponibles</p>';
+        chartBars.innerHTML = '<p style="text-align:center; color: #618975;">No data available</p>';
         return;
     }
 
@@ -555,7 +555,7 @@ function updateClientPerformance(clientPerformance) {
     if (!tbody) return;
 
     if (clientPerformance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #618975;">No hay datos disponibles</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #618975;">No data available</td></tr>';
         return;
     }
 
@@ -575,7 +575,7 @@ function updateClientPerformance(clientPerformance) {
 function updateApprovalLineChart(data) {
     const canvas = document.getElementById('approvalLineChart');
     if (!canvas) {
-        console.error('❌ Canvas approvalLineChart no encontrado');
+        console.error('❌ Canvas approvalLineChart not found');
         return;
     }
 
@@ -589,7 +589,7 @@ function updateApprovalLineChart(data) {
         ctx.font = '14px Arial';
         ctx.fillStyle = '#618975';
         ctx.textAlign = 'center';
-        ctx.fillText('No hay datos disponibles', canvas.width / 2, canvas.height / 2);
+        ctx.fillText('No data available', canvas.width / 2, canvas.height / 2);
         return;
     }
 
@@ -694,7 +694,7 @@ function updateApprovalLineChart(data) {
         }
     });
 
-    console.log('✅ Gráfica de línea creada con', data.length, 'equipos');
+    console.log('✅ Line graph created with', data.length, 'teams');
 }
 
 
@@ -748,7 +748,7 @@ function updateTeamPerformance(teamPerformance) {
     if (!tbody) return;
 
     if (teamPerformance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #618975;">No hay datos disponibles</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #618975;">No data available</td></tr>';
         return;
     }
 
@@ -768,7 +768,7 @@ async function updateApprovalTrends(pocs) {
         const equipmentResponse = await fetch('/equipment');
 
         if (!pocEquipmentResponse.ok || !equipmentResponse.ok) {
-            throw new Error('Error al obtener datos de equipos o relaciones');
+            throw new Error('Error obtaining data from equipment or relationships');
         }
 
         const pocEquipment = await pocEquipmentResponse.json();
@@ -818,28 +818,28 @@ async function updateApprovalTrends(pocs) {
             approvalValueElement.textContent = `${averageApprovalRate}%`;
         }
 
-                console.log('📊 Datos para gráfica:', topData);
-        console.log('📊 Promedio de aprobación:', averageApprovalRate + '%');
+                console.log('📊 Data for graph:', topData);
+        console.log('📊 Average approval rating:', averageApprovalRate + '%');
 
                 if (topData.length > 0) {
             updateApprovalLineChart(topData);
-            console.log('✅ Gráfica de aprobación dibujada correctamente');
+            console.log('✅ Approval chart drawn correctly');
         } else {
-            console.warn('⚠️ No hay datos para mostrar en la gráfica');
+            console.warn('⚠️ There is no data to display in the graph.');
                         const ctx = document.getElementById('approvalLineChart');
             if (ctx) {
                 const context = ctx.getContext('2d');
                 context.font = '14px Arial';
                 context.fillStyle = '#618975';
                 context.textAlign = 'center';
-                context.fillText('No hay datos disponibles', ctx.width / 2, ctx.height / 2);
+                context.fillText('No data available', ctx.width / 2, ctx.height / 2);
             }
         }
 
-        console.log('📈 Datos de aprobación por equipo cargados:', topData);
+        console.log('📈 Team approval data uploaded:', topData);
 
     } catch (err) {
-        console.error('❌ Error al calcular tendencias de aprobación:', err);
+        console.error('❌ Error calculating approval trends:', err);
         
                 const approvalValueElement = document.getElementById('approvalTrendValue');
         if (approvalValueElement) {
@@ -852,7 +852,7 @@ async function updateApprovalTrends(pocs) {
             context.font = '14px Arial';
             context.fillStyle = '#dc2626';
             context.textAlign = 'center';
-            context.fillText('Error al cargar datos', ctx.width / 2, ctx.height / 2);
+            context.fillText('Error loading data', ctx.width / 2, ctx.height / 2);
         }
     }
 }
@@ -862,7 +862,7 @@ async function loadUsersAndCompanies() {
     const container = document.getElementById('users-content');
     if (!container) return;
 
-    container.innerHTML = '<p>Cargando datos...</p>';
+    container.innerHTML = '<p>Loading data...</p>';
 
     try {
         const [companiesResponse, usersResponse] = await Promise.all([
@@ -875,13 +875,13 @@ async function loadUsersAndCompanies() {
 
         container.innerHTML = `
             <div class="section-card full-width">
-                <h3 class="section-title">Compañías Cliente</h3>
+                <h3 class="section-title">Client Companies</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Nombre</th>
+                                <th>Name</th>
                                 <th>Manager</th>
                                 <th>Rep HPE ID</th>
                             </tr>
@@ -901,17 +901,17 @@ async function loadUsersAndCompanies() {
             </div>
 
             <div class="section-card full-width" style="margin-top: 2rem;">
-                <h3 class="section-title">Usuarios</h3>
+                <h3 class="section-title">Users</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Nombre</th>
+                                <th>Name</th>
                                 <th>Email</th>
                                 <th>Rol</th>
-                                <th>Compañía</th>
-                                <th>Estado</th>
+                                <th>Company</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -935,7 +935,7 @@ async function loadUsersAndCompanies() {
             </div>
         `;
     } catch (error) {
-        container.innerHTML = '<div class="section-card"><p>Error al cargar datos</p></div>';
+        container.innerHTML = '<div class="section-card"><p>Error loading data</p></div>';
         console.error('Error:', error);
     }
 }

@@ -96,46 +96,46 @@ document.addEventListener('DOMContentLoaded', function() {
         let hasError = false;
 
                 if (!fullName) {
-            showError(fullNameInput, nameError, 'El nombre es requerido');
+            showError(fullNameInput, nameError, 'Name is required');
             hasError = true;
         } else if (!validateName(fullName)) {
-            showError(fullNameInput, nameError, 'El nombre solo puede contener letras y espacios');
+            showError(fullNameInput, nameError, 'The name can only contain letters and spaces.');
             hasError = true;
         }
 
                 if (!email) {
-            showError(emailInput, emailError, 'El correo es requerido');
+            showError(emailInput, emailError, 'Email is required');
             hasError = true;
         } else if (!validateEmail(email)) {
-            showError(emailInput, emailError, 'El correo no es válido');
+            showError(emailInput, emailError, 'The email address is invalid.');
             hasError = true;
         }
 
                 if (!password) {
-            showError(passwordInput, passwordError, 'La contraseña es requerida');
+            showError(passwordInput, passwordError, 'Password is required');
             hasError = true;
         } else if (password.length < 6) {
-            showError(passwordInput, passwordError, 'La contraseña debe tener mínimo 6 caracteres');
+            showError(passwordInput, passwordError, 'The password must be at least 6 characters long');
             hasError = true;
         }
 
                 if (!confirmPassword) {
-            showError(confirmPasswordInput, confirmPasswordError, 'Debes confirmar la contraseña');
+            showError(confirmPasswordInput, confirmPasswordError, 'You must confirm the password');
             hasError = true;
         } else if (password !== confirmPassword) {
-            showError(confirmPasswordInput, confirmPasswordError, 'Las contraseñas no coinciden');
+            showError(confirmPasswordInput, confirmPasswordError, 'The passwords do not match');
             hasError = true;
         }
 
                 if (!company) {
-            showError(companyInput, companyError, 'El nombre de la empresa es requerido');
+            showError(companyInput, companyError, 'The company name is required');
             hasError = true;
         }
 
         if (hasError) return;
 
                 submitBtn.disabled = true;
-        submitBtn.textContent = 'Creando cuenta...';
+        submitBtn.textContent = 'Creating an account...';
 
         try {
             const response = await fetch('/api/register', {
@@ -154,21 +154,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
-                                alert('Cuenta creada exitosamente. Ahora puedes iniciar sesión.');
+                                alert('Account created successfully. You can now log in.');
                 window.location.href = '/login.html';
             } else {
-                                if (data.error.includes('correo')) {
+                                if (data.error.includes('email')) {
                     showError(emailInput, emailError, data.error);
                 } else {
-                    showError(companyInput, companyError, data.error || 'Error al crear la cuenta');
+                    showError(companyInput, companyError, data.error || 'Error creating account');
                 }
             }
         } catch (error) {
             console.error('Error:', error);
-            showError(companyInput, companyError, 'Error de conexión. Intenta nuevamente.');
+            showError(companyInput, companyError, 'Connection error. Please try again.');
         } finally {
                         submitBtn.disabled = false;
-            submitBtn.textContent = 'Crear cuenta';
+            submitBtn.textContent = 'Create account';
         }
     });
 });

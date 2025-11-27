@@ -1,0 +1,235 @@
+/* static/css/notifications.css */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+}
+
+.notification {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #11D473;
+    animation: slideInRight 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification-warning {
+    border-left-color: #FFB020;
+    background: linear-gradient(135deg, #FFF9F0 0%, #FFFFFF 100%);
+}
+
+.notification-critical {
+    border-left-color: #E72A08;
+    background: linear-gradient(135deg, #FEF0EF 0%, #FFFFFF 100%);
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.notification-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.notification-warning .notification-icon {
+    background: #FFB020;
+    color: white;
+}
+
+.notification-critical .notification-icon {
+    background: #E72A08;
+    color: white;
+}
+
+.notification-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #00263B;
+    margin: 0;
+    flex: 1;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: #618975;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+    background: #F6F8F7;
+    color: #00263B;
+}
+
+.notification-content {
+    margin-bottom: 1rem;
+}
+
+.notification-message {
+    font-size: 0.875rem;
+    color: #618975;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.5;
+}
+
+.notification-pocs {
+    background: #F6F8F7;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.notification-poc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #E0E8E4;
+}
+
+.notification-poc-item:last-child {
+    border-bottom: none;
+}
+
+.notification-poc-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #00263B;
+}
+
+.notification-poc-time {
+    font-size: 0.75rem;
+    color: #618975;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.notification-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notification-btn-primary {
+    background: #11D473;
+    color: white;
+}
+
+.notification-btn-primary:hover {
+    background: #05AD7A;
+    transform: translateY(-1px);
+}
+
+.notification-btn-secondary {
+    background: #F6F8F7;
+    color: #618975;
+    border: 1px solid #E0E8E4;
+}
+
+.notification-btn-secondary:hover {
+    background: #E8F5F0;
+    color: #11D473;
+}
+
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #11D473;
+    animation: progressBar 5s linear;
+}
+
+.notification-warning .notification-progress {
+    background: #FFB020;
+}
+
+.notification-critical .notification-progress {
+    background: #E72A08;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes progressBar {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+.notification-fade-out {
+    animation: slideOutRight 0.3s ease forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .notification-actions {
+        flex-direction: column;
+    }
+    
+    .notification-btn {
+        flex: 1;
+        text-align: center;
+    }
+}
