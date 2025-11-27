@@ -208,6 +208,12 @@
         .then(r => r.text())
         .then(html => {
             document.getElementById('navbar-placeholder').innerHTML = html;
+            console.log("🔧 Ejecutando initNavbarHPE DESPUÉS del fetch");
+
+          // 2️⃣ Aquí se ejecuta initNavbarHPE cuando el HTML YA existe
+          if (typeof initNavbarHPE === 'function') {
+              initNavbarHPE();
+          }
         })
         .catch(err => console.error('Error cargando navbar_hpe:', err));
   }

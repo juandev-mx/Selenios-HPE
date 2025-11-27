@@ -412,9 +412,9 @@ function displayPOCs(pocs) {
                                 Reject
                             </button>
                         ` : `
-                            <button class="btn-delete" onclick="deletePOC(${poc.poc_id})">
+                            <!-- <button class="btn-delete" onclick="deletePOC(${poc.poc_id})"> 
                                 Delete
-                            </button>
+                            </button> -->
                         `}
                     </div>
                 </div>
