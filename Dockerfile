@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
@@ -9,13 +9,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copiar requirements primero para mejor cache de Docker
+# Copiar requirements e instalar dependencias
 COPY requirements.txt .
-
-# Instalar dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto de la aplicación
+# Copiar aplicación
 COPY . .
 
 EXPOSE 10000
