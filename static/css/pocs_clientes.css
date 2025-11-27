@@ -139,6 +139,7 @@
 
 .btn-view,
 .btn-edit,
+.btn-approvePOC1,
 .btn-delete {
     flex: 1;
     padding: 0.5rem 1rem;
@@ -157,6 +158,15 @@
 
 .btn-view:hover {
     background: #056fad;
+}
+
+.btn-approvePOC1 {
+    background: #05AD7A;
+    color: white;
+}
+
+.btn-approvePOC1:hover {
+    background: #05AD7A;
 }
 
 .btn-edit {
