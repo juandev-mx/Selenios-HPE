@@ -201,15 +201,23 @@
     </main>
 
 <script>
-  // Mostrar navbar solo si el role en localStorage es HPE_REP o HPE_MANAGER
   const role = localStorage.getItem('role');
+
   if (role === 'HPE_REP' || role === 'HPE_MANAGER') {
-      fetch('/components/navbar_hpe.html')
-        .then(r => r.text())
-        .then(html => {
-            document.getElementById('navbar-placeholder').innerHTML = html;
-        })
-        .catch(err => console.error('Error cargando navbar_hpe:', err));
+
+    fetch('/components/navbar_hpe.html')
+      .then(r => r.text())
+      .then(html => {
+          document.getElementById('navbar-placeholder').innerHTML = html;
+
+          console.log("🔧 Ejecutando initNavbarHPE DESPUÉS del fetch");
+
+          // 2️⃣ Aquí se ejecuta initNavbarHPE cuando el HTML YA existe
+          if (typeof initNavbarHPE === 'function') {
+              initNavbarHPE();
+          }
+      })
+      .catch(err => console.error('Error cargando navbar_hpe:', err));
   }
 </script>
 
