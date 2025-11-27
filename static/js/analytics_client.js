@@ -5,14 +5,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     
     if (!user) {
-        alert('Sesión no encontrada. Por favor inicia sesión.');
+        alert('Session not found. Please log in.');
         window.location.href = '/login.html';
         return;
     }
 
     
     if (user.role !== 'CLIENT') {
-        alert('Acceso denegado. Esta página es solo para clientes.');
+        alert('Access denied. This page is for customers only.');
         window.location.href = '/login.html';
         return;
     }
@@ -203,7 +203,7 @@ function addAvatarMenuStyles() {
 
 async function loadClientAnalytics(userId) {
     try {
-        console.log('📊 Cargando analytics para usuario:', userId);
+        console.log('📊 Loading user analytics:', userId);
         
         
         const [pocsResponse, pocEquipmentResponse, equipmentResponse] = await Promise.all([
@@ -218,7 +218,7 @@ async function loadClientAnalytics(userId) {
         const allPocEquipment = await pocEquipmentResponse.json();
         const allEquipment = await equipmentResponse.json();
 
-        console.log('✅ Datos cargados:', {
+        console.log('✅ Data loaded:', {
             pocs: pocs.length,
             pocEquipment: allPocEquipment.length,
             equipment: allEquipment.length
@@ -272,7 +272,7 @@ function calculatePOCStats(pocs, allPocEquipment, equipmentPrices) {
 
     const avgExpense = totalPOCs > 0 ? totalExpenses / totalPOCs : 0;
 
-    console.log('📈 Stats calculadas:', { 
+    console.log('📈 Stats calculated:', { 
         totalPOCs, pending, approved, rejected, totalExpenses, avgExpense
     });
 
@@ -295,7 +295,7 @@ function updateStatsCards(stats) {
     if (totalExpensesElement) totalExpensesElement.textContent = formatCurrency(stats.totalExpenses);
     if (avgExpenseElement) avgExpenseElement.textContent = formatCurrency(stats.avgExpense);
     
-    console.log('✅ Stats actualizadas en UI');
+    console.log('✅ Updated stats in UI');
 }
 
 

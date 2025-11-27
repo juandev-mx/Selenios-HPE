@@ -32,13 +32,13 @@ async function loadPocs() {
         renderPocs();
     } catch (error) {
         console.error('Error loading POCs:', error);
-        showNotification('Error al cargar las POCs', 'error');
+        showNotification('Error loading POCs', 'error');
         
         tbody.innerHTML = `
             <tr>
                 <td colspan="5" style="text-align: center; padding: 2rem;">
-                    <p style="color: var(--rejected-red); margin-bottom: 1rem;">Error al cargar las POCs</p>
-                    <button class="btn-approve" onclick="location.reload()">Reintentar</button>
+                    <p style="color: var(--rejected-red); margin-bottom: 1rem;">Error loading POCs</p>
+                    <button class="btn-approve" onclick="location.reload()">Retry</button>
                 </td>
             </tr>
         `;
@@ -123,7 +123,7 @@ function createActionButtons(poc) {
 }
 
 async function handleApprove(pocId) {
-    if (!confirm('¿Estás seguro de aprobar esta POC?')) return;
+    if (!confirm('Are you sure you want to pass this POC?')) return;
     
     try {
         const response = await fetch(`/pocs/${pocId}`, {
@@ -142,15 +142,15 @@ async function handleApprove(pocId) {
             throw new Error(error.error || 'Error approving POC');
         }
         
-        showNotification('POC aprobada exitosamente', 'success');
+        showNotification('POC successfully approved', 'success');
         await loadPocs();     } catch (error) {
         console.error('Error approving POC:', error);
-        showNotification('Error al aprobar la POC: ' + error.message, 'error');
+        showNotification('Error approving POC: ' + error.message, 'error');
     }
 }
 
 async function handleDeny(pocId) {
-    if (!confirm('¿Estás seguro de denegar esta POC?')) return;
+    if (!confirm('Are you sure you want to deny this POC?')) return;
     
     try {
         const response = await fetch(`/pocs/${pocId}`, {
@@ -169,10 +169,10 @@ async function handleDeny(pocId) {
             throw new Error(error.error || 'Error denying POC');
         }
         
-        showNotification('POC denegada', 'success');
+        showNotification('POC denied', 'success');
         await loadPocs();     } catch (error) {
         console.error('Error denying POC:', error);
-        showNotification('Error al denegar la POC: ' + error.message, 'error');
+        showNotification('Error denying POC: ' + error.message, 'error');
     }
 }
 
@@ -224,7 +224,7 @@ async function showPocDetails(pocId) {
                 createPocModal(poc, equipment);
     } catch (error) {
         console.error('Error loading POC details:', error);
-        showNotification('Error al cargar los detalles de la POC', 'error');
+        showNotification('Error loading POC details', 'error');
     }
 }
 

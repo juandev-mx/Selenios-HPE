@@ -39,7 +39,7 @@ class NotificationManager {
             this.checkPendingPOCs();
         }, intervalMs);
 
-        console.log(`🔔 Sistema de notificaciones iniciado. Verificando cada ${this.checkIntervalMinutes} minutos para POCs con más de ${this.daysThreshold} día(s)`);
+        console.log(`🔔 Notification system initiated. Checking each ${this.checkIntervalMinutes} minutes for POCs with more than ${this.daysThreshold} day(s)`);
     }
 
     async checkPendingPOCs() {
@@ -75,12 +75,12 @@ class NotificationManager {
             const diffTime = Math.abs(now - createdDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            console.log(`POC ${poc.poc_id}: creado hace ${diffDays} días`);
+            console.log(`POC ${poc.poc_id}: created ago ${diffDays} days`);
             
             return diffDays >= this.daysThreshold;
             
         } catch (error) {
-            console.error('Error calculando edad del POC:', error);
+            console.error('Error calculating POC age:', error);
             return false;
         }
     }
@@ -116,12 +116,12 @@ class NotificationManager {
             <div class="notification-progress"></div>
             <div class="notification-header">
                 <div class="notification-icon">⏰</div>
-                <h3 class="notification-title">POCs Pendientes de Aprobación</h3>
+                <h3 class="notification-title">POCs Pending Approval</h3>
                 <button class="notification-close" onclick="notificationManager.removeNotification(this.parentElement.parentElement)">×</button>
             </div>
             <div class="notification-content">
                 <p class="notification-message">
-                    Tienes ${totalPOCs} POC${totalPOCs > 1 ? 's' : ''} pendiente${totalPOCs > 1 ? 's' : ''} de aprobación por más de ${this.daysThreshold} día${this.daysThreshold > 1 ? 's' : ''}. 
+                    Have ${totalPOCs} POC${totalPOCs > 1 ? 's' : ''} earring${totalPOCs > 1 ? 's' : ''} approval by more than ${this.daysThreshold} day${this.daysThreshold > 1 ? 's' : ''}. 
                     ${timeMessage}
                 </p>
                 <div class="notification-pocs">
@@ -133,7 +133,7 @@ class NotificationManager {
                     `).join('')}
                     ${pendingPOCs.length > 3 ? 
                         `<div class="notification-poc-item">
-                            <span class="notification-poc-name">... y ${pendingPOCs.length - 3} más</span>
+                            <span class="notification-poc-name">... and ${pendingPOCs.length - 3} more</span>
                         </div>` 
                         : ''}
                 </div>
@@ -185,11 +185,11 @@ class NotificationManager {
             const daysOld = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             if (daysOld > this.daysThreshold) {
-                return `El más antiguo tiene ${daysOld} días.`;
+                return `The oldest one has ${daysOld} days.`;
             }
         }
         
-        return 'No olvides revisarlos pronto.';
+        return "Don't forget to check them soon.";
     }
 
     getTimeAgo(createdDate) {
@@ -201,14 +201,14 @@ class NotificationManager {
             const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
             if (diffDays > 0) {
-                return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+                return `Does ${diffDays} day${diffDays > 1 ? 's' : ''}`;
             } else if (diffHours > 0) {
-                return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+                return `Does ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
             } else {
-                return 'Hoy';
+                return 'Today';
             }
         } catch (error) {
-            return 'Fecha desconocida';
+            return 'Date unknown';
         }
     }
 
@@ -239,7 +239,7 @@ class NotificationManager {
     }
 
     truncateText(text, maxLength) {
-        if (!text) return 'Sin descripción';
+        if (!text) return 'No description';
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
 

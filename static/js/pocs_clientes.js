@@ -96,10 +96,10 @@ function createAvatarMenu(user) {
         try {
             if (typeof supabase !== 'undefined') {
                 const { error } = await supabase.auth.signOut();
-                if (error) console.error('Error cerrando sesión en Supabase:', error.message);
+                if (error) console.error('Error logging out of Supabase:', error.message);
             }
         } catch (err) {
-            console.error('Error en logout:', err);
+            console.error('Logout error:', err);
         } finally {
             sessionStorage.removeItem('user');
             window.location.href = '/login.html';
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     if (user.role !== 'CLIENT') {
-        alert('Acceso denegado. Esta página es solo para clientes.');
+        alert('Access denied. This page is for customers only.');
         window.location.href = '/login.html';
         return;
     }

@@ -32,18 +32,18 @@ document.addEventListener('DOMContentLoaded', function() {
         let hasError = false;
 
                 if (!email) {
-            showError(emailInput, emailError, 'El correo es requerido');
+            showError(emailInput, emailError, 'Email is required');
             hasError = true;
         } else if (!validateEmail(email)) {
-            showError(emailInput, emailError, 'El correo no es válido');
+            showError(emailInput, emailError, 'The email address is invalid.');
             hasError = true;
         }
 
                 if (!password) {
-            showError(passwordInput, passwordError, 'La contraseña es requerida');
+            showError(passwordInput, passwordError, 'Password is required');
             hasError = true;
         } else if (password.length < 6) {
-            showError(passwordInput, passwordError, 'La contraseña debe tener mínimo 6 caracteres');
+            showError(passwordInput, passwordError, 'The password must be at least 6 characters long');
             hasError = true;
         }
 
@@ -67,20 +67,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
-                                console.log('Login exitoso:', data);
+                                console.log('Successful login:', data);
                 
                                 sessionStorage.setItem('user', JSON.stringify(data.user));
                 
                                 redirectUser(data.user.role);
             } else {
-                                showError(passwordInput, passwordError, data.error || 'Error al iniciar sesión');
+                                showError(passwordInput, passwordError, data.error || 'Error logging in');
             }
         } catch (error) {
             console.error('Error:', error);
-            showError(passwordInput, passwordError, 'Error de conexión. Intenta nuevamente.');
+            showError(passwordInput, passwordError, 'Connection error. Please try again.');
         } finally {
                         submitBtn.disabled = false;
-            submitBtn.textContent = 'Iniciar sesión';
+            submitBtn.textContent = 'Login';
         }
     });
 
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = '/home_hpe.html';
                 break;
             default:
-                alert('Rol de usuario desconocido');
+                alert('Unknown user role');
         }
     }
 

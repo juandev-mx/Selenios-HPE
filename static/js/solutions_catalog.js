@@ -92,13 +92,13 @@ function createAvatarMenu(user) {
                     if (typeof supabase !== 'undefined') {
               const { error } = await supabase.auth.signOut();
               if (error) {
-                  console.error('Error cerrando sesión en Supabase:', error.message);
+                  console.error('Error logging out of Supabase:', error.message);
               } else {
-                  console.log('Sesión de Supabase cerrada correctamente');
+                  console.log('Supabase session successfully closed');
               }
           }
       } catch (err) {
-          console.error('Error en logout:', err);
+          console.error('Logout error:', err);
       } finally {
                     sessionStorage.removeItem('user');
 

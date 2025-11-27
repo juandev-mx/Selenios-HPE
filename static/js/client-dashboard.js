@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
         if (user.role !== 'CLIENT') {
-        alert('Acceso denegado. Esta página es solo para clientes.');
+        alert('Access denied. This page is for customers only.');
         window.location.href = '/login.html';
         return;
     }
@@ -120,9 +120,9 @@ function createAvatarMenu(user) {
                         if (typeof supabase !== 'undefined') {
                 const { error } = await supabase.auth.signOut();
                 if (error) {
-                    console.error('Error cerrando sesión en Supabase:', error.message);
+                    console.error('Error logging out of Supabase:', error.message);
                 } else {
-                    console.log('Sesión de Supabase cerrada correctamente');
+                    console.log('Supabase session successfully closed');
                 }
             }
         } catch (err) {
