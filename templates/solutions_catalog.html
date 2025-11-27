@@ -5,22 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Solutions Catalog - HPE</title>
   <link rel="stylesheet" href="/static/css/SolutionsClientes.css">
+  <link rel="stylesheet" href="/static/css/navbar_cliente.css">
 </head>
+
 <body>
-    <header class="header">
-  <div class="header-left">
-    <a href="#" id="logo-link">
-      <img class="logo" 
-            src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188"
-            alt="HPE Logo">
-    </a> 
-    
-    <h2 id="header-role-text">Loading...</h2>
-  </div>
-  
-  <nav class="header-nav" id="main-nav">
-      </nav>
-</header>
+  <div id="navbar-placeholder"></div>
 
     <main class="main-container">
         <section class="solutions-section">
@@ -95,6 +84,31 @@
     </section>
   </main>
 
+  <script>
+    // Obtener el rol que guardaste al hacer login
+    // (puede venir de localStorage, sessionStorage o tu lógica actual)
+    const userRole = localStorage.getItem("role"); 
+
+    if (userRole === "CLIENT") {
+        fetch("/components/navbar_cliente.html")
+            .then(response => response.text())
+            .then(html => {
+                // Coloca el HTML dentro del placeholder
+                document.getElementById("navbar-placeholder").innerHTML = html;
+
+                // (Opcional pero recomendado) Marcar la opción activa
+                const links = document.querySelectorAll(".nav-link");
+                links.forEach(link => {
+                    if (link.href === window.location.href) {
+                        link.classList.add("active");
+                    }
+                });
+            })
+            .catch(err => console.error("Error cargando navbar:", err));
+    }
+</script>
+
+  <script src="/static/js/navbar_client.js"></script>
   <script src="/static/js/solutions_catalog.js"></script>
 </body>
 </html>

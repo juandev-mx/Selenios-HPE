@@ -8,26 +8,11 @@
   <link rel="stylesheet" href="/static/css/home_cliente.css">
   <link rel="stylesheet" href="/static/css/pocs_clientes.css">
   <link rel="stylesheet" href="/static/css/sistema_modal.css">
+  <link rel="stylesheet" href="/static/css/navbar_cliente.css">
 </head>
 
 <body>
-  <header class="header">
-    <div class="header-left">
-      <a href="home_cliente.html">
-        <img class="logo"
-          src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188"
-          alt="HPE Logo">
-      </a>
-      <h2 class="customer-text">Customer</h2>
-    </div>
-
-    <nav class="header-nav">
-      <a href="/home_cliente.html" class="nav-link">Dashboard</a>
-      <a href="/pocs_clientes.html" class="nav-link active">My POCs</a>
-      <a href="/solutions_catalog.html" class="nav-link">Solutions Catalog</a>
-      <img class="avatar" src="static/img/user.png" alt="User Avatar">
-    </nav>
-  </header>
+  <div id="navbar-placeholder"></div>
 
   <main class="main-container">
     <div class="page-title">
@@ -61,6 +46,31 @@
     </div>
   </main>
 
+  <script>
+    // Obtener el rol que guardaste al hacer login
+    // (puede venir de localStorage, sessionStorage o tu lógica actual)
+    const userRole = localStorage.getItem("role"); 
+
+    if (userRole === "CLIENT") {
+        fetch("/components/navbar_cliente.html")
+            .then(response => response.text())
+            .then(html => {
+                // Coloca el HTML dentro del placeholder
+                document.getElementById("navbar-placeholder").innerHTML = html;
+
+                // (Opcional pero recomendado) Marcar la opción activa
+                const links = document.querySelectorAll(".nav-link");
+                links.forEach(link => {
+                    if (link.href === window.location.href) {
+                        link.classList.add("active");
+                    }
+                });
+            })
+            .catch(err => console.error("Error cargando navbar:", err));
+    }
+</script>
+
+  <script src="/static/js/navbar_client.js"></script>
   <script src="/static/js/create_pocs.js"></script>
   <script src="/static/js/pocs_clientes.js"></script>
 </body>

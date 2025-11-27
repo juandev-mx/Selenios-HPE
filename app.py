@@ -24,6 +24,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # ---------------- RUTAS HTML ----------------
+
+@app.route('/components/<path:filename>')
+def components_static(filename):
+    return send_from_directory('components', filename)
+
 @app.route('/')
 def index():
     return render_template('login.html')

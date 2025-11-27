@@ -67,9 +67,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
+
+
                                 console.log('Login exitoso:', data);
                 
                                 sessionStorage.setItem('user', JSON.stringify(data.user));
+
+                                localStorage.setItem("role", data.user.role); 
                 
                                 redirectUser(data.user.role);
             } else {
