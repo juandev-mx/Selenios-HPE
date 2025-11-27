@@ -75,13 +75,13 @@ def login():
     data = request.get_json()
     
     if not data:
-        return jsonify({"error": "Faltan datos"}), 400
+        return jsonify({"error": "Data is missing"}), 400
     
     mail = data.get('mail')
     password = data.get('password')
     
     if not mail or not password:
-        return jsonify({"error": "Correo y contraseña son requeridos"}), 400
+        return jsonify({"error": "Email and password are required"}), 400
     
     try:
         # 1. Autenticar con Supabase Auth
@@ -108,7 +108,7 @@ def login():
                         company_name = company.company_name
                 
                 return jsonify({
-                    "message": "Login exitoso (sistema legacy)",
+                    "message": "Successful login (sistema legacy)",
                     "user": {
                         "id": user.user_id,
                         "name": user.name,
@@ -126,7 +126,7 @@ def login():
         user = User.query.filter_by(mail=mail).first()
         
         if not user:
-            return jsonify({"error": "Usuario no encontrado en el sistema"}), 401
+            return jsonify({"error": "User not found in the system"}), 401
         
         # 3. Actualizar session_started a True
         user.session_started = True
@@ -140,7 +140,7 @@ def login():
                 company_name = company.company_name
         
         return jsonify({
-            "message": "Login exitoso",
+            "message": "Successful login",
             "user": {
                 "id": user.user_id,
                 "name": user.name,
@@ -168,7 +168,7 @@ def login():
                         company_name = company.company_name
                 
                 return jsonify({
-                    "message": "Login exitoso (fallback)",
+                    "message": "Successful login (fallback)",
                     "user": {
                         "id": user.user_id,
                         "name": user.name,
@@ -182,7 +182,7 @@ def login():
         except Exception as fallback_error:
             print(f"Error en fallback: {str(fallback_error)}")
         
-        return jsonify({"error": "Error en el servidor"}), 500
+        return jsonify({"error": "Error"}), 500
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -199,7 +199,7 @@ def register():
     
     # Validar campos requeridos
     if not all([name, mail, password, company_name]):
-        return jsonify({"error": "Todos los campos son requeridos"}), 400
+        return jsonify({"error": "All fields are required"}), 400
     
     try:
         # 1. Verificar si el correo ya existe (case insensitive)
@@ -208,7 +208,7 @@ def register():
         ).first()
         
         if existing_user:
-            return jsonify({"error": "El correo electrónico ya está registrado"}), 400
+            return jsonify({"error": "The email address is already registered."}), 400
         
         # 2. Registrar en Supabase Auth
         try:
