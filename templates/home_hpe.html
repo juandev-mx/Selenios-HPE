@@ -5,34 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HPE Data Management - Dashboard</title>
     <link rel="stylesheet" href="/static/css/home_hpe.css">
+    <link rel="stylesheet" href="/static/css/navbar_hpe.css">
+
 </head>
 <body>
-    <header>
-        <div class="header-container">
-            <div class="header-left">
-                <a href="home_hpe.html">
-        <img class="logo" 
-              src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188"
-              alt="HPE Logo">
-      </a> 
-
-                <h1 class="header-title">Data Management</h1>
-            </div>
-            
-            <div class="header-right">
-<nav>
-    <a href="#" class="nav-link active" data-section="dashboard">Dashboard</a>
-    <a href="PocsHPEManager.html" class="nav-link">Approvals</a>
-    <a href="/solutions_catalog.html" class="nav-link">Equipments</a>
-            <a href="#" class="nav-link" data-section="reportes">Reports</a>
-</nav>
-
-                <div class="user-info-header">
-                                        <img src="static/img/admin.png" alt="User Avatar" class="avatar">
-                                    </div>
-            </div>
-        </div>
-    </header>
+    <div id="navbar-placeholder"></div>
 
     <main>
         <div class="content-wrapper">
@@ -223,8 +200,32 @@
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/static/js/role_hpe.js"></script>
-    <script src="/static/js/reports.js"></script>
+<script>
+  // Mostrar navbar solo si el role en localStorage es HPE_REP o HPE_MANAGER
+  const role = localStorage.getItem('role');
+  if (role === 'HPE_REP' || role === 'HPE_MANAGER') {
+      fetch('/components/navbar_hpe.html')
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+            console.log("🔧 Ejecutando initNavbarHPE DESPUÉS del fetch");
+
+          // 2️⃣ Aquí se ejecuta initNavbarHPE cuando el HTML YA existe
+          if (typeof initNavbarHPE === 'function') {
+              initNavbarHPE();
+          }
+        })
+        .catch(err => console.error('Error cargando navbar_hpe:', err));
+  }
+</script>
+
+
+<!-- tus otros scripts -->
+<script src="/static/js/notifications.js"></script>
+<script src="/static/js/navbar_hpe.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/role_hpe.js"></script>
+<script src="/static/js/reports.js"></script>
+
 </body>
 </html>

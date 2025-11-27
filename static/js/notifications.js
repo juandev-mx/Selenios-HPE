@@ -1,9 +1,13 @@
 // static/js/notifications.js - VERSIÓN MODIFICADA
 class NotificationManager {
-    constructor() {
+    constructor(options = {}) {
+        const { enablePendingPOCAlerts = false } = options;
+        
         this.container = null;
         this.checkInterval = null;
-        this.notificationTimeout = null;
+        this.toastTimers = new WeakMap();
+        this.activeUserId = null;
+        this.enablePendingPOCAlerts = enablePendingPOCAlerts;
         
         // CONFIGURACIÓN: Cambia este valor para ajustar el intervalo de verificación (en minutos)
         this.checkIntervalMinutes = 2; // ← CAMBIA AQUÍ el intervalo de verificación
@@ -15,11 +19,28 @@ class NotificationManager {
     }
 
     init() {
+        this.ensureStyles();
         this.createContainer();
-        this.startPeriodicCheck();
+        
+        if (this.enablePendingPOCAlerts) {
+            this.startPeriodicCheck();
+        }
+    }
+
+    ensureStyles() {
+        if (document.querySelector('link[data-notifications="true"]')) {
+            return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/static/css/notifications.css';
+        link.dataset.notifications = 'true';
+        document.head.appendChild(link);
     }
 
     createContainer() {
+        if (this.container) return;
         this.container = document.createElement('div');
         this.container.className = 'notification-container';
         document.body.appendChild(this.container);
@@ -46,6 +67,9 @@ class NotificationManager {
         try {
             const user = JSON.parse(sessionStorage.getItem('user'));
             if (!user || user.role !== 'CLIENT') return;
+            
+            this.activeUserId = user.id || user.user_id;
+            if (this.isNotificationDismissed()) return;
 
             const response = await fetch(`/api/pocs/pending?user_id=${user.id}`);
             const pendingPOCs = await response.json();
@@ -86,6 +110,10 @@ class NotificationManager {
     }
 
     showNotification(pendingPOCs) {
+        if (this.isNotificationDismissed()) {
+            return;
+        }
+
         // Evitar notificaciones duplicadas
         if (this.container.querySelector('.notification')) {
             return;
@@ -95,9 +123,7 @@ class NotificationManager {
         this.container.appendChild(notification);
 
         // Auto-eliminar después de 15 segundos (más tiempo para leer)
-        this.notificationTimeout = setTimeout(() => {
-            this.removeNotification(notification);
-        }, 15000);
+        this.setAutoRemove(notification, 15000);
     }
 
     createNotificationElement(pendingPOCs) {
@@ -117,11 +143,11 @@ class NotificationManager {
             <div class="notification-header">
                 <div class="notification-icon">⏰</div>
                 <h3 class="notification-title">POCs Pending Approval</h3>
-                <button class="notification-close" onclick="notificationManager.removeNotification(this.parentElement.parentElement)">×</button>
+                <button class="notification-close" type="button">×</button>
             </div>
             <div class="notification-content">
                 <p class="notification-message">
-                    Have ${totalPOCs} POC${totalPOCs > 1 ? 's' : ''} earring${totalPOCs > 1 ? 's' : ''} approval by more than ${this.daysThreshold} day${this.daysThreshold > 1 ? 's' : ''}. 
+                    You have ${totalPOCs} POC${totalPOCs > 1 ? 's' : ''} awaiting${totalPOCs > 1 ? 's' : ''} approval for more than ${this.daysThreshold} day${this.daysThreshold > 1 ? 's' : ''}. 
                     ${timeMessage}
                 </p>
                 <div class="notification-pocs">
@@ -139,14 +165,25 @@ class NotificationManager {
                 </div>
             </div>
             <div class="notification-actions">
-                <button class="notification-btn notification-btn-secondary" onclick="notificationManager.remindLater(this.parentElement.parentElement)">
-                    Remember later
-                </button>
-                <button class="notification-btn notification-btn-primary" onclick="notificationManager.viewPOCs()">
-                    Review POCs
-                </button>
+                <button class="notification-btn notification-btn-secondary" data-action="remind-later">Remember later</button>
+                <button class="notification-btn notification-btn-primary" data-action="view-pocs">Review POCs</button>
             </div>
         `;
+
+        const closeBtn = notification.querySelector('.notification-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.removeNotification(notification));
+        }
+
+        const remindBtn = notification.querySelector('[data-action="remind-later"]');
+        if (remindBtn) {
+            remindBtn.addEventListener('click', () => this.remindLater(notification));
+        }
+
+        const viewBtn = notification.querySelector('[data-action="view-pocs"]');
+        if (viewBtn) {
+            viewBtn.addEventListener('click', () => this.viewPOCs());
+        }
 
         return notification;
     }
@@ -185,7 +222,7 @@ class NotificationManager {
             const daysOld = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             if (daysOld > this.daysThreshold) {
-                return `The oldest one has ${daysOld} days.`;
+                return `The oldest one is ${daysOld} days old.`;
             }
         }
         
@@ -201,9 +238,9 @@ class NotificationManager {
             const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
             if (diffDays > 0) {
-                return `Does ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+                return `${diffDays} day${diffDays > 1 ? 's' : ''} old`;
             } else if (diffHours > 0) {
-                return `Does ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+                return `${diffHours} hour${diffHours > 1 ? 's' : ''} old`;
             } else {
                 return 'Today';
             }
@@ -213,8 +250,10 @@ class NotificationManager {
     }
 
     removeNotification(notification) {
-        if (this.notificationTimeout) {
-            clearTimeout(this.notificationTimeout);
+        const timer = this.toastTimers.get(notification);
+        if (timer) {
+            clearTimeout(timer);
+            this.toastTimers.delete(notification);
         }
 
         notification.classList.add('notification-fade-out');
@@ -227,11 +266,7 @@ class NotificationManager {
 
     remindLater(notification) {
         this.removeNotification(notification);
-        
-        // Reprogramar la siguiente verificación en 30 minutos
-        setTimeout(() => {
-            this.checkPendingPOCs();
-        }, 30 * 60 * 1000);
+        this.markNotificationDismissed();
     }
 
     viewPOCs() {
@@ -243,25 +278,247 @@ class NotificationManager {
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
 
+    setAutoRemove(notification, duration = 5000) {
+        if (duration === Infinity) return;
+        const timer = setTimeout(() => this.removeNotification(notification), duration);
+        this.toastTimers.set(notification, timer);
+    }
+
+    showToast({
+        title = 'Aviso',
+        message = '',
+        type = 'info',
+        duration = 5000,
+        actions = [],
+        dismissible = true
+    } = {}) {
+        if (!this.container) {
+            this.createContainer();
+        }
+
+        const typeClass = this.getTypeClass(type);
+        const notification = document.createElement('div');
+        notification.className = `notification ${typeClass}`;
+
+        const progress = document.createElement('div');
+        progress.className = 'notification-progress';
+        progress.style.animationDuration = `${duration}ms`;
+        if (duration === Infinity) {
+            progress.style.display = 'none';
+        }
+
+        const header = document.createElement('div');
+        header.className = 'notification-header';
+
+        const icon = document.createElement('div');
+        icon.className = 'notification-icon';
+        icon.textContent = this.getIconForType(type);
+
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'notification-title';
+        titleEl.textContent = title;
+
+        header.appendChild(icon);
+        header.appendChild(titleEl);
+
+        if (dismissible) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'notification-close';
+            closeBtn.type = 'button';
+            closeBtn.textContent = '×';
+            closeBtn.addEventListener('click', () => this.removeNotification(notification));
+            header.appendChild(closeBtn);
+        }
+
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+
+        const messageEl = document.createElement('p');
+        messageEl.className = 'notification-message';
+        messageEl.textContent = message;
+        content.appendChild(messageEl);
+
+        notification.appendChild(progress);
+        notification.appendChild(header);
+        notification.appendChild(content);
+
+        if (actions && actions.length > 0) {
+            const actionsWrapper = document.createElement('div');
+            actionsWrapper.className = 'notification-actions';
+
+            actions.forEach(action => {
+                const btn = document.createElement('button');
+                btn.className = `notification-btn ${action.variant === 'secondary' ? 'notification-btn-secondary' : 'notification-btn-primary'}`;
+                btn.textContent = action.label || 'Action';
+                btn.addEventListener('click', () => {
+                    if (typeof action.onClick === 'function') {
+                        action.onClick();
+                    }
+                    if (action.autoClose !== false) {
+                        this.removeNotification(notification);
+                    }
+                });
+                actionsWrapper.appendChild(btn);
+            });
+
+            notification.appendChild(actionsWrapper);
+        }
+
+        this.container.appendChild(notification);
+        this.setAutoRemove(notification, duration);
+
+        return notification;
+    }
+
+    getTypeClass(type = 'info') {
+        switch (type) {
+            case 'success':
+                return 'notification-success';
+            case 'warning':
+                return 'notification-warning';
+            case 'error':
+                return 'notification-error';
+            case 'critical':
+                return 'notification-critical';
+            default:
+                return 'notification-info';
+        }
+    }
+
+    getIconForType(type = 'info') {
+        switch (type) {
+            case 'success':
+                return '✓';
+            case 'warning':
+                return '!';
+            case 'error':
+            case 'critical':
+                return '⚠';
+            default:
+                return 'ℹ';
+        }
+    }
+
     destroy() {
         if (this.checkInterval) {
             clearInterval(this.checkInterval);
         }
-        if (this.notificationTimeout) {
-            clearTimeout(this.notificationTimeout);
-        }
         if (this.container && this.container.parentElement) {
             this.container.parentElement.removeChild(this.container);
+        }
+        this.toastTimers = new WeakMap();
+    }
+
+    getDismissKey() {
+        return this.activeUserId ? `pocNotificationDismissed_${this.activeUserId}` : null;
+    }
+
+    isNotificationDismissed() {
+        const key = this.getDismissKey();
+        if (!key) return false;
+        return localStorage.getItem(key) === 'true';
+    }
+
+    markNotificationDismissed() {
+        const key = this.getDismissKey();
+        if (key) {
+            localStorage.setItem(key, 'true');
         }
     }
 }
 
-// Inicializar el manager de notificaciones
-let notificationManager;
+let notificationManager = null;
+const notificationQueue = [];
+let confirmDialogInstance = null;
+
+const enqueueNotification = (payload) => {
+    if (notificationManager) {
+        notificationManager.showToast(payload);
+    } else {
+        notificationQueue.push(payload);
+    }
+};
+
+window.notify = {
+    success: (message, options = {}) => enqueueNotification({ ...options, type: 'success', message, title: options.title || 'Success' }),
+    info: (message, options = {}) => enqueueNotification({ ...options, type: 'info', message, title: options.title || 'Notice' }),
+    warning: (message, options = {}) => enqueueNotification({ ...options, type: 'warning', message, title: options.title || 'Heads up' }),
+    error: (message, options = {}) => enqueueNotification({ ...options, type: 'error', message, title: options.title || 'Error' })
+};
+
+class ConfirmDialog {
+    constructor() {
+        this.overlay = null;
+        this.resolve = null;
+        this.build();
+    }
+
+    build() {
+        this.overlay = document.createElement('div');
+        this.overlay.className = 'confirm-modal-overlay';
+        this.overlay.innerHTML = `
+            <div class="confirm-modal">
+                <div class="confirm-modal__icon">⚡</div>
+                <h3 class="confirm-modal__title"></h3>
+                <p class="confirm-modal__message"></p>
+                <div class="confirm-modal__actions">
+                    <button class="confirm-btn confirm-btn-secondary" data-action="cancel">Cancel</button>
+                    <button class="confirm-btn confirm-btn-primary" data-action="confirm">Confirm</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(this.overlay);
+
+        this.overlay.addEventListener('click', (event) => {
+            if (event.target === this.overlay) {
+                this.handleAction(false);
+            }
+        });
+
+        this.overlay.querySelector('[data-action="cancel"]').addEventListener('click', () => this.handleAction(false));
+        this.overlay.querySelector('[data-action="confirm"]').addEventListener('click', () => this.handleAction(true));
+    }
+
+    show({ title = 'Are you sure?', message = '', confirmText = 'Confirm', cancelText = 'Cancel', icon = '⚡' } = {}) {
+        return new Promise((resolve) => {
+            this.resolve = resolve;
+            this.overlay.querySelector('.confirm-modal__title').textContent = title;
+            this.overlay.querySelector('.confirm-modal__message').textContent = message;
+            this.overlay.querySelector('.confirm-modal__icon').textContent = icon;
+            this.overlay.querySelector('[data-action="confirm"]').textContent = confirmText;
+            this.overlay.querySelector('[data-action="cancel"]').textContent = cancelText;
+
+            this.overlay.classList.add('active');
+        });
+    }
+
+    handleAction(accepted) {
+        if (this.resolve) {
+            this.resolve(accepted);
+        }
+        this.overlay.classList.remove('active');
+        this.resolve = null;
+    }
+}
+
+function getConfirmDialog() {
+    if (!confirmDialogInstance) {
+        confirmDialogInstance = new ConfirmDialog();
+    }
+    return confirmDialogInstance;
+}
+
+window.showConfirmDialog = (options) => getConfirmDialog().show(options);
 
 document.addEventListener('DOMContentLoaded', () => {
-    notificationManager = new NotificationManager();
-});
+    const enablePending = document.body?.dataset?.enablePocNotifications === 'true';
+    notificationManager = new NotificationManager({ enablePendingPOCAlerts: enablePending });
+    window.notificationManager = notificationManager;
 
-// Para desarrollo: exponer el manager globalmente
+    while (notificationQueue.length) {
+        const payload = notificationQueue.shift();
+        notificationManager.showToast(payload);
+    }
+});
 window.notificationManager = notificationManager;

@@ -175,7 +175,7 @@ function addEquipment(equipmentId) {
     }
     
         if (selectedEquipment.find(eq => eq.solution_id === equipmentId)) {
-        alert(' This equipment is already selected');
+        notify.warning('This equipment is already selected.');
         return;
     }
 
@@ -268,14 +268,18 @@ function updateItemsTable() {
         `${equipmentCount} equipment selected (${totalItems} total items)`;
 }
 
-function removeEquipment(equipmentId) {
+async function removeEquipment(equipmentId) {
     const equipment = selectedEquipment.find(eq => eq.solution_id === equipmentId);
     
     if (equipment) {
         const itemCount = equipment.items ? equipment.items.length : 0;
-        if (!confirm(`Remove "${equipment.product_description}"?\n\nThis will also remove ${itemCount} associated item${itemCount !== 1 ? 's' : ''}.`)) {
-            return;
-        }
+        const confirmed = await window.showConfirmDialog({
+            title: 'Remove equipment',
+            message: `Remove "${equipment.product_description}"? This will also remove ${itemCount} associated item${itemCount !== 1 ? 's' : ''}.`,
+            confirmText: 'Remove',
+            icon: '🗑️'
+        });
+        if (!confirmed) return;
     }
     
     selectedEquipment = selectedEquipment.filter(eq => eq.solution_id !== equipmentId);
@@ -286,19 +290,19 @@ async function submitPOC() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (!user) {
-        alert('❌ User not logged in');
+        notify.error('You must be signed in before creating a POC.', { title: 'Sign-in required' });
         return;
     }
 
     const justification = document.getElementById('modal-justification').value.trim();
 
     if (!justification) {
-        alert(' Please enter a business justification');
+        notify.warning('Please enter the business justification.');
         return;
     }
 
     if (selectedEquipment.length === 0) {
-        alert(' Please select at least one equipment');
+        notify.warning('Please select at least one equipment item.');
         return;
     }
 
@@ -358,13 +362,15 @@ async function submitPOC() {
         const equipResponseData = await equipResponse.json();
         console.log('Equipment added:', equipResponseData);
 
-        alert(' POC created successfully!');
+        notify.success('The POC was created successfully.', { duration: 6000 });
         closeCreatePOC();
-        window.location.reload();
+        setTimeout(() => {
+            window.location.reload();
+        }, 3500);
 
     } catch (error) {
         console.error('Error creating POC:', error);
-        alert('❌ Error creating POC: ' + error.message);
+        notify.error(`We could not create the POC: ${error.message}`);
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Create POC';

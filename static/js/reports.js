@@ -1,5 +1,9 @@
 class ReportManager {
     constructor() {
+        if (ReportManager.instance) {
+            return ReportManager.instance;
+        }
+        ReportManager.instance = this;
         this.initReportEvents();
     }
 
@@ -15,16 +19,13 @@ class ReportManager {
     }
 
     async generateReport(reportType, buttonElement) {
-        
         const originalText = buttonElement.textContent;
         let resetTimeout;
         
         try {
-            
             buttonElement.textContent = 'Generating...';
             buttonElement.disabled = true;
 
-            
             resetTimeout = setTimeout(() => {
                 console.log('Restoring button due to timeout');
                 buttonElement.textContent = originalText;
@@ -38,14 +39,12 @@ class ReportManager {
                 throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
             }
 
-            
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/pdf')) {
                 throw new Error('The server did not return a valid PDF');
             }
 
             const blob = await response.blob();
-            
             
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -55,7 +54,6 @@ class ReportManager {
             document.body.appendChild(a);
             a.click();
             
-            
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
@@ -63,13 +61,11 @@ class ReportManager {
 
         } catch (error) {
             console.error('Error generating report:', error);
-            alert(`Error generating report: ${error.message}`);
+            notify.error(`We could not generate the report: ${error.message}`, { title: 'Report error' });
         } finally {
-            
             if (resetTimeout) {
                 clearTimeout(resetTimeout);
             }
-            
             
             buttonElement.textContent = originalText;
             buttonElement.disabled = false;
@@ -77,6 +73,8 @@ class ReportManager {
     }
 }
 
+// Hacer la clase disponible globalmente
+window.ReportManager = ReportManager;
 
 document.addEventListener('DOMContentLoaded', () => {
     new ReportManager();

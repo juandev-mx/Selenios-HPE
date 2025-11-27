@@ -1,4 +1,4 @@
-
+/* --- SECCIÓN DE FILTROS --- */
 .filters-section {
     display: flex;
     justify-content: space-between;
@@ -30,6 +30,7 @@
     cursor: pointer;
 }
 
+/* --- GRID DE POCs --- */
 .pocs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -37,6 +38,7 @@
     margin-bottom: 2rem;
 }
 
+/* --- TARJETA DE POC --- */
 .poc-card {
     background: white;
     border: 1px solid #e0e0e0;
@@ -51,6 +53,7 @@
     transform: translateY(-2px);
 }
 
+/* --- HEADER DE POC --- */
 .poc-header {
     display: flex;
     justify-content: space-between;
@@ -66,6 +69,7 @@
     color: #333;
 }
 
+/* --- STATUS BADGES --- */
 .poc-status {
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
@@ -88,6 +92,7 @@
     color: #721c24;
 }
 
+/* --- BODY --- */
 .poc-body {
     margin-bottom: 1rem;
 }
@@ -110,6 +115,7 @@
     line-height: 1.5;
 }
 
+/* --- META --- */
 .poc-meta {
     display: flex;
     flex-direction: column;
@@ -130,6 +136,7 @@
     font-weight: 600;
 }
 
+/* --- FOOTER --- */
 .poc-footer {
     display: flex;
     gap: 0.75rem;
@@ -137,6 +144,7 @@
     border-top: 1px solid #f0f0f0;
 }
 
+/* BOTONES */
 .btn-view,
 .btn-edit,
 .btn-approvePOC1,
@@ -187,6 +195,7 @@
     background: #c82333;
 }
 
+/* --- LOADING Y ERROR --- */
 .loading {
     text-align: center;
     padding: 3rem;
@@ -206,6 +215,7 @@
     margin-bottom: 1rem;
 }
 
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
     .filters-section {
         flex-direction: column;
@@ -226,6 +236,7 @@
     }
 }
 
+/* --- EQUIPMENT LIST --- */
 .equipment-list {
     display: flex;
     flex-direction: column;
@@ -267,13 +278,13 @@
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
 .btn-remove-small:hover {
     background: #c82333;
 }
 
+/* --- DETALLES --- */
 .details-header-info {
     display: flex;
     justify-content: space-between;
@@ -310,6 +321,7 @@
     border-radius: 8px;
 }
 
+/* --- EQUIPMENT DETAILS --- */
 .equipment-details-list {
     display: flex;
     flex-direction: column;
@@ -355,6 +367,7 @@
     color: #05AD7A;
 }
 
+/* --- ITEMS --- */
 .items-details-list {
     display: flex;
     flex-direction: column;
@@ -399,6 +412,7 @@
     color: #05AD7A;
 }
 
+/* --- TOTAL --- */
 .details-total {
     display: flex;
     justify-content: space-between;

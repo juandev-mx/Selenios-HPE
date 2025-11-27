@@ -4,13 +4,15 @@ from models import db, ClientCompany, User, Equipment, EquipmentItem, POC, POCEq
 from analytics import analytics_bp
 from reports import reports_bp
 import re
-
+from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
-# comentario para que les carguen los archivos...................
+# comentario para que les carguen los archivos................... Hola
 load_dotenv() 
 DATABASE_URL = os.getenv("DATABASE_URL")
-#te sale esto abraham??
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 app = Flask(__name__, 
             static_folder='static',
             template_folder='templates')
@@ -24,6 +26,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # ---------------- RUTAS HTML ----------------
+
+@app.route('/components/<path:filename>')
+def components_static(filename):
+    return send_from_directory('components', filename)
+
 @app.route('/')
 def index():
     return render_template('login.html')
@@ -68,47 +75,114 @@ def login():
     data = request.get_json()
     
     if not data:
-        return jsonify({"error": "Faltan datos"}), 400
+        return jsonify({"error": "Data is missing"}), 400
     
     mail = data.get('mail')
     password = data.get('password')
     
     if not mail or not password:
-        return jsonify({"error": "Correo y contraseña son requeridos"}), 400
+        return jsonify({"error": "Email and password are required"}), 400
     
-    # Buscar usuario por correo
-    user = User.query.filter_by(mail=mail).first()
-    
-    if not user:
-        return jsonify({"error": "Credenciales inválidas"}), 401
-    
-    # Verificar contraseña
-    if user.password != password:
-        return jsonify({"error": "Credenciales inválidas"}), 401
-    
-    # Actualizar session_started a True
-    user.session_started = True
-    db.session.commit()
-    
-    # Obtener información de la compañía si es cliente
-    company_name = None
-    if user.client_company_id:
-        company = ClientCompany.query.get(user.client_company_id)
-        if company:
-            company_name = company.company_name
-    
-    return jsonify({
-        "message": "Login exitoso",
-        "user": {
-            "id": user.user_id,
-            "name": user.name,
-            "mail": user.mail,
-            "role": user.role,
-            "client_company_id": user.client_company_id,
-            "company_name": company_name,
-            "reports_to": user.reports_to
-        }
-    }), 200
+    try:
+        # 1. Autenticar con Supabase Auth
+        auth_response = supabase_client.auth.sign_in_with_password({
+            "email": mail,
+            "password": password
+        })
+        
+        # Verificación corregida de errores
+        if hasattr(auth_response, 'error') and auth_response.error is not None:
+            error_msg = auth_response.error.message
+            print(f"Error en Supabase Auth: {error_msg}")
+            
+            # Intentar con sistema antiguo para usuarios existentes que no están en Supabase Auth
+            user = User.query.filter_by(mail=mail).first()
+            if user and user.password == password:  # Solo si la contraseña coincide
+                user.session_started = True
+                db.session.commit()
+                
+                company_name = None
+                if user.client_company_id:
+                    company = ClientCompany.query.get(user.client_company_id)
+                    if company:
+                        company_name = company.company_name
+                
+                return jsonify({
+                    "message": "Successful login (sistema legacy)",
+                    "user": {
+                        "id": user.user_id,
+                        "name": user.name,
+                        "mail": user.mail,
+                        "role": user.role,
+                        "client_company_id": user.client_company_id,
+                        "company_name": company_name,
+                        "reports_to": user.reports_to
+                    }
+                }), 200
+            else:
+                return jsonify({"error": "Credenciales inválidas"}), 401
+        
+        # 2. Buscar usuario en tu BD
+        user = User.query.filter_by(mail=mail).first()
+        
+        if not user:
+            return jsonify({"error": "User not found in the system"}), 401
+        
+        # 3. Actualizar session_started a True
+        user.session_started = True
+        db.session.commit()
+        
+        # 4. Obtener información de la compañía si es cliente
+        company_name = None
+        if user.client_company_id:
+            company = ClientCompany.query.get(user.client_company_id)
+            if company:
+                company_name = company.company_name
+        
+        return jsonify({
+            "message": "Successful login",
+            "user": {
+                "id": user.user_id,
+                "name": user.name,
+                "mail": user.mail,
+                "role": user.role,
+                "client_company_id": user.client_company_id,
+                "company_name": company_name,
+                "reports_to": user.reports_to
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en login: {str(e)}")
+        # Fallback al sistema antiguo en caso de error
+        try:
+            user = User.query.filter_by(mail=mail).first()
+            if user and user.password == password:
+                user.session_started = True
+                db.session.commit()
+                
+                company_name = None
+                if user.client_company_id:
+                    company = ClientCompany.query.get(user.client_company_id)
+                    if company:
+                        company_name = company.company_name
+                
+                return jsonify({
+                    "message": "Successful login (fallback)",
+                    "user": {
+                        "id": user.user_id,
+                        "name": user.name,
+                        "mail": user.mail,
+                        "role": user.role,
+                        "client_company_id": user.client_company_id,
+                        "company_name": company_name,
+                        "reports_to": user.reports_to
+                    }
+                }), 200
+        except Exception as fallback_error:
+            print(f"Error en fallback: {str(fallback_error)}")
+        
+        return jsonify({"error": "Error"}), 500
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -125,7 +199,7 @@ def register():
     
     # Validar campos requeridos
     if not all([name, mail, password, company_name]):
-        return jsonify({"error": "Todos los campos son requeridos"}), 400
+        return jsonify({"error": "All fields are required"}), 400
     
     try:
         # 1. Verificar si el correo ya existe (case insensitive)
@@ -134,9 +208,35 @@ def register():
         ).first()
         
         if existing_user:
-            return jsonify({"error": "El correo electrónico ya está registrado"}), 400
+            return jsonify({"error": "The email address is already registered."}), 400
         
-        # 2. Buscar empresa existente (case insensitive y sin espacios extras)
+        # 2. Registrar en Supabase Auth
+        try:
+            auth_response = supabase_client.auth.sign_up({
+                "email": mail,
+                "password": password,
+                "options": {
+                    "data": {
+                        "name": name,
+                        "role": "CLIENT"
+                    }
+                }
+            })
+            
+            if auth_response.error:
+                error_msg = auth_response.error.message
+                # Si el usuario ya existe en Auth pero no en nuestra BD
+                if "already registered" in error_msg.lower():
+                    print(f"Usuario {mail} ya existe en Supabase Auth")
+                    # Continuamos con el registro en nuestra BD
+                else:
+                    return jsonify({"error": f"Error en autenticación: {error_msg}"}), 400
+                    
+        except Exception as auth_error:
+            print(f"Error conectando con Supabase Auth: {str(auth_error)}")
+            # Continuamos con el registro en nuestra BD incluso si hay error en Auth
+        
+        # 3. Buscar empresa existente (case insensitive y sin espacios extras)
         normalized_company_name = company_name.lower().strip()
         company = ClientCompany.query.filter(
             db.func.lower(db.func.trim(ClientCompany.company_name)) == normalized_company_name
@@ -157,11 +257,11 @@ def register():
             company_id = company.client_company_id
             actual_company_name = company.company_name
         
-        # 3. Crear nuevo usuario con rol CLIENT
+        # 4. Crear nuevo usuario con rol CLIENT y contraseña por defecto
         new_user = User(
             name=name,
             mail=mail,
-            password=password,
+            password='No disponible',  # Contraseña por defecto
             role='CLIENT',
             client_company_id=company_id,
             session_started=False
@@ -183,10 +283,38 @@ def register():
         
     except Exception as e:
         db.session.rollback()
-        print(f"Error en registro: {str(e)}")  # Log para debugging
+        print(f"Error en registro: {str(e)}")
         return jsonify({
             "error": "Error al registrar usuario. Intenta nuevamente."
         }), 500
+
+@app.route('/api/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    mail = data.get('mail')
+    
+    if not mail:
+        return jsonify({"error": "El correo es requerido"}), 400
+    
+    try:
+        # Supabase manejará todo el flujo automáticamente
+        auth_response = supabase_client.auth.reset_password_email(mail)
+        
+        # No necesitamos verificar errores detallados, Supabase se encarga
+        return jsonify({
+            "message": "Si el correo existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña."
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en forgot-password: {str(e)}")
+        # Siempre devolvemos el mismo mensaje por seguridad
+        return jsonify({
+            "message": "Si el correo existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña."
+        }), 200
+
+@app.route('/forgot-password.html')
+def forgot_password_page():
+    return render_template('forgot-password.html')
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
@@ -1193,5 +1321,21 @@ def get_pending_pocs():
         return jsonify({'error': str(e)}), 500
 
 
+# ---------------- INICIALIZACIÓN DE LA APP ----------------
+def create_app():
+    with app.app_context():
+        try:
+            # Crear todas las tablas si no existen
+            db.create_all()
+            print("✅ Tablas de la base de datos inicializadas correctamente")
+        except Exception as e:
+            print(f"❌ Error al inicializar la base de datos: {str(e)}")
+    
+    return app
+
+# Crear la aplicación
+app = create_app()
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)

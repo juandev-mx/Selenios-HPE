@@ -67,9 +67,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (response.ok) {
-                                console.log('Successful login:', data);
+
+
+                                console.log('Login exitoso:', data);
                 
                                 sessionStorage.setItem('user', JSON.stringify(data.user));
+
+                                localStorage.setItem("role", data.user.role); 
                 
                                 redirectUser(data.user.role);
             } else {
@@ -94,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = '/home_hpe.html';
                 break;
             default:
-                alert('Unknown user role');
+                notify.warning('We could not detect the user role. Please contact support.', { title: 'Unknown role' });
         }
     }
 

@@ -1,0 +1,152 @@
+/* ============================
+   NAVBAR HPE
+   ============================ */
+
+:root {
+    --primary-green: #11D473;
+    --accent-green: #05AD7A;
+    --primary-dark: #0D1A13;
+    --secondary-dark: #00263B;
+    --muted-text: #618975;
+    --light-green: #E8F5F0;
+    --light-gray: #F6F8F7;
+    --white: #FFFFFF;
+    --border-gray: #E0E8E4;
+    --active-green-bg: rgba(17, 212, 115, 0.2);
+    --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+/* ---------- HEADER CONTAINER ---------- */
+.hpe-header {
+    background-color: var(--white);
+    border-bottom: 1px solid rgba(240, 244, 242, 0.7);
+    padding: 1rem 2.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    font-family: var(--font-family);
+}
+
+.header-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+/* ---------- BRAND / LOGO ---------- */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-shrink: 0;
+}
+
+.logo {
+    height: 27px;
+    width: auto;
+}
+
+.header-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--secondary-dark);
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* ---------- RIGHT SIDE (NAV + AVATAR) ---------- */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-shrink: 0;
+}
+
+/* ---------- NAV LINKS ---------- */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-nav .nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted-text);
+    text-decoration: none;
+    transition: color 0.3s ease, font-weight 0.3s ease;
+    white-space: nowrap;
+}
+
+.header-nav .nav-link:hover {
+    color: var(--primary-green);
+}
+
+.header-nav .nav-link.active {
+    color: var(--primary-green) !important;
+    font-weight: 700 !important;
+}
+
+/* ---------- AVATAR ---------- */
+.user-info-header {
+    position: relative;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+    .header-title {
+        font-size: 1.25rem;
+    }
+    
+    .header-nav {
+        gap: 1rem;
+    }
+    
+    .header-nav .nav-link {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hpe-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .header-title {
+        display: none;
+    }
+    
+    .header-nav {
+        gap: 0.75rem;
+    }
+    
+    .header-nav .nav-link {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .header-container {
+        flex-wrap: wrap;
+    }
+    
+    .header-nav {
+        order: 3;
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-gray);
+    }
+}

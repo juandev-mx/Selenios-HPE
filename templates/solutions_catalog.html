@@ -5,25 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Solutions Catalog - HPE</title>
   <link rel="stylesheet" href="/static/css/SolutionsClientes.css">
+  <link rel="stylesheet" href="/static/css/navbar_cliente.css">
+  <link rel="stylesheet" href="/static/css/navbar_hpe.css">
 </head>
-<body>
-    <header class="header">
-  <div class="header-left">
-    <a href="#" id="logo-link">
-      <img class="logo" 
-            src="https://api.builder.io/api/v1/image/assets/TEMP/8f928b3a2de14b9d3a5110b2e76de58b31f5c89d?width=188"
-            alt="HPE Logo">
-    </a> 
-    
-    <h2 id="header-role-text">Loading...</h2>
-  </div>
-  
-  <nav class="header-nav" id="main-nav">
-      </nav>
-</header>
 
-    <main class="main-container">
-        <section class="solutions-section">
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <main class="main-container">
+    <section class="solutions-section">
       <div class="section-header">
         <h1 class="section-title">Solutions catalog</h1>
         <div class="controls">
@@ -40,7 +30,7 @@
       
       <p class="section-subtitle">This is a read-only view of the available equipment and equipment items. You cannot edit the inventory from this screen.</p>
 
-            <div class="table-container">
+      <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -53,7 +43,7 @@
             </tr>
           </thead>
           <tbody>
-                        <tr>
+            <tr>
               <td colspan="6" style="text-align:center;">Loading...</td>
             </tr>
           </tbody>
@@ -61,7 +51,7 @@
       </div>
     </section>
 
-        <section class="items-section">
+    <section class="items-section">
       <div class="section-header">
         <h2 class="section-title">Items</h2>
         <div class="controls">
@@ -76,7 +66,7 @@
         </div>
       </div>
 
-            <div class="table-container">
+      <div class="table-container">
         <table>
           <thead>
             <tr>
@@ -86,7 +76,7 @@
             </tr>
           </thead>
           <tbody>
-                        <tr>
+            <tr>
               <td colspan="3" style="text-align:center;">Loading...</td>
             </tr>
           </tbody>
@@ -95,6 +85,46 @@
     </section>
   </main>
 
+  <script>
+    // Cargar navbar según el role
+    const role = localStorage.getItem('role');
+    
+    if (role === 'CLIENT') {
+    fetch('/components/navbar_cliente.html')
+      .then(r => r.text())
+      .then(html => {
+          document.getElementById('navbar-placeholder').innerHTML = html;
+
+          console.log("🔧 Ejecutando initNavbarCliente DESPUÉS del fetch");
+
+          // 2️⃣ Aquí se ejecuta initNavbarHPE cuando el HTML YA existe
+          if (typeof initNavbarHPE === 'function') {
+              initNavbarHPE();
+          }
+      })
+      .catch(err => console.error('Error cargando navbar_hpe:', err));
+  }else if (role === 'HPE_REP' || role === 'HPE_MANAGER') {
+    fetch('/components/navbar_hpe.html')
+      .then(r => r.text())
+      .then(html => {
+          document.getElementById('navbar-placeholder').innerHTML = html;
+
+          console.log("🔧 Ejecutando initNavbarHPE DESPUÉS del fetch");
+
+          // 2️⃣ Aquí se ejecuta initNavbarHPE cuando el HTML YA existe
+          if (typeof initNavbarHPE === 'function') {
+              initNavbarHPE();
+          }
+      })
+      .catch(err => console.error('Error cargando navbar_hpe:', err));
+  }
+  </script>
+
+  <!-- Cargar el JS del navbar correspondiente -->
+  <script src="/static/js/navbar_hpe.js"></script>
+  <script src="/static/js/navbar_client.js"></script>
+  
+  <!-- Script principal de la página -->
   <script src="/static/js/solutions_catalog.js"></script>
 </body>
 </html>
