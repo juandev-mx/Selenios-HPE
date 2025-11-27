@@ -1,34 +1,64 @@
 document.addEventListener('DOMContentLoaded', function() {
-        const user = JSON.parse(sessionStorage.getItem('user'));
+    const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (!user) {
         window.location.href = '/login.html';
         return;
     }
 
-        if (user.role !== 'HPE_REP' && user.role !== 'HPE_MANAGER') {
+    if (user.role !== 'HPE_REP' && user.role !== 'HPE_MANAGER') {
         alert('Access denied. This page is for HPE personnel only.');
         window.location.href = '/login.html';
         return;
     }
 
-        initDashboard(user);
+    initDashboard(user);
+    handleInitialHash(user);
 });
+
+function handleInitialHash(user) {
+    const hash = window.location.hash;
+    
+    if (hash) {
+        // Extraer el nombre de la sección del hash (ej: #section-reportes -> reportes)
+        const sectionName = hash.replace('#section-', '');
+        
+        if (sectionName) {
+            // Pequeño delay para asegurar que el DOM esté completamente cargado
+            setTimeout(() => {
+                showSection(sectionName, user);
+                
+                // Marcar el link correspondiente como activo
+                const links = document.querySelectorAll('.nav-link');
+                links.forEach(link => {
+                    if (link.getAttribute('data-section') === sectionName) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }, 100);
+        }
+    }
+}
 
 function initDashboard(user) {
     console.log('Initializing dashboard for user:', user);
-        if (user.role === 'HPE_MANAGER') {
+    
+    if (user.role === 'HPE_MANAGER') {
         showManagerFeatures();
     } else if (user.role === 'HPE_REP') {
         hideManagerFeatures();
     }
 
-        setupEventListeners(user);
+    setupEventListeners(user);
     
-        console.log('Loading initial dashboard data...');
-    loadDashboardData();
+    console.log('Loading initial dashboard data...');
+    if (!window.location.hash) {
+        loadDashboardData();
+    }
     
-        createAvatarMenu(user);
+    // ELIMINADO: createAvatarMenu(user); - Ahora lo maneja navbar_hpe.js
 }
 
 function showManagerFeatures() {
@@ -47,260 +77,42 @@ function hideManagerFeatures() {
     console.log('Representative View enabled - Limited access');
 }
 
-function createAvatarMenu(user) {
-    const avatarContainer = document.querySelector('.user-info-header');
-    const avatar = avatarContainer.querySelector('.avatar');
-    
-    if (!avatar) return;
-    
-    avatar.style.cursor = 'pointer';
-    
-    const company = (user.role === 'HPE_REP' || user.role === 'HPE_MANAGER') ? 'HPE' : 
-                    (user.client_company_name || 'N/A');
-    
-    const menu = document.createElement('div');
-    menu.id = 'avatar-menu';
-    menu.className = 'avatar-menu';
-    menu.style.display = 'none';
-    menu.innerHTML = `
-        <div class="avatar-menu-header">
-            <img src="${avatar.src}" alt="User Avatar" class="avatar-menu-img">
-            <div class="avatar-menu-info">
-                <div class="avatar-menu-name">${user.name || 'User'}</div>
-                <div class="avatar-menu-role">${user.role || 'N/A'}</div>
-            </div>
-        </div>
-        <div class="avatar-menu-divider"></div>
-        <div class="avatar-menu-details">
-            <div class="avatar-menu-item">
-                <span class="avatar-menu-label">Company:</span>
-                <span class="avatar-menu-value">${company}</span>
-            </div>
-            <div class="avatar-menu-item">
-                <span class="avatar-menu-label">Email:</span>
-                <span class="avatar-menu-value">${user.mail || 'N/A'}</span>
-            </div>
-        </div>
-        <div class="avatar-menu-divider"></div>
-        <button class="avatar-menu-logout" id="avatarLogoutBtn">
-            Log Out
-        </button>
-    `;
-    
-    avatarContainer.appendChild(menu);
-    addAvatarMenuStyles();
-    
-        avatar.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const isVisible = menu.style.display === 'block';
-        
-        if (isVisible) {
-            menu.style.animation = 'slideUp 0.3s ease';
-            setTimeout(() => {
-                menu.style.display = 'none';
-            }, 250);
-        } else {
-            menu.style.display = 'block';
-            menu.style.animation = 'slideDown 0.3s ease';
-        }
-    });
-    
-        document.addEventListener('click', function(e) {
-        if (!avatarContainer.contains(e.target)) {
-            if (menu.style.display === 'block') {
-                menu.style.animation = 'slideUp 0.3s ease';
-                setTimeout(() => {
-                    menu.style.display = 'none';
-                }, 250);
-            }
-        }
-    });
-    
-        const logoutBtn = menu.querySelector('#avatarLogoutBtn');
-    logoutBtn.addEventListener('click', async function() {
-        try {
-            if (typeof supabase !== 'undefined') {
-                const { error } = await supabase.auth.signOut();
-                if (error) {
-                    console.error('Error logging out of Supabase:', error.message);
-                }
-            }
-        } catch (err) {
-            console.error('Error en logout:', err);
-        } finally {
-            sessionStorage.removeItem('user');
-            window.location.href = '/login.html';
-        }
-    });
-}
-
-function addAvatarMenuStyles() {
-    if (document.getElementById('avatar-menu-styles')) return;
-    
-    const styles = document.createElement('style');
-    styles.id = 'avatar-menu-styles';
-    styles.textContent = `
-        .user-info-header {
-            position: relative;
-        }
-        
-        .avatar-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            min-width: 280px;
-            z-index: 1000;
-            overflow: hidden;
-        }
-        
-        .avatar-menu-header {
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: linear-gradient(135deg, #01a982 0%, #00875a 100%);
-        }
-        
-        .avatar-menu-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .avatar-menu-info {
-            flex: 1;
-            color: white;
-        }
-        
-        .avatar-menu-name {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        
-        .avatar-menu-role {
-            font-size: 0.75rem;
-            opacity: 0.9;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .avatar-menu-divider {
-            height: 1px;
-            background: #e5e7e6;
-            margin: 0;
-        }
-        
-        .avatar-menu-details {
-            padding: 1rem 1.5rem;
-        }
-        
-        .avatar-menu-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-        
-        .avatar-menu-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .avatar-menu-label {
-            font-size: 0.75rem;
-            color: #6b7280;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .avatar-menu-value {
-            font-size: 0.875rem;
-            color: #1f2937;
-            font-weight: 500;
-            max-width: 180px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            text-align: right;
-        }
-        
-        .avatar-menu-logout {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            background: white;
-            border: none;
-            color: #dc2626;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-family: inherit;
-        }
-        
-        .avatar-menu-logout:hover {
-            background: #fef2f2;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-        }
-    `;
-    document.head.appendChild(styles);
-}
-
+// ELIMINADAS: createAvatarMenu() y addAvatarMenuStyles() - Ahora están en navbar_hpe.js
 
 function setupEventListeners(user) {
-        const navLinks = document.querySelectorAll('.nav-link');
+    const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             const section = this.getAttribute('data-section');
             
-                        if (!section) return;
+            if (!section) return;
             
-            e.preventDefault();
+            const href = this.getAttribute('href');
+            if (href && href.includes('#')) {
+                // No prevenir el comportamiento por defecto para permitir el hash
+                setTimeout(() => {
+                    showSection(section, user);
+                }, 50);
+            } else {
+                e.preventDefault();
+            }
             
-                        navLinks.forEach(l => l.classList.remove('active'));
+            navLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
             
-                        showSection(section, user);
+            if (!href || !href.includes('#')) {
+                showSection(section, user);
+            }
         });
     });
 
-        const logo = document.querySelector('.logo');
+    const logo = document.querySelector('.logo');
     if (logo && logo.parentElement) {
         logo.parentElement.addEventListener('click', (e) => {
             e.preventDefault();
-                        showSection('dashboard', user);
-                        navLinks.forEach(l => {
+            history.pushState("", document.title, window.location.pathname);
+            showSection('dashboard', user);
+            navLinks.forEach(l => {
                 if (l.getAttribute('data-section') === 'dashboard') {
                     l.classList.add('active');
                 } else {
@@ -309,32 +121,44 @@ function setupEventListeners(user) {
             });
         });
     }
+        // NUEVO: Escuchar cambios en el hash
+    window.addEventListener('hashchange', function() {
+        const hash = window.location.hash;
+        if (hash) {
+            const sectionName = hash.replace('#section-', '');
+            showSection(sectionName, user);
+        }
+    });
 }
+
 
 function showSection(sectionName, user) {
     console.log('Showing section:', sectionName);
     
-        const allSections = document.querySelectorAll('.section-content');
+    const allSections = document.querySelectorAll('.section-content');
     allSections.forEach(section => {
         section.style.display = 'none';
     });
 
-        const targetSection = document.getElementById(`section-${sectionName}`);
+    const targetSection = document.getElementById(`section-${sectionName}`);
     if (targetSection) {
-                if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
+        if (sectionName === 'users' && user.role !== 'HPE_MANAGER') {
             alert('Access denied. Only Managers can access this section.');
-                        showSection('dashboard', user);
+            showSection('dashboard', user);
             return;
         }
         
         targetSection.style.display = 'block';
         
-                if (sectionName === 'dashboard') {
+        if (sectionName === 'dashboard') {
             loadDashboardData();
         } else if (sectionName === 'users' && user.role === 'HPE_MANAGER') {
             loadUsersAndCompanies();
         } else if (sectionName === 'reportes') {
-                        console.log('Showing reports section');
+            console.log('Showing reports section');
+            if (window.ReportManager) {
+                new window.ReportManager();
+            }
         }
                 
     } else {
@@ -361,13 +185,11 @@ function loadSectionData(section, user) {
     }
 }
 
-
-
 async function loadDashboardData() {
     console.log('🔄 Loading dashboard...');
     
     try {
-                const [pocsResponse, companiesResponse, equipmentResponse, pocEquipmentResponse, usersResponse] = await Promise.all([
+        const [pocsResponse, companiesResponse, equipmentResponse, pocEquipmentResponse, usersResponse] = await Promise.all([
             fetch('/pocs'),
             fetch('/client_company'),
             fetch('/equipment'),
@@ -377,7 +199,7 @@ async function loadDashboardData() {
 
         console.log('✅ Responses received');
         
-                if (!pocsResponse.ok) throw new Error('Error loading POCs');
+        if (!pocsResponse.ok) throw new Error('Error loading POCs');
         if (!companiesResponse.ok) throw new Error('Error loading companies');
         if (!equipmentResponse.ok) throw new Error('Error loading equipment');
         if (!pocEquipmentResponse.ok) throw new Error('Error loading poc_equipment');
@@ -397,17 +219,16 @@ async function loadDashboardData() {
             users: users.length
         });
 
-                updateKPIs(pocs, pocEquipment, equipment, users);
+        updateKPIs(pocs, pocEquipment, equipment, users);
+        updateSolutionsPerformance(equipment, pocEquipment);
 
-                updateSolutionsPerformance(equipment, pocEquipment);
-
-                const clientPerformance = calculateClientPerformance(pocs, pocEquipment, equipment, users, companies);
+        const clientPerformance = calculateClientPerformance(pocs, pocEquipment, equipment, users, companies);
         updateClientPerformance(clientPerformance);
 
-                const teamPerformance = calculateTeamPerformance(equipment, pocEquipment, users);
+        const teamPerformance = calculateTeamPerformance(equipment, pocEquipment, users);
         updateTeamPerformance(teamPerformance);
 
-                        updateApprovalTrends(pocs);
+        updateApprovalTrends(pocs);
         
         console.log('✅ Dashboard fully loaded');
 
@@ -418,22 +239,22 @@ async function loadDashboardData() {
 }
 
 function updateKPIs(pocs, pocEquipment, equipment, users) {
-        const equipmentInPOCs = new Set(pocEquipment.map(pe => pe.solution_id));
+    const equipmentInPOCs = new Set(pocEquipment.map(pe => pe.solution_id));
     const totalRevenue = equipment
         .filter(eq => equipmentInPOCs.has(eq.solution_id))
         .reduce((sum, eq) => sum + parseFloat(eq.price || 0), 0);
     
-        const approvalRate = pocs.length > 0 ? 
+    const approvalRate = pocs.length > 0 ? 
         ((pocs.filter(p => p.is_approved).length / pocs.length) * 100).toFixed(0) : 0;
     
-        const userMap = {};
+    const userMap = {};
     users.forEach(u => userMap[u.id] = u);
     const activeCompanyIds = new Set(
         pocs.map(p => userMap[p.client_user_id]?.client_company_id).filter(id => id)
     );
     const activeClients = activeCompanyIds.size;
 
-        const revenueElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
+    const revenueElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
     if (revenueElement) revenueElement.textContent = formatCurrencyFull(totalRevenue);
 
     const approvalElement = document.querySelector('.kpi-card:nth-child(2) .kpi-value');
@@ -444,27 +265,27 @@ function updateKPIs(pocs, pocEquipment, equipment, users) {
 }
 
 function updateSolutionsPerformance(equipment, pocEquipment) {
-        const solutionUsage = {};
+    const solutionUsage = {};
     pocEquipment.forEach(pe => {
         solutionUsage[pe.solution_id] = (solutionUsage[pe.solution_id] || 0) + 1;
     });
 
-        const solutions = equipment.map(eq => ({
+    const solutions = equipment.map(eq => ({
         solution_id: eq.solution_id,
         name: eq.product_description || eq.product_number || 'N/A',
         revenue: parseFloat(eq.price || 0) * (solutionUsage[eq.solution_id] || 0),
         usage: solutionUsage[eq.solution_id] || 0
     }));
 
-        const usedSolutions = solutions.filter(s => s.usage > 0);
+    const usedSolutions = solutions.filter(s => s.usage > 0);
     
-        usedSolutions.sort((a, b) => b.revenue - a.revenue);
+    usedSolutions.sort((a, b) => b.revenue - a.revenue);
 
-        const topSolutions = usedSolutions.slice(0, 5);
+    const topSolutions = usedSolutions.slice(0, 5);
 
-        updateSolutionsChart(topSolutions);
+    updateSolutionsChart(topSolutions);
 
-        const totalSolutionsRevenue = topSolutions.reduce((sum, s) => sum + s.revenue, 0);
+    const totalSolutionsRevenue = topSolutions.reduce((sum, s) => sum + s.revenue, 0);
     const chartValue = document.querySelector('.chart-grid .chart-box:nth-child(1) .chart-value');
     if (chartValue) chartValue.textContent = formatCurrency(totalSolutionsRevenue);
 }
@@ -495,7 +316,7 @@ function updateSolutionsChart(solutions) {
 }
 
 function calculateClientPerformance(pocs, pocEquipment, equipment, users, companies) {
-        const equipmentByPoc = {};
+    const equipmentByPoc = {};
     pocEquipment.forEach(pe => {
         if (!equipmentByPoc[pe.poc_id]) {
             equipmentByPoc[pe.poc_id] = [];
@@ -503,12 +324,12 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         equipmentByPoc[pe.poc_id].push(pe.solution_id);
     });
 
-        const equipmentPrices = {};
+    const equipmentPrices = {};
     equipment.forEach(eq => {
         equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
     });
 
-        const clientRevenue = {};
+    const clientRevenue = {};
     const clientHasPocs = {};
     
     pocs.forEach(poc => {
@@ -525,13 +346,13 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         });
     });
 
-        const userMap = {};
+    const userMap = {};
     users.forEach(u => userMap[u.id] = u);
 
     const companyMap = {};
     companies.forEach(c => companyMap[c.id] = c);
 
-        const performance = [];
+    const performance = [];
     Object.keys(clientRevenue).forEach(userId => {
         const user = userMap[userId];
         if (!user) return;
@@ -546,7 +367,7 @@ function calculateClientPerformance(pocs, pocEquipment, equipment, users, compan
         });
     });
 
-        performance.sort((a, b) => b.revenue - a.revenue);
+    performance.sort((a, b) => b.revenue - a.revenue);
     return performance.slice(0, 4);
 }
 
@@ -581,11 +402,11 @@ function updateApprovalLineChart(data) {
 
     const ctx = canvas.getContext('2d');
 
-        if (window.approvalLineChart && typeof window.approvalLineChart.destroy === 'function') {
+    if (window.approvalLineChart && typeof window.approvalLineChart.destroy === 'function') {
         window.approvalLineChart.destroy();
     }
 
-        if (!data || data.length === 0) {
+    if (!data || data.length === 0) {
         ctx.font = '14px Arial';
         ctx.fillStyle = '#618975';
         ctx.textAlign = 'center';
@@ -596,7 +417,8 @@ function updateApprovalLineChart(data) {
     window.approvalLineChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.map(item => item.equipment),             datasets: [{
+            labels: data.map(item => item.equipment),
+            datasets: [{
                 label: 'Approval Rate (%)',
                 data: data.map(item => item.approvalRate),
                 borderColor: '#01a982',
@@ -697,7 +519,6 @@ function updateApprovalLineChart(data) {
     console.log('✅ Line graph created with', data.length, 'teams');
 }
 
-
 function calculateTeamPerformance(equipment, pocEquipment, users) {
     const hpeReps = users.filter(u => u.role === 'HPE_REP');
 
@@ -708,17 +529,17 @@ function calculateTeamPerformance(equipment, pocEquipment, users) {
         }
     });
 
-        const equipmentPrices = {};
+    const equipmentPrices = {};
     equipment.forEach(eq => {
         equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
     });
 
     const repPerformance = hpeReps.map(rep => {
-                const repEquipmentIds = equipment
+        const repEquipmentIds = equipment
             .filter(eq => eq.created_by === rep.id)
             .map(eq => eq.solution_id);
         
-                let totalRevenue = 0;
+        let totalRevenue = 0;
         let usageCount = 0;
         
         pocEquipment.forEach(pe => {
@@ -764,7 +585,7 @@ function updateTeamPerformance(teamPerformance) {
 
 async function updateApprovalTrends(pocs) {
     try {
-                const pocEquipmentResponse = await fetch('/poc_equipment');
+        const pocEquipmentResponse = await fetch('/poc_equipment');
         const equipmentResponse = await fetch('/equipment');
 
         if (!pocEquipmentResponse.ok || !equipmentResponse.ok) {
@@ -774,12 +595,12 @@ async function updateApprovalTrends(pocs) {
         const pocEquipment = await pocEquipmentResponse.json();
         const equipment = await equipmentResponse.json();
 
-                const equipmentMap = {};
+        const equipmentMap = {};
         equipment.forEach(eq => {
             equipmentMap[eq.solution_id] = eq.product_description || eq.product_number || 'N/A';
         });
 
-                const statsByEquipment = {};
+        const statsByEquipment = {};
 
         pocEquipment.forEach(pe => {
             const poc = pocs.find(p => p.poc_id === pe.poc_id);
@@ -794,7 +615,7 @@ async function updateApprovalTrends(pocs) {
             if (poc.is_approved) statsByEquipment[equipmentId].approved++;
         });
 
-                const data = Object.keys(statsByEquipment).map(eqId => {
+        const data = Object.keys(statsByEquipment).map(eqId => {
             const stats = statsByEquipment[eqId];
             const rate = (stats.approved / stats.total) * 100;
             return {
@@ -805,28 +626,28 @@ async function updateApprovalTrends(pocs) {
             };
         });
 
-                data.sort((a, b) => b.approvalRate - a.approvalRate);
+        data.sort((a, b) => b.approvalRate - a.approvalRate);
 
-                const topData = data.slice(0, 6);
+        const topData = data.slice(0, 6);
 
-                const averageApprovalRate = topData.length > 0 
+        const averageApprovalRate = topData.length > 0 
             ? (topData.reduce((sum, item) => sum + item.approvalRate, 0) / topData.length).toFixed(1)
             : 0;
 
-                const approvalValueElement = document.getElementById('approvalTrendValue');
+        const approvalValueElement = document.getElementById('approvalTrendValue');
         if (approvalValueElement) {
             approvalValueElement.textContent = `${averageApprovalRate}%`;
         }
 
-                console.log('📊 Data for graph:', topData);
+        console.log('📊 Data for graph:', topData);
         console.log('📊 Average approval rating:', averageApprovalRate + '%');
 
-                if (topData.length > 0) {
+        if (topData.length > 0) {
             updateApprovalLineChart(topData);
             console.log('✅ Approval chart drawn correctly');
         } else {
             console.warn('⚠️ There is no data to display in the graph.');
-                        const ctx = document.getElementById('approvalLineChart');
+            const ctx = document.getElementById('approvalLineChart');
             if (ctx) {
                 const context = ctx.getContext('2d');
                 context.font = '14px Arial';
@@ -841,12 +662,12 @@ async function updateApprovalTrends(pocs) {
     } catch (err) {
         console.error('❌ Error calculating approval trends:', err);
         
-                const approvalValueElement = document.getElementById('approvalTrendValue');
+        const approvalValueElement = document.getElementById('approvalTrendValue');
         if (approvalValueElement) {
             approvalValueElement.textContent = 'Error';
         }
         
-                const ctx = document.getElementById('approvalLineChart');
+        const ctx = document.getElementById('approvalLineChart');
         if (ctx) {
             const context = ctx.getContext('2d');
             context.font = '14px Arial';
@@ -856,7 +677,6 @@ async function updateApprovalTrends(pocs) {
         }
     }
 }
-
 
 async function loadUsersAndCompanies() {
     const container = document.getElementById('users-content');
@@ -939,8 +759,6 @@ async function loadUsersAndCompanies() {
         console.error('Error:', error);
     }
 }
-
-
 
 function formatCurrency(amount) {
     if (amount >= 1000000) {

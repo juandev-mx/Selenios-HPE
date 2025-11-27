@@ -39,17 +39,39 @@ async function initNavbarHPE() {
 
 function markActiveLink() {
     const links = document.querySelectorAll('.header-nav .nav-link');
-    const current = window.location.pathname;
+    const currentPath = window.location.pathname;
+    const currentHash = window.location.hash;
+    
+    // Primero remover todas las clases active
+    links.forEach(link => link.classList.remove('active'));
 
     links.forEach(link => {
         try {
-            const linkPath = new URL(link.href, window.location.origin).pathname;
-            if (linkPath === current) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
+            const linkUrl = new URL(link.href, window.location.origin);
+            const linkPath = linkUrl.pathname;
+            const linkHash = linkUrl.hash;
+
+            // Si el link tiene hash (como Reports)
+            if (linkHash) {
+                // Marcar activo si estamos en la misma página Y mismo hash
+                if (linkPath === currentPath && linkHash === currentHash) {
+                    link.classList.add('active');
+                }
+                // O si llegamos directamente a home_hpe.html con el hash de reportes
+                else if (currentPath === '/home_hpe.html' && currentHash === linkHash) {
+                    link.classList.add('active');
+                }
+            } 
+            // Para links sin hash (Dashboard, Approvals, Equipments)
+            else {
+                // Comparación exacta del pathname
+                if (linkPath === currentPath && !currentHash) {
+                    link.classList.add('active');
+                }
             }
-        } catch (_) {}
+        } catch (e) {
+            console.error('Error procesando link:', e);
+        }
     });
 }
 

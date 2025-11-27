@@ -15,16 +15,13 @@ class ReportManager {
     }
 
     async generateReport(reportType, buttonElement) {
-        
         const originalText = buttonElement.textContent;
         let resetTimeout;
         
         try {
-            
             buttonElement.textContent = 'Generating...';
             buttonElement.disabled = true;
 
-            
             resetTimeout = setTimeout(() => {
                 console.log('Restoring button due to timeout');
                 buttonElement.textContent = originalText;
@@ -38,14 +35,12 @@ class ReportManager {
                 throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
             }
 
-            
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/pdf')) {
                 throw new Error('The server did not return a valid PDF');
             }
 
             const blob = await response.blob();
-            
             
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -54,7 +49,6 @@ class ReportManager {
             a.download = `report_${reportType}_${new Date().toISOString().split('T')[0]}.pdf`;
             document.body.appendChild(a);
             a.click();
-            
             
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
@@ -65,11 +59,9 @@ class ReportManager {
             console.error('Error generating report:', error);
             alert(`Error generating report: ${error.message}`);
         } finally {
-            
             if (resetTimeout) {
                 clearTimeout(resetTimeout);
             }
-            
             
             buttonElement.textContent = originalText;
             buttonElement.disabled = false;
@@ -77,6 +69,8 @@ class ReportManager {
     }
 }
 
+// Hacer la clase disponible globalmente
+window.ReportManager = ReportManager;
 
 document.addEventListener('DOMContentLoaded', () => {
     new ReportManager();
