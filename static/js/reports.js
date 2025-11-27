@@ -1,5 +1,9 @@
 class ReportManager {
     constructor() {
+        if (ReportManager.instance) {
+            return ReportManager.instance;
+        }
+        ReportManager.instance = this;
         this.initReportEvents();
     }
 
