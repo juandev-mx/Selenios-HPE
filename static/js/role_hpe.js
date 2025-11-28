@@ -393,131 +393,6 @@ function updateClientPerformance(clientPerformance) {
     `).join('');
 }
 
-function updateApprovalLineChart(data) {
-    const canvas = document.getElementById('approvalLineChart');
-    if (!canvas) {
-        console.error('❌ Canvas approvalLineChart not found');
-        return;
-    }
-
-    const ctx = canvas.getContext('2d');
-
-    if (window.approvalLineChart && typeof window.approvalLineChart.destroy === 'function') {
-        window.approvalLineChart.destroy();
-    }
-
-    if (!data || data.length === 0) {
-        ctx.font = '14px Arial';
-        ctx.fillStyle = '#618975';
-        ctx.textAlign = 'center';
-        ctx.fillText('No data available', canvas.width / 2, canvas.height / 2);
-        return;
-    }
-
-    window.approvalLineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.map(item => item.equipment),
-            datasets: [{
-                label: 'Approval Rate (%)',
-                data: data.map(item => item.approvalRate),
-                borderColor: '#01a982',
-                backgroundColor: 'rgba(1, 169, 130, 0.1)',
-                fill: true,
-                tension: 0.4,
-                borderWidth: 3,
-                pointBackgroundColor: '#01a982',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                pointHoverBackgroundColor: '#00875a',
-                pointHoverBorderColor: '#fff',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        color: '#1f2937',
-                        font: { 
-                            size: 12, 
-                            weight: '600',
-                            family: "'Inter', sans-serif"
-                        },
-                        padding: 15,
-                        usePointStyle: true,
-                        pointStyle: 'circle'
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    padding: 12,
-                    cornerRadius: 8,
-                    displayColors: false,
-                    callbacks: {
-                        title: (context) => {
-                            return data[context[0].dataIndex].equipment;
-                        },
-                        label: (context) => {
-                            const item = data[context.dataIndex];
-                            return [
-                                `Tasa: ${item.approvalRate.toFixed(1)}%`,
-                                `Aprobados: ${item.approved}/${item.total}`
-                            ];
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#6b7280',
-                        font: { 
-                            size: 11,
-                            family: "'Inter', sans-serif"
-                        },
-                        maxRotation: 45,
-                        minRotation: 45,
-                        autoSkip: false
-                    },
-                    grid: {
-                        display: false
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        color: '#6b7280',
-                        font: { 
-                            size: 11,
-                            family: "'Inter', sans-serif"
-                        },
-                        callback: (value) => `${value}%`,
-                        stepSize: 20
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
-                        drawBorder: false
-                    }
-                }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            }
-        }
-    });
-
-    console.log('✅ Line graph created with', data.length, 'teams');
-}
 
 function calculateTeamPerformance(equipment, pocEquipment, users) {
     const hpeReps = users.filter(u => u.role === 'HPE_REP');
@@ -583,100 +458,6 @@ function updateTeamPerformance(teamPerformance) {
     `).join('');
 }
 
-async function updateApprovalTrends(pocs) {
-    try {
-        const pocEquipmentResponse = await fetch('/poc_equipment');
-        const equipmentResponse = await fetch('/equipment');
-
-        if (!pocEquipmentResponse.ok || !equipmentResponse.ok) {
-            throw new Error('Error obtaining data from equipment or relationships');
-        }
-
-        const pocEquipment = await pocEquipmentResponse.json();
-        const equipment = await equipmentResponse.json();
-
-        const equipmentMap = {};
-        equipment.forEach(eq => {
-            equipmentMap[eq.solution_id] = eq.product_description || eq.product_number || 'N/A';
-        });
-
-        const statsByEquipment = {};
-
-        pocEquipment.forEach(pe => {
-            const poc = pocs.find(p => p.poc_id === pe.poc_id);
-            if (!poc) return;
-
-            const equipmentId = pe.solution_id;
-            if (!statsByEquipment[equipmentId]) {
-                statsByEquipment[equipmentId] = { total: 0, approved: 0 };
-            }
-
-            statsByEquipment[equipmentId].total++;
-            if (poc.is_approved) statsByEquipment[equipmentId].approved++;
-        });
-
-        const data = Object.keys(statsByEquipment).map(eqId => {
-            const stats = statsByEquipment[eqId];
-            const rate = (stats.approved / stats.total) * 100;
-            return {
-                equipment: equipmentMap[eqId] || 'N/A',
-                approvalRate: rate,
-                approved: stats.approved,
-                total: stats.total
-            };
-        });
-
-        data.sort((a, b) => b.approvalRate - a.approvalRate);
-
-        const topData = data.slice(0, 6);
-
-        const averageApprovalRate = topData.length > 0 
-            ? (topData.reduce((sum, item) => sum + item.approvalRate, 0) / topData.length).toFixed(1)
-            : 0;
-
-        const approvalValueElement = document.getElementById('approvalTrendValue');
-        if (approvalValueElement) {
-            approvalValueElement.textContent = `${averageApprovalRate}%`;
-        }
-
-        console.log('📊 Data for graph:', topData);
-        console.log('📊 Average approval rating:', averageApprovalRate + '%');
-
-        if (topData.length > 0) {
-            updateApprovalLineChart(topData);
-            console.log('✅ Approval chart drawn correctly');
-        } else {
-            console.warn('⚠️ There is no data to display in the graph.');
-            const ctx = document.getElementById('approvalLineChart');
-            if (ctx) {
-                const context = ctx.getContext('2d');
-                context.font = '14px Arial';
-                context.fillStyle = '#618975';
-                context.textAlign = 'center';
-                context.fillText('No data available', ctx.width / 2, ctx.height / 2);
-            }
-        }
-
-        console.log('📈 Team approval data uploaded:', topData);
-
-    } catch (err) {
-        console.error('❌ Error calculating approval trends:', err);
-        
-        const approvalValueElement = document.getElementById('approvalTrendValue');
-        if (approvalValueElement) {
-            approvalValueElement.textContent = 'Error';
-        }
-        
-        const ctx = document.getElementById('approvalLineChart');
-        if (ctx) {
-            const context = ctx.getContext('2d');
-            context.font = '14px Arial';
-            context.fillStyle = '#dc2626';
-            context.textAlign = 'center';
-            context.fillText('Error loading data', ctx.width / 2, ctx.height / 2);
-        }
-    }
-}
 
 async function loadUsersAndCompanies() {
     const container = document.getElementById('users-content');
@@ -781,4 +562,276 @@ function formatCurrencyFull(amount) {
 
 function truncateText(text, maxLength) {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+}
+
+// Modificar la función updateApprovalTrends existente
+async function updateApprovalTrends(pocs) {
+    try {
+        const pocEquipmentResponse = await fetch('/poc_equipment');
+        const equipmentResponse = await fetch('/equipment');
+
+        if (!pocEquipmentResponse.ok || !equipmentResponse.ok) {
+            throw new Error('Error obtaining data from equipment or relationships');
+        }
+
+        const pocEquipment = await pocEquipmentResponse.json();
+        const equipment = await equipmentResponse.json();
+
+        const equipmentMap = {};
+        equipment.forEach(eq => {
+            equipmentMap[eq.solution_id] = {
+                name: eq.product_description || eq.product_number || 'N/A',
+                solution_id: eq.solution_id,
+                product_number: eq.product_number || 'N/A'
+            };
+        });
+
+        const statsByEquipment = {};
+
+        pocEquipment.forEach(pe => {
+            const poc = pocs.find(p => p.poc_id === pe.poc_id);
+            if (!poc) return;
+
+            const equipmentId = pe.solution_id;
+            if (!statsByEquipment[equipmentId]) {
+                statsByEquipment[equipmentId] = { total: 0, approved: 0 };
+            }
+
+            statsByEquipment[equipmentId].total++;
+            if (poc.is_approved) statsByEquipment[equipmentId].approved++;
+        });
+
+        const data = Object.keys(statsByEquipment)
+            .filter(eqId => statsByEquipment[eqId].total > 0)
+            .map(eqId => {
+                const stats = statsByEquipment[eqId];
+                const rate = (stats.approved / stats.total) * 100;
+                const equipmentInfo = equipmentMap[eqId] || { 
+                    name: 'N/A', 
+                    solution_id: eqId,
+                    product_number: 'N/A'
+                };
+                
+                return {
+                    equipment: equipmentInfo.name,
+                    solution_id: equipmentInfo.solution_id,
+                    product_number: equipmentInfo.product_number,
+                    approvalRate: rate,
+                    approved: stats.approved,
+                    total: stats.total
+                };
+            });
+
+        // Ordenar alfabéticamente en lugar de por approval rate
+        data.sort((a, b) => a.equipment.localeCompare(b.equipment));
+
+        // Mostrar los primeros 6 para la vista compacta
+        const displayData = data.slice(0, 6);
+
+        const averageApprovalRate = data.length > 0 
+            ? (data.reduce((sum, item) => sum + item.approvalRate, 0) / data.length).toFixed(1)
+            : 0;
+
+        const approvalValueElement = document.getElementById('approvalTrendValue');
+        if (approvalValueElement) {
+            approvalValueElement.textContent = `${averageApprovalRate}%`;
+        }
+
+        console.log('📊 Data for graph:', displayData);
+        console.log('📊 Average approval rating:', averageApprovalRate + '%');
+
+        if (displayData.length > 0) {
+            updateApprovalLineChart(displayData);
+            console.log('✅ Approval chart drawn correctly');
+        } else {
+            console.warn('⚠️ There is no data to display in the graph.');
+            const ctx = document.getElementById('approvalLineChart');
+            if (ctx) {
+                const context = ctx.getContext('2d');
+                context.font = '14px Arial';
+                context.fillStyle = '#618975';
+                context.textAlign = 'center';
+                context.fillText('No data available', ctx.width / 2, ctx.height / 2);
+            }
+        }
+
+        // Hacer la tarjeta clickeable
+        addChartCardClickHandler();
+
+        console.log('📈 Team approval data uploaded:', displayData);
+
+    } catch (err) {
+        console.error('❌ Error calculating approval trends:', err);
+        
+        const approvalValueElement = document.getElementById('approvalTrendValue');
+        if (approvalValueElement) {
+            approvalValueElement.textContent = 'Error';
+        }
+        
+        const ctx = document.getElementById('approvalLineChart');
+        if (ctx) {
+            const context = ctx.getContext('2d');
+            context.font = '14px Arial';
+            context.fillStyle = '#dc2626';
+            context.textAlign = 'center';
+            context.fillText('Error loading data', ctx.width / 2, ctx.height / 2);
+        }
+    }
+}
+
+// Nueva función para hacer clickeable la tarjeta
+function addChartCardClickHandler() {
+    const chartCard = document.querySelector('.chart-grid .chart-box:nth-child(2)');
+    if (chartCard && !chartCard.dataset.clickHandlerAdded) {
+        chartCard.style.cursor = 'pointer';
+        chartCard.addEventListener('click', function(e) {
+            if (!e.target.closest('button')) {
+                // Verificar que el modal existe antes de abrir
+                if (window.approvalTrendsModal) {
+                    window.approvalTrendsModal.open();
+                } else {
+                    console.error('❌ Approval trends modal not initialized');
+                    notify.error('Modal not available. Please refresh the page.', { title: 'Error' });
+                }
+            }
+        });
+        chartCard.dataset.clickHandlerAdded = 'true';
+        
+        chartCard.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+        chartCard.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.15)';
+        });
+        chartCard.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '';
+        });
+    }
+}
+// Modificar updateApprovalLineChart para incluir solution_id en tooltip
+function updateApprovalLineChart(data) {
+    const canvas = document.getElementById('approvalLineChart');
+    if (!canvas) {
+        console.error('❌ Canvas approvalLineChart not found');
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    if (window.approvalLineChart && typeof window.approvalLineChart.destroy === 'function') {
+        window.approvalLineChart.destroy();
+    }
+
+    if (!data || data.length === 0) {
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#618975';
+        ctx.textAlign = 'center';
+        ctx.fillText('No data available', canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    window.approvalLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(item => item.equipment),
+            datasets: [{
+                label: 'Approval Rate (%)',
+                data: data.map(item => item.approvalRate),
+                borderColor: '#01a982',
+                backgroundColor: 'rgba(1, 169, 130, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointBackgroundColor: '#01a982',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: '#00875a',
+                pointHoverBorderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        color: '#1f2937',
+                        font: { 
+                            size: 12, 
+                            weight: '600',
+                            family: "'Inter', sans-serif"
+                        },
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        title: (context) => {
+                            return data[context[0].dataIndex].equipment;
+                        },
+                        label: (context) => {
+                            const item = data[context.dataIndex];
+                            return [
+                                `Product Number: ${item.product_number}`,
+                                `Tasa: ${item.approvalRate.toFixed(1)}%`,
+                                `Aprobados: ${item.approved}/${item.total}`
+                            ];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#6b7280',
+                        font: { 
+                            size: 11,
+                            family: "'Inter', sans-serif"
+                        },
+                        maxRotation: 45,
+                        minRotation: 45,
+                        autoSkip: false
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+            y: {
+                beginAtZero: true,
+                max: 110,
+                ticks: {
+                    color: '#6b7280',
+                    font: { 
+                        size: 11,
+                        family: "'Inter', sans-serif"
+                    },
+                    callback: (value) => value <= 100 ? `${value}%` : '',
+                    stepSize: 20
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                    drawBorder: false
+                }
+            }
+
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+
+        }
+    });
 }
