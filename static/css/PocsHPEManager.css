@@ -368,3 +368,6 @@ td {
         font-size: 0.75rem;
     }
 }
+.table-wrapper tbody td:last-child {
+    border-bottom: none !important;
+}

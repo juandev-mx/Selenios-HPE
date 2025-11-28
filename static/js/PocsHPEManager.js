@@ -99,7 +99,7 @@ function createActionButtons(poc) {
                 return `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                 <span class="action-text" style="font-size: 0.75rem; color: var(--muted-text);">In Progress...</span>
-                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})">View</button>
+                <button class="btn-view" onclick="showPocDetails(${poc.poc_id})" style="padding: 0.375rem 0.8rem; background-color: var(--primary-dark); color: var(--white); border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">View</button>
             </div>
 
         `;
