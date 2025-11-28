@@ -434,3 +434,190 @@
     font-weight: 800;
     color: #05AD7A;
 }
+/* --- BOTONES DE VISTA --- */
+.view-toggle {
+    display: flex;
+    gap: 0.5rem;
+    background: #f8f9fa;
+    padding: 0.25rem;
+    border-radius: 8px;
+}
+
+.view-btn {
+    padding: 0.5rem;
+    border: none;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.view-btn.active {
+    background: #056fad;
+    color: white;
+}
+
+/* --- VISTA DE LISTA COMPACTA --- */
+.pocs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.70rem;
+}
+
+.pocs-list .poc-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+}
+
+/* Columna 1: Título y Status */
+.pocs-list .poc-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    min-width: 150px;
+}
+
+.pocs-list .poc-header h3 {
+    font-size: 16px;
+    margin: 0;
+}
+
+.pocs-list .poc-status {
+    white-space: nowrap;
+}
+
+/* Columna 2: Contenido (body) */
+.pocs-list .poc-body {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 0; /* Permite que el contenido se contraiga */
+}
+
+.pocs-list .poc-info {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 0; /* Permite que el texto se corte */
+}
+
+.pocs-list .poc-info strong {
+    display: inline;
+    margin-bottom: 0;
+    margin-right: 0.5rem;
+    font-size: 13px;
+}
+
+.pocs-list .poc-info p {
+    display: inline;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pocs-list .poc-meta {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.pocs-list .poc-date {
+    flex-direction: row;
+    gap: 0.5rem;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* Columna 3: Botones (siempre a la derecha) */
+.pocs-list .poc-footer {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    border-top: none;
+    padding-top: 0;
+    margin: 0;
+    flex-shrink: 0; /* No se contraen */
+    margin-left: auto; /* Empuja a la derecha */
+}
+
+.pocs-list .poc-footer-left,
+.pocs-list .poc-footer-right {
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.pocs-list .poc-footer button {
+    padding: 0.4rem 0.8rem;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Responsive para vista lista */
+@media (max-width: 1200px) {
+    .pocs-list .poc-card {
+        grid-template-columns: auto 1fr auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .view-toggle {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pocs-list .poc-card {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 1rem;
+    }
+
+    .pocs-list .poc-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .pocs-list .poc-body {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .pocs-list .poc-info p {
+        white-space: normal;
+    }
+
+    .pocs-list .poc-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .pocs-list .poc-footer {
+        flex-direction: column;
+        width: 100%;
+        margin-left: 0;
+    }
+}

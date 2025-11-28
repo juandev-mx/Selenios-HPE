@@ -1089,3 +1089,33 @@ function getLocalDate() {
     const day = String(now.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+// Variable para guardar la vista actual
+let currentView = 'grid';
+
+// Función para cambiar entre vistas
+window.changeView = function(view) {
+    currentView = view;
+    const container = document.getElementById('pocs-container');
+    const gridBtn = document.getElementById('grid-view-btn');
+    const listBtn = document.getElementById('list-view-btn');
+    
+    if (view === 'grid') {
+        container.className = 'pocs-grid';
+        gridBtn.classList.add('active');
+        listBtn.classList.remove('active');
+    } else {
+        container.className = 'pocs-list';
+        listBtn.classList.add('active');
+        gridBtn.classList.remove('active');
+    }
+    
+    // Guardar preferencia en localStorage
+    localStorage.setItem('pocsViewPreference', view);
+}
+
+// Cargar preferencia guardada al inicio
+document.addEventListener('DOMContentLoaded', function() {
+    const savedView = localStorage.getItem('pocsViewPreference') || 'grid';
+    changeView(savedView);
+});
