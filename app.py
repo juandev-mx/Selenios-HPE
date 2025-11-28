@@ -1321,5 +1321,21 @@ def get_pending_pocs():
         return jsonify({'error': str(e)}), 500
 
 
+# ---------------- INICIALIZACIÓN DE LA APP ----------------
+def create_app():
+    with app.app_context():
+        try:
+            # Crear todas las tablas si no existen
+            db.create_all()
+            print("✅ Tablas de la base de datos inicializadas correctamente")
+        except Exception as e:
+            print(f"❌ Error al inicializar la base de datos: {str(e)}")
+    
+    return app
+
+# Crear la aplicación
+app = create_app()
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)
