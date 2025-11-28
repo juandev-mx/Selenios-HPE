@@ -4,11 +4,6 @@ services:
     env: python
     region: oregon
     plan: free
-    runtime: python-3.11.9   # <--- ESTA ES LA LÍNEA CRÍTICA
+    runtime: python-3.11  
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
-    envVars:
-      - key: SUPABASE_URL
-        value: your-url
-      - key: SUPABASE_KEY
-        value: your-key
