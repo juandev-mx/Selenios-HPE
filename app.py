@@ -26,6 +26,11 @@ app.register_blueprint(analytics_bp)
 app.register_blueprint(reports_bp)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+import time
+time.sleep(3)
+
+
 db.init_app(app)
 
 # ---------------- RUTAS HTML ----------------
