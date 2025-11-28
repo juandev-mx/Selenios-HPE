@@ -1,5 +1,8 @@
-/* Modal de Approval Trends */
-.approval-modal {
+/* =================================================================
+   MODAL DE SOLUTION REVENUE
+   ================================================================= */
+
+.solution-modal {
     display: none;
     position: fixed;
     z-index: 9999;
@@ -13,14 +16,14 @@
     transition: opacity 0.3s ease;
 }
 
-.approval-modal.active {
+.solution-modal.active {
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 1;
 }
 
-.approval-modal-content {
+.solution-modal-content {
     background: #ffffff;
     border-radius: 16px;
     width: 90%;
@@ -29,10 +32,10 @@
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: modalSlideIn 0.3s ease;
+    animation: solutionModalSlideIn 0.3s ease;
 }
 
-@keyframes modalSlideIn {
+@keyframes solutionModalSlideIn {
     from {
         transform: translateY(-50px);
         opacity: 0;
@@ -43,7 +46,7 @@
     }
 }
 
-.approval-modal-header {
+.solution-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -53,7 +56,7 @@
     border-radius: 16px 16px 0 0;
 }
 
-.approval-modal-header h2 {
+.solution-modal-header h2 {
     margin: 0;
     font-size: 24px;
     font-weight: 700;
@@ -61,7 +64,7 @@
     font-family: 'Inter', sans-serif;
 }
 
-.approval-modal-close {
+.solution-modal-close {
     background: rgba(255, 255, 255, 0.2);
     border: none;
     font-size: 32px;
@@ -78,25 +81,25 @@
     line-height: 1;
 }
 
-.approval-modal-close:hover {
+.solution-modal-close:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: rotate(90deg);
 }
 
-.approval-modal-body {
+.solution-modal-body {
     padding: 32px;
     overflow-y: auto;
     flex: 1;
 }
 
-#approvalModalChart {
+#solutionModalChart {
     display: block;
     width: 100% !important;
     height: auto !important;
     margin: 0 auto 24px auto;
 }
 
-.approval-pagination {
+.solution-pagination {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -146,30 +149,47 @@
     padding: 0 12px;
 }
 
-/* Responsive */
+/* =================================================================
+   HACER CLICKEABLE LA TARJETA DE SOLUTION REVENUE
+   ================================================================= */
+
+.chart-grid .chart-box:nth-child(1) {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chart-grid .chart-box:nth-child(1):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* =================================================================
+   RESPONSIVE
+   ================================================================= */
+
 @media (max-width: 768px) {
-    .approval-modal-content {
+    .solution-modal-content {
         width: 98%;
         max-height: 95vh;
     }
 
-    .approval-modal-header {
+    .solution-modal-header {
         padding: 16px 20px;
     }
 
-    .approval-modal-header h2 {
+    .solution-modal-header h2 {
         font-size: 18px;
     }
 
-    .approval-modal-body {
+    .solution-modal-body {
         padding: 20px;
     }
 
-    #approvalModalChart {
+    #solutionModalChart {
         height: 350px !important;
     }
 
-    .approval-pagination {
+    .solution-pagination {
         flex-direction: column;
         gap: 12px;
     }

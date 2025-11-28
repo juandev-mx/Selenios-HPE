@@ -1,4 +1,4 @@
-class ApprovalTrendsModal {
+class SolutionRevenueModal {
     constructor() {
         this.currentPage = 0;
         this.itemsPerPage = 25;
@@ -18,7 +18,7 @@ class ApprovalTrendsModal {
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (this.chart && document.getElementById('approvalTrendsModal').classList.contains('active')) {
+                if (this.chart && document.getElementById('solutionRevenueModal').classList.contains('active')) {
                     this.renderChart();
                 }
             }, 250);
@@ -27,20 +27,20 @@ class ApprovalTrendsModal {
 
     createModalHTML() {
         const modalHTML = `
-            <div id="approvalTrendsModal" class="approval-modal">
-                <div class="approval-modal-content">
-                    <div class="approval-modal-header">
-                        <h2>Approval Trends - Complete View</h2>
-                        <button class="approval-modal-close">&times;</button>
+            <div id="solutionRevenueModal" class="solution-modal">
+                <div class="solution-modal-content">
+                    <div class="solution-modal-header">
+                        <h2>Solution Revenue - Complete View</h2>
+                        <button class="solution-modal-close">&times;</button>
                     </div>
-                    <div class="approval-modal-body">
-                        <canvas id="approvalModalChart"></canvas>
-                        <div class="approval-pagination">
-                            <button id="prevPageBtn" class="pagination-btn" disabled>
+                    <div class="solution-modal-body">
+                        <canvas id="solutionModalChart"></canvas>
+                        <div class="solution-pagination">
+                            <button id="solutionPrevPageBtn" class="pagination-btn" disabled>
                                 ← Previous
                             </button>
-                            <span id="pageInfo" class="page-info">Page 1</span>
-                            <button id="nextPageBtn" class="pagination-btn">
+                            <span id="solutionPageInfo" class="page-info">Page 1</span>
+                            <button id="solutionNextPageBtn" class="pagination-btn">
                                 Next →
                             </button>
                         </div>
@@ -49,16 +49,16 @@ class ApprovalTrendsModal {
             </div>
         `;
         
-        if (!document.getElementById('approvalTrendsModal')) {
+        if (!document.getElementById('solutionRevenueModal')) {
             document.body.insertAdjacentHTML('beforeend', modalHTML);
         }
     }
 
     attachEventListeners() {
-        const modal = document.getElementById('approvalTrendsModal');
-        const closeBtn = modal.querySelector('.approval-modal-close');
-        const prevBtn = document.getElementById('prevPageBtn');
-        const nextBtn = document.getElementById('nextPageBtn');
+        const modal = document.getElementById('solutionRevenueModal');
+        const closeBtn = modal.querySelector('.solution-modal-close');
+        const prevBtn = document.getElementById('solutionPrevPageBtn');
+        const nextBtn = document.getElementById('solutionNextPageBtn');
 
         closeBtn.addEventListener('click', () => this.close());
         
@@ -78,14 +78,14 @@ class ApprovalTrendsModal {
 
     async open() {
         try {
-            console.log('🔄 Opening modal...');
-            const data = await this.fetchAllApprovalData();
+            console.log('🔄 Opening Solution Revenue modal...');
+            const data = await this.fetchAllSolutionData();
             console.log('📊 Data fetched:', data.length, 'items');
             
             this.allData = data;
             this.currentPage = 0;
             
-            const modal = document.getElementById('approvalTrendsModal');
+            const modal = document.getElementById('solutionRevenueModal');
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             
@@ -96,12 +96,12 @@ class ApprovalTrendsModal {
             
         } catch (error) {
             console.error('❌ Error opening modal:', error);
-            notify.error('Could not load approval data', { title: 'Error' });
+            notify.error('Could not load solution data', { title: 'Error' });
         }
     }
 
     close() {
-        const modal = document.getElementById('approvalTrendsModal');
+        const modal = document.getElementById('solutionRevenueModal');
         modal.classList.remove('active');
         document.body.style.overflow = '';
         
@@ -111,63 +111,32 @@ class ApprovalTrendsModal {
         }
     }
 
-    async fetchAllApprovalData() {
-        const [pocsResponse, pocEquipmentResponse, equipmentResponse] = await Promise.all([
-            fetch('/pocs'),
-            fetch('/poc_equipment'),
-            fetch('/equipment')
+    async fetchAllSolutionData() {
+        const [equipmentResponse, pocEquipmentResponse] = await Promise.all([
+            fetch('/equipment'),
+            fetch('/poc_equipment')
         ]);
 
-        const pocs = await pocsResponse.json();
-        const pocEquipment = await pocEquipmentResponse.json();
         const equipment = await equipmentResponse.json();
+        const pocEquipment = await pocEquipmentResponse.json();
 
-        const equipmentMap = {};
-        equipment.forEach(eq => {
-            equipmentMap[eq.solution_id] = {
-                name: eq.product_description || eq.product_number || 'N/A',
-                product_number: eq.product_number || 'N/A'
-            };
-        });
-
-        const statsByEquipment = {};
-
+        const solutionUsage = {};
         pocEquipment.forEach(pe => {
-            const poc = pocs.find(p => p.poc_id === pe.poc_id);
-            if (!poc) return;
-
-            const equipmentId = pe.solution_id;
-            if (!statsByEquipment[equipmentId]) {
-                statsByEquipment[equipmentId] = { total: 0, approved: 0 };
-            }
-
-            statsByEquipment[equipmentId].total++;
-            if (poc.is_approved) statsByEquipment[equipmentId].approved++;
+            solutionUsage[pe.solution_id] = (solutionUsage[pe.solution_id] || 0) + 1;
         });
 
-        const data = Object.keys(statsByEquipment)
-            .filter(eqId => statsByEquipment[eqId].total > 0)
-            .map(eqId => {
-                const stats = statsByEquipment[eqId];
-                const rate = (stats.approved / stats.total) * 100;
-                const equipmentInfo = equipmentMap[eqId] || { 
-                    name: 'N/A', 
-                    product_number: 'N/A'
-                };
-                
-                return {
-                    equipment: equipmentInfo.name,
-                    product_number: equipmentInfo.product_number,
-                    approvalRate: rate,
-                    approved: stats.approved,
-                    total: stats.total
-                };
-            });
+        const solutions = equipment.map(eq => ({
+            solution_id: eq.solution_id,
+            name: eq.product_description || eq.product_number || 'N/A',
+            product_number: eq.product_number || 'N/A',
+            revenue: parseFloat(eq.price || 0) * (solutionUsage[eq.solution_id] || 0),
+            usage: solutionUsage[eq.solution_id] || 0
+        }));
 
-        // Ordenar alfabéticamente
-        data.sort((a, b) => a.equipment.localeCompare(b.equipment));
+        const usedSolutions = solutions.filter(s => s.usage > 0);
+        usedSolutions.sort((a, b) => a.name.localeCompare(b.name));
 
-        return data;
+        return usedSolutions;
     }
 
     renderChart() {
@@ -177,7 +146,7 @@ class ApprovalTrendsModal {
 
         console.log('📈 Rendering chart with', pageData.length, 'items');
 
-        const canvas = document.getElementById('approvalModalChart');
+        const canvas = document.getElementById('solutionModalChart');
         if (!canvas) {
             console.error('❌ Canvas not found');
             return;
@@ -214,30 +183,23 @@ class ApprovalTrendsModal {
             return;
         }
 
-        // ✅ DEGRADADO: Crear gradiente para el área debajo de la línea
+        // ✅ DEGRADADO: Crear gradiente para las barras
         const gradient = ctx.createLinearGradient(0, 0, 0, desiredHeight);
-        gradient.addColorStop(0, 'rgba(1, 169, 130, 0.3)');
-        gradient.addColorStop(1, 'rgba(1, 169, 130, 0.05)');
+        gradient.addColorStop(0, 'rgba(17, 212, 115, 0.8)');
+        gradient.addColorStop(1, 'rgba(17, 212, 115, 0.3)');
 
         this.chart = new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
-                labels: pageData.map(item => item.equipment),
+                labels: pageData.map(item => item.name),
                 datasets: [{
-                    label: 'Approval Rate (%)',
-                    data: pageData.map(item => item.approvalRate),
-                    borderColor: '#01a982',
+                    label: 'Revenue (USD)',
+                    data: pageData.map(item => item.revenue),
                     backgroundColor: gradient, // ✅ Usar el gradiente
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#01a982',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    pointHoverBackgroundColor: '#00875a',
-                    pointHoverBorderColor: '#fff',
+                    borderColor: 'rgba(17, 212, 115, 0.7)',
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    hoverBackgroundColor: 'rgba(17, 212, 115, 0.9)',
                 }]
             },
             options: {
@@ -257,7 +219,7 @@ class ApprovalTrendsModal {
                             },
                             padding: 20,
                             usePointStyle: true,
-                            pointStyle: 'circle'
+                            pointStyle: 'rectRounded'
                         }
                     },
                     tooltip: {
@@ -278,14 +240,14 @@ class ApprovalTrendsModal {
                         },
                         callbacks: {
                             title: (context) => {
-                                return pageData[context[0].dataIndex].equipment;
+                                return pageData[context[0].dataIndex].name;
                             },
                             label: (context) => {
                                 const item = pageData[context.dataIndex];
                                 return [
                                     `Product Number: ${item.product_number}`,
-                                    `Rate: ${item.approvalRate.toFixed(1)}%`,
-                                    `Approved: ${item.approved}/${item.total}`
+                                    `Revenue: ${this.formatCurrency(item.revenue)}`,
+                                    `Times Used: ${item.usage}`
                                 ];
                             }
                         }
@@ -309,15 +271,13 @@ class ApprovalTrendsModal {
                     },
                     y: {
                         beginAtZero: true,
-                        max: 110,
                         ticks: {
                             color: '#6b7280',
                             font: { 
                                 size: 12,
                                 family: "'Inter', sans-serif"
                             },
-                            callback: (value) => value <= 100 ? `${value}%` : '',
-                            stepSize: 20
+                            callback: (value) => this.formatCurrency(value)
                         },
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)',
@@ -344,14 +304,24 @@ class ApprovalTrendsModal {
         console.log('✅ Chart rendered successfully');
     }
 
+    formatCurrency(amount) {
+        if (amount >= 1000000) {
+            return `$${(amount / 1000000).toFixed(1)}M`;
+        } else if (amount >= 1000) {
+            return `$${(amount / 1000).toFixed(1)}K`;
+        } else {
+            return `$${amount.toFixed(0)}`;
+        }
+    }
+
     updatePaginationButtons() {
         const totalPages = Math.ceil(this.allData.length / this.itemsPerPage);
-        const pageInfo = document.getElementById('pageInfo');
-        const prevBtn = document.getElementById('prevPageBtn');
-        const nextBtn = document.getElementById('nextPageBtn');
+        const pageInfo = document.getElementById('solutionPageInfo');
+        const prevBtn = document.getElementById('solutionPrevPageBtn');
+        const nextBtn = document.getElementById('solutionNextPageBtn');
 
         if (pageInfo) {
-            pageInfo.textContent = `Page ${this.currentPage + 1} of ${totalPages} (${this.allData.length} total equipments)`;
+            pageInfo.textContent = `Page ${this.currentPage + 1} of ${totalPages} (${this.allData.length} total solutions)`;
         }
         
         if (prevBtn) prevBtn.disabled = this.currentPage === 0;
@@ -374,7 +344,8 @@ class ApprovalTrendsModal {
     }
 }
 
+// ✅ EXACTAMENTE IGUAL que approval_trends_modal.js
 document.addEventListener('DOMContentLoaded', function() {
-    window.approvalTrendsModal = new ApprovalTrendsModal();
-    console.log('✅ ApprovalTrendsModal initialized');
+    window.solutionRevenueModal = new SolutionRevenueModal();
+    console.log('✅ SolutionRevenueModal initialized');
 });

@@ -1,21 +1,16 @@
 document.addEventListener('DOMContentLoaded', async function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
-    
     if (!user) {
-        notify.warning('Session not found. Please sign in again.', { title: 'Session expired' });
         window.location.href = '/login.html';
         return;
     }
 
-    
     if (user.role !== 'CLIENT') {
-        notify.error('This page is available only for customers.', { title: 'Access denied' });
         window.location.href = '/login.html';
         return;
     }
 
-    
     if (user.client_company_id) {
         try {
             const response = await fetch(`/client_company/${user.client_company_id}`);
@@ -26,13 +21,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    
     const customerNameElement = document.getElementById('customer-name');
     if (customerNameElement) {
         customerNameElement.textContent = user.name;
     }
 
-    
     await loadClientAnalytics(user.id || user.user_id);
 });
 
@@ -40,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadClientAnalytics(userId) {
     try {
         console.log('📊 Loading user analytics:', userId);
-        
         
         const [pocsResponse, pocEquipmentResponse, equipmentResponse] = await Promise.all([
             fetch(`/pocs?client_user_id=${userId}`),
@@ -60,24 +52,19 @@ async function loadClientAnalytics(userId) {
             equipment: allEquipment.length
         });
 
-        
         const equipmentPrices = {};
         allEquipment.forEach(eq => {
             equipmentPrices[eq.solution_id] = parseFloat(eq.price || 0);
         });
 
-        
         const stats = calculatePOCStats(pocs, allPocEquipment, equipmentPrices);
         
-        
         updateStatsCards(stats);
-        
         
         createCharts(pocs, allPocEquipment, equipmentPrices);
 
     } catch (error) {
         console.error('❌ Error loading analytics:', error);
-        notify.error('We could not load your metrics. Please try again in a few seconds.', { title: 'Analytics error' });
         
         updateStatsCards({
             totalPOCs: 0,
@@ -166,26 +153,237 @@ function createCharts(pocs, allPocEquipment, equipmentPrices) {
     const pocCounts = sortedMonths.map(month => monthlyData[month].count);
     const expensesData = sortedMonths.map(month => monthlyData[month].expenses);
     
+    // 📊 GRÁFICA DE BARRAS CON DEGRADADO VERDE
     const pocsCanvas = document.getElementById('pocs-by-month-chart');
     if (pocsCanvas) {
-        new Chart(pocsCanvas, {
+        const ctx = pocsCanvas.getContext('2d');
+        
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(17, 212, 115, 0.8)');
+        gradient.addColorStop(1, 'rgba(17, 212, 115, 0.3)');
+        
+        new Chart(ctx, {
             type: 'bar',
-            data: { labels, datasets: [{ label: 'POCs Requested', data: pocCounts, backgroundColor: 'rgba(1, 169, 130, 0.7)', borderColor: 'rgba(1, 169, 130, 1)', borderWidth: 2 }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: true, position: 'top' } } }
+            data: { 
+                labels, 
+                datasets: [{ 
+                    label: 'POCs Requested', 
+                    data: pocCounts, 
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(17, 212, 115, 0.7)',
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    hoverBackgroundColor: 'rgba(17, 212, 115, 0.9)',
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#1f2937',
+                            font: { 
+                                size: 14, 
+                                weight: '600',
+                                family: "'Inter', sans-serif"
+                            },
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'rectRounded'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 16,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        bodyFont: {
+                            size: 13,
+                            family: "'Inter', sans-serif"
+                        },
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                            family: "'Inter', sans-serif"
+                        }
+                    }
+                },
+                scales: { 
+                    x: {
+                        ticks: {
+                            color: '#6b7280',
+                            font: { 
+                                size: 12,
+                                family: "'Inter', sans-serif"
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { 
+                            stepSize: 1,
+                            color: '#6b7280',
+                            font: { 
+                                size: 12,
+                                family: "'Inter', sans-serif"
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        }
+                    } 
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                layout: {
+                    padding: {
+                        top: 20,
+                        right: 20,
+                        bottom: 10,
+                        left: 10
+                    }
+                }
+            }
         });
     }
     
+    // 📈 GRÁFICA DE LÍNEA CON DEGRADADO VERDE Y PUNTOS
     const expensesCanvas = document.getElementById('expenses-by-month-chart');
     if (expensesCanvas) {
-        new Chart(expensesCanvas, {
+        const ctx = expensesCanvas.getContext('2d');
+        
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(1, 169, 130, 0.3)');
+        gradient.addColorStop(1, 'rgba(1, 169, 130, 0.05)');
+        
+        new Chart(ctx, {
             type: 'line',
-            data: { labels, datasets: [{ label: 'Total Expenses', data: expensesData, backgroundColor: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 3, fill: true, tension: 0.4 }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value.toLocaleString(); } } } }, plugins: { legend: { display: true, position: 'top' }, tooltip: { callbacks: { label: function(context) { return 'Expenses: ' + formatCurrency(context.parsed.y); } } } } }
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Total Expenses',
+                    data: expensesData,
+                    borderColor: '#01a982',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#01a982',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#00875a',
+                    pointHoverBorderColor: '#fff',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#1f2937',
+                            font: { 
+                                size: 14, 
+                                weight: '600',
+                                family: "'Inter', sans-serif"
+                            },
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 16,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        bodyFont: {
+                            size: 13,
+                            family: "'Inter', sans-serif"
+                        },
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                            family: "'Inter', sans-serif"
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return 'Expenses: ' + formatCurrency(context.parsed.y);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#6b7280',
+                            font: { 
+                                size: 12,
+                                family: "'Inter', sans-serif"
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#6b7280',
+                            font: { 
+                                size: 12,
+                                family: "'Inter', sans-serif"
+                            },
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                layout: {
+                    padding: {
+                        top: 20,
+                        right: 20,
+                        bottom: 10,
+                        left: 10
+                    }
+                }
+            }
         });
     }
 }
 
 
 function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    return new Intl.NumberFormat('en-US', { 
+        style: 'currency', 
+        currency: 'USD', 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+    }).format(amount);
 }

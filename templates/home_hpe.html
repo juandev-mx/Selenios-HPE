@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/css/home_hpe.css">
     <link rel="stylesheet" href="/static/css/navbar_hpe.css">
     <link rel="stylesheet" href="/static/css/approval_trends_modal.css">
+    <link rel="stylesheet" href="/static/css/solution_revenue_modal.css">
 
 </head>
 <body>
@@ -24,19 +25,17 @@
                     <div class="kpi-card">
                         <div class="kpi-label">Total Revenue</div>
                         <div class="kpi-value">$0</div>
-                        <div class="kpi-change positive">+0%</div>
+                        
                     </div>
 
                     <div class="kpi-card">
                         <div class="kpi-label">Approval Rate</div>
                         <div class="kpi-value">0%</div>
-                        <div class="kpi-change negative">-0%</div>
                     </div>
 
                     <div class="kpi-card">
                         <div class="kpi-label">Active Clients</div>
                         <div class="kpi-value">0</div>
-                        <div class="kpi-change positive">+0%</div>
                     </div>
                 </div>
 
@@ -49,8 +48,6 @@
                                 <div class="chart-label">Solution Revenue</div>
                                 <div class="chart-value">$0</div>
                                 <div class="chart-info">
-                                    <span class="chart-period">This Quarter</span>
-                                    <span class="kpi-change positive">+0%</span>
                                 </div>
                                 <div class="chart-bars">
                                     <div class="chart-bar">
@@ -219,12 +216,19 @@
 
 
 <!-- tus otros scripts -->
-<script src="/static/js/approval_trends_modal.js" defer></script>
+<!-- Scripts en el orden correcto -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/static/js/notifications.js"></script>
 <script src="/static/js/navbar_hpe.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Modales ANTES del script principal -->
+<script src="/static/js/approval_trends_modal.js"></script>
+<script src="/static/js/solution_revenue_modal.js"></script>
+
+<!-- Script principal que usa los modales -->
 <script src="/static/js/role_hpe.js"></script>
+
+<!-- Por último reports -->
 <script src="/static/js/reports.js"></script>
 
 </body>
-</html>

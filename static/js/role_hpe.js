@@ -277,10 +277,11 @@ function updateSolutionsPerformance(equipment, pocEquipment) {
         usage: solutionUsage[eq.solution_id] || 0
     }));
 
+    // Filtrar solo las que tienen uso y ordenar alfabéticamente
     const usedSolutions = solutions.filter(s => s.usage > 0);
-    
-    usedSolutions.sort((a, b) => b.revenue - a.revenue);
+    usedSolutions.sort((a, b) => a.name.localeCompare(b.name));
 
+    // Mostrar las primeras 5 alfabéticamente
     const topSolutions = usedSolutions.slice(0, 5);
 
     updateSolutionsChart(topSolutions);
@@ -288,6 +289,9 @@ function updateSolutionsPerformance(equipment, pocEquipment) {
     const totalSolutionsRevenue = topSolutions.reduce((sum, s) => sum + s.revenue, 0);
     const chartValue = document.querySelector('.chart-grid .chart-box:nth-child(1) .chart-value');
     if (chartValue) chartValue.textContent = formatCurrency(totalSolutionsRevenue);
+    
+    // Hacer la tarjeta clickeable
+    addSolutionChartClickHandler();
 }
 
 function updateSolutionsChart(solutions) {
@@ -305,15 +309,20 @@ function updateSolutionsChart(solutions) {
     
     solutions.forEach(solution => {
         const barHeight = maxRevenue > 0 ? (solution.revenue / maxRevenue) * 100 : 0;
+        
+        // Truncar a 2 palabras
+        const truncatedName = truncateToTwoWords(solution.name);
+        
         const bar = document.createElement('div');
         bar.className = 'chart-bar';
         bar.innerHTML = `
             <div class="bar" style="height: ${barHeight}px;"></div>
-            <div class="bar-label">${truncateText(solution.name, 15)}</div>
+            <div class="bar-label" title="${solution.name}">${truncatedName}</div>
         `;
         chartBars.appendChild(bar);
     });
 }
+
 
 function calculateClientPerformance(pocs, pocEquipment, equipment, users, companies) {
     const equipmentByPoc = {};
@@ -834,4 +843,42 @@ function updateApprovalLineChart(data) {
 
         }
     });
+}
+
+// Nueva función para hacer clickeable la tarjeta de Solution Revenue
+function addSolutionChartClickHandler() {
+    const chartCard = document.querySelector('.chart-grid .chart-box:nth-child(1)');
+    if (chartCard && !chartCard.dataset.solutionClickHandlerAdded) {
+        chartCard.style.cursor = 'pointer';
+        chartCard.addEventListener('click', function(e) {
+            if (!e.target.closest('button')) {
+                if (window.solutionRevenueModal) {
+                    window.solutionRevenueModal.open();
+                } else {
+                    console.error('❌ Solution Revenue modal not initialized');
+                    notify.error('Modal not available. Please refresh the page.', { title: 'Error' });
+                }
+            }
+        });
+        chartCard.dataset.solutionClickHandlerAdded = 'true';
+        
+        chartCard.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+        chartCard.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.15)';
+        });
+        chartCard.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '';
+        });
+    }
+}
+
+// Nueva función auxiliar para truncar a 2 palabras
+function truncateToTwoWords(text) {
+    const words = text.trim().split(/\s+/);
+    if (words.length <= 2) {
+        return text;
+    }
+    return words.slice(0, 2).join(' ') + '...';
 }
