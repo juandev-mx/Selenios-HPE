@@ -257,7 +257,7 @@ body {
   max-height: 300px;
 }
 
-/* Responsive */
+/* Responsiveeee */
 @media (max-width: 1200px) {
   .charts-grid {
     grid-template-columns: 1fr;
