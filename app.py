@@ -10,6 +10,9 @@ import os
 # comentario para que les carguen los archivos................... Hola
 load_dotenv() 
 DATABASE_URL = os.getenv("DATABASE_URL")
+# Fix para Railway/Supabase
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 supabase_client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
