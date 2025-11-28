@@ -295,21 +295,6 @@ function fixPOCButtonsLayout() {
             font-size: 14px !important;
             transition: all 0.2s ease !important;
         }
-
-        /* --- Colores personalizados --- */
-        .btn-view { background-color: #056fad !important; color: white !important; }
-        .btn-approvePOC1 { background-color: #05AD7A !important; color: white !important; }
-        .btn-edit { background-color: #ffc107 !important; color: black !important; } /* amarillo */
-        .btn-delete { background-color: #dc3545 !important; color: white !important; }
-        .btn-approve { background-color: #0d6efd !important; color: white !important; }
-        .btn-reject { background-color: #dc3545 !important; color: white !important; }
-
-        /* --- Hover --- */
-        .btn-view:hover { background-color: #056fad !important; }
-        .btn-approvePOC1:hover { background-color: #05AD7A !important; }
-        .btn-edit:hover { background-color: #e0a800 !important; }
-        .btn-approve:hover { background-color: #0b5ed7 !important; }
-        .btn-reject:hover { background-color: #bb2d3b !important; }
     `;
     document.head.appendChild(style);
 

@@ -165,7 +165,7 @@
 }
 
 .btn-view:hover {
-    background: #056fad;
+    background: #0b5784;
 }
 
 .btn-approvePOC1 {
@@ -174,12 +174,12 @@
 }
 
 .btn-approvePOC1:hover {
-    background: #05AD7A;
+    background: #0c976d;
 }
 
 .btn-edit {
     background: #ffc107;
-    color: #000;
+    color: white;
 }
 
 .btn-edit:hover {
@@ -187,12 +187,12 @@
 }
 
 .btn-delete {
-    background: #dc3545;
+    background: #c82333;
     color: white;
 }
 
 .btn-delete:hover {
-    background: #c82333;
+    background: #a32330;
 }
 
 /* --- LOADING Y ERROR --- */
@@ -438,10 +438,13 @@
 .view-toggle {
     display: flex;
     gap: 0.5rem;
+    margin-right: auto;   
+    margin-left: 0.5rem; 
     background: #f8f9fa;
     padding: 0.25rem;
     border-radius: 8px;
 }
+
 
 .view-btn {
     padding: 0.5rem;
@@ -462,7 +465,7 @@
 }
 
 .view-btn.active {
-    background: #056fad;
+    background: #05AD7A;
     color: white;
 }
 
