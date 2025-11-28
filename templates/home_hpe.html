@@ -6,6 +6,7 @@
     <title>HPE Data Management - Dashboard</title>
     <link rel="stylesheet" href="/static/css/home_hpe.css">
     <link rel="stylesheet" href="/static/css/navbar_hpe.css">
+    <link rel="stylesheet" href="/static/css/approval_trends_modal.css">
 
 </head>
 <body>
@@ -70,10 +71,7 @@
                             <div class="chart-box">
                                 <div class="chart-label">Approval Trends by Team</div>
                                 <div class="chart-value" id="approvalTrendValue">...</div>
-                                <div class="chart-info">
-                                    <span class="chart-period">Top 6 Equipments</span>
-                                </div>
-                                <div style="margin-top: 1rem; height: 200px;">
+                                <div style="margin-top: 1rem; height: 210px;">
                                     <canvas id="approvalLineChart"></canvas>
                                 </div>
                             </div>
@@ -221,6 +219,7 @@
 
 
 <!-- tus otros scripts -->
+<script src="/static/js/approval_trends_modal.js" defer></script>
 <script src="/static/js/notifications.js"></script>
 <script src="/static/js/navbar_hpe.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
