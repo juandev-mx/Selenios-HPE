@@ -295,21 +295,6 @@ function fixPOCButtonsLayout() {
             font-size: 14px !important;
             transition: all 0.2s ease !important;
         }
-
-        /* --- Colores personalizados --- */
-        .btn-view { background-color: #056fad !important; color: white !important; }
-        .btn-approvePOC1 { background-color: #05AD7A !important; color: white !important; }
-        .btn-edit { background-color: #ffc107 !important; color: black !important; } /* amarillo */
-        .btn-delete { background-color: #dc3545 !important; color: white !important; }
-        .btn-approve { background-color: #0d6efd !important; color: white !important; }
-        .btn-reject { background-color: #dc3545 !important; color: white !important; }
-
-        /* --- Hover --- */
-        .btn-view:hover { background-color: #056fad !important; }
-        .btn-approvePOC1:hover { background-color: #05AD7A !important; }
-        .btn-edit:hover { background-color: #e0a800 !important; }
-        .btn-approve:hover { background-color: #0b5ed7 !important; }
-        .btn-reject:hover { background-color: #bb2d3b !important; }
     `;
     document.head.appendChild(style);
 
@@ -1089,3 +1074,33 @@ function getLocalDate() {
     const day = String(now.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+// Variable para guardar la vista actual
+let currentView = 'grid';
+
+// Función para cambiar entre vistas
+window.changeView = function(view) {
+    currentView = view;
+    const container = document.getElementById('pocs-container');
+    const gridBtn = document.getElementById('grid-view-btn');
+    const listBtn = document.getElementById('list-view-btn');
+    
+    if (view === 'grid') {
+        container.className = 'pocs-grid';
+        gridBtn.classList.add('active');
+        listBtn.classList.remove('active');
+    } else {
+        container.className = 'pocs-list';
+        listBtn.classList.add('active');
+        gridBtn.classList.remove('active');
+    }
+    
+    // Guardar preferencia en localStorage
+    localStorage.setItem('pocsViewPreference', view);
+}
+
+// Cargar preferencia guardada al inicio
+document.addEventListener('DOMContentLoaded', function() {
+    const savedView = localStorage.getItem('pocsViewPreference') || 'grid';
+    changeView(savedView);
+});
