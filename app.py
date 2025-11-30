@@ -1297,7 +1297,6 @@ def delete_poc_equipment(poc_id, solution_id):
 def shutdown_session(exception=None):
     db.session.remove()
 
-#EndPoint para obtener POCs pendientes
 @app.route('/api/pocs/pending')
 def get_pending_pocs():
     try:
@@ -1306,10 +1305,15 @@ def get_pending_pocs():
         if not user_id:
             return jsonify({'error': 'user_id es requerido'}), 400
 
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return jsonify({'error': 'user_id inválido'}), 400
+
         # Obtener POCs pendientes del usuario (is_approved es NULL)
         pending_pocs = POC.query.filter(
             POC.client_user_id == user_id,
-            POC.is_approved.is_(None)  # Pendientes de aprobación
+            POC.is_approved.is_(None)
         ).order_by(POC.created_date.asc()).all()
 
         pocs_data = []
