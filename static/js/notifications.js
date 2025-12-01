@@ -222,7 +222,7 @@ class NotificationManager {
             const daysOld = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             if (daysOld > this.daysThreshold) {
-                return `The oldest one is ${daysOld} days old.`;
+                return `The oldest one is ${daysOld} days ago.`;
             }
         }
         
@@ -238,9 +238,9 @@ class NotificationManager {
             const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
             if (diffDays > 0) {
-                return `${diffDays} day${diffDays > 1 ? 's' : ''} old`;
+                return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
             } else if (diffHours > 0) {
-                return `${diffHours} hour${diffHours > 1 ? 's' : ''} old`;
+                return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
             } else {
                 return 'Today';
             }
