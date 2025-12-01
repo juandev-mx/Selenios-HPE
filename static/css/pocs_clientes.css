@@ -139,9 +139,17 @@
 /* --- FOOTER --- */
 .poc-footer {
     display: flex;
+    flex-direction: column;
     gap: 0.75rem;
     padding-top: 1rem;
     border-top: 1px solid #f0f0f0;
+}
+
+.poc-footer-left,
+.poc-footer-right {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
 }
 
 /* BOTONES */
@@ -160,16 +168,16 @@
 }
 
 .btn-view {
-    background: #056fad;
-    color: white;
+    background: #f1f0f0;
+    color: #000000;
 }
 
 .btn-view:hover {
-    background: #0b5784;
+    background: #dee6e9;
 }
 
 .btn-approvePOC1 {
-    background: #05AD7A;
+    background: #3fc49c;
     color: white;
 }
 
@@ -178,16 +186,16 @@
 }
 
 .btn-edit {
-    background: #ffc107;
-    color: white;
+    background: #f1f0f0;
+    color: #000000;
 }
 
 .btn-edit:hover {
-    background: #e0a800;
+    background: #dee6e9;
 }
 
 .btn-delete {
-    background: #c82333;
+    background: #c44653;
     color: white;
 }
 
@@ -566,14 +574,17 @@
 
 .pocs-list .poc-footer-left,
 .pocs-list .poc-footer-right {
+    display: flex;
     gap: 0.5rem;
     flex-shrink: 0;
+    width: auto; /* Cambiado de heredar el 100% */
 }
 
 .pocs-list .poc-footer button {
     padding: 0.4rem 0.8rem;
     font-size: 13px;
     white-space: nowrap;
+    flex: initial; /* Cambiado para que no se expandan */
 }
 
 /* Responsive para vista lista */

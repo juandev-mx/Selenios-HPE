@@ -348,7 +348,7 @@ function displayPOCs(pocs) {
         const createdDate = poc.created_date;
 
         
-        return `
+return `
             <div class="poc-card" data-status="${status}">
                 <div class="poc-header">
                     <h3>My POC</h3>
@@ -378,17 +378,6 @@ function displayPOCs(pocs) {
                 
                 <div class="poc-footer">
                     <div class="poc-footer-left">
-                        <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">
-                            View Details
-                        </button>
-                        ${poc.is_approved === null ? `
-                            <button class="btn-edit" onclick="editPOC(${poc.poc_id})">
-                                Edit
-                            </button>
-                        ` : ''}
-                    </div>
-                    
-                    <div class="poc-footer-right">
                         ${poc.is_approved === null ? `
                             <button class="btn-approvePOC1" onclick="approvePOC(${poc.poc_id})">
                                 Approve
@@ -401,6 +390,17 @@ function displayPOCs(pocs) {
                                 Delete
                             </button> -->
                         `}
+                    </div>
+                    
+                    <div class="poc-footer-right">
+                        <button class="btn-view" onclick="viewPOCDetails(${poc.poc_id})">
+                            View Details
+                        </button>
+                        ${poc.is_approved === null ? `
+                            <button class="btn-edit" onclick="editPOC(${poc.poc_id})">
+                                Edit
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
             </div>
