@@ -1,305 +1,323 @@
-# Información General
-- Framework: Flask
-- Usamos la librería en Python para la conexión a la BD: SQLAlchemy
-- Formato de respuesta: JSON
+![HPE](https://img.shields.io/badge/HPE-00B388?style=for-the-badge&logo=hewlettpackardenterprise&logoColor=white)
+![Scrum](https://img.shields.io/badge/Scrum-6DB33F?style=for-the-badge&logo=scrumalliance&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge)
+![JSON](https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+
+# General Information
+- **Framework:** Flask
+- **ORM / Database Connection:** SQLAlchemy (Python library)
+- **Response Format:** JSON
 
 - - -
 
-# Endpoints de ClientCompany
+# ClientCompany Endpoints
 
 ### GET /client_company
 
-Descripción: Obtiene lista de compañías cliente con filtros opcionales.
+**Description:** Retrieves a list of client companies with optional filters.
 
-Parámetros de consulta:
+**Query Parameters:**
 
-- min_id (int, opcional): ID mínimo
-- max_id (int, opcional): ID máximo
-- company_name (string, opcional): Buscar por nombre (búsqueda parcial)
-- manager (string, opcional): Buscar por manager (búsqueda parcial)
-- hpe_rep_id (int, opcional): Filtrar por ID de representante HPE
+- `min_id` (int, optional): Minimum ID
+- `max_id` (int, optional): Maximum ID
+- `company_name` (string, optional): Search by name (partial match)
+- `manager` (string, optional): Search by manager (partial match)
+- `hpe_rep_id` (int, optional): Filter by HPE representative ID
 
-Respuesta:
+**Response:**
 
-json
-<pre> [
+```json
+ [
   {
     "id": 1,
-    "name": "Nombre compañía",
-    "manager": "Nombre manager",
+    "name": "Company Name",
+    "manager": "Manager Name",
     "hpe_rep_id": 5
   }
-] </pre>
+] 
+```
 
-### GET /client_company/int:id 
+### GET /client_company/<int:id>
 
-Descripción: Obtiene una compañía específica por ID.
+**Description:** Retrieves a specific company by ID.
 
-Respuesta:
+**Response:**
 
-json
-<pre> {
+```json
+ {
   "id": 1,
-  "name": "Nombre compañía",
-  "manager": "Nombre manager"
-} </pre>
+  "name": "Company Name",
+  "manager": "Manager Name"
+} 
+```
 
 ### POST /client_company
 
-Descripción: Crea una o varias compañías cliente.
+**Description:** Creates one or multiple client companies.
 
-Body (JSON individual o array):
+**Body (Individual JSON or Array):**
 
-json
+```json
+ {
+  "company_name": "string (required)",
+  "manager_client_name": "string (required)",
+  "hpe_rep_id": "int (optional)"
+} 
+```
 
-<pre> {
-  "company_name": "string (requerido)",
-  "manager_client_name": "string (requerido)",
-  "hpe_rep_id": "int (opcional)"
-} </pre>
+**Validations:**
+- `company_name`: Only letters, numbers, and spaces allowed.
+- `manager_client_name`: Only letters and spaces allowed.
+- `hpe_rep_id`: Must be numeric if provided.
 
-Validaciones:
-- company_name: Solo letras, números y espacios
-- manager_client_name: Solo letras y espacios
-- hpe_rep_id: Debe ser numérico si se proporciona
+### PUT /client_company/<int:id>
 
-### PUT /client_company/int:id
+**Description:** Updates an existing company.
 
-Descripción: Actualiza una compañía existente.
+**Body (JSON):**
 
-Body (JSON):
+```json
+ {
+  "company_name": "string (optional)",
+  "manager_client_name": "string (optional)",
+  "hpe_rep_id": "int (optional)"
+} 
+```
 
-json
+### DELETE /client_company/<int:id>
 
-<pre> {
-  "company_name": "string (opcional)",
-  "manager_client_name": "string (opcional)",
-  "hpe_rep_id": "int (opcional)"
-} </pre>
-
-### DELETE /client_company/int:id
-
-Descripción: Elimina una compañía por ID.
-
+**Description:** Deletes a company by ID.
 
 - - -
 
-# Endpoints de Users
+# Users Endpoints
 
 ### GET /users
 
-Descripción: Obtiene lista de usuarios con filtros.
+**Description:** Retrieves a list of users with filters.
 
-Parámetros de consulta:
+**Query Parameters:**
 
-- min_id, max_id (int): Filtros por ID
-- name, mail, role (string): Búsquedas parciales
-- 
-Respuesta:
+- `min_id`, `max_id` (int): ID range filters.
+- `name`, `mail`, `role` (string): Partial match searches.
 
-json
-<pre> [
+**Response:**
+
+```json
+ [
   {
     "id": 1,
-    "name": "Nombre usuario",
-    "role": "ROL",
-    "mail": "email@ejemplo.com"
+    "name": "User Name",
+    "role": "ROLE",
+    "mail": "email@example.com"
   }
-] </pre>
+] 
+```
 
-### GET /users/int:id
+### GET /users/<int:id>
 
-Descripción: Obtiene un usuario específico.
+**Description:** Retrieves a specific user.
 
 ### POST /users
 
-Descripción: Crea uno o varios usuarios.
+**Description:** Creates one or multiple users.
 
-Body (JSON individual o array):
+**Body (Individual JSON or Array):**
 
-json
+```json
+ {
+  "name": "string (required)",
+  "mail": "string (required, email format)",
+  "password": "string (required, min 6 characters)",
+  "role": "string (required, HPE_REP|HPE_MANAGER|CLIENT)",
+  "client_company_id": "int (optional)",
+  "reports_to": "int (optional)",
+  "session_started": "boolean (optional)"
+} 
+```
 
-<pre> {
-  "name": "string (requerido)",
-  "mail": "string (requerido, formato email)",
-  "password": "string (requerido, min 6 caracteres)",
-  "role": "string (requerido, HPE_REP|HPE_MANAGER|CLIENT)",
-  "client_company_id": "int (opcional)",
-  "reports_to": "int (opcional)",
-  "session_started": "boolean (opcional)"
-} </pre>
+### PUT /users/<int:id>
 
-### PUT /users/int:id
+**Description:** Updates an existing user.
 
-Descripción: Actualiza un usuario existente.
+### DELETE /users/<int:id>
 
-### DELETE /users/int:id
+**Description:** Deletes a user.
 
-Descripción: Elimina un usuario.
 - - -
 
-# Endpoints de Equipment
+# Equipment Endpoints
 
 ### GET /equipment
 
-Descripción: Obtiene equipos con filtros avanzados y ordenamiento.
+**Description:** Retrieves equipment with advanced filters and sorting.
 
-Parámetros de consulta:
+**Query Parameters:**
 
--	product_number, product_description, company_program (string): Búsquedas parciales
--	price, min_price, max_price (float): Filtros por precio
--	created_by (int): Filtrar por creador
--	sort_by (string): Campo para ordenar (product_number, product_description, etc.)
--	order (string): "asc" o "desc"
+- `product_number`, `product_description`, `company_program` (string): Partial match searches.
+- `price`, `min_price`, `max_price` (float): Price filters.
+- `created_by` (int): Filter by creator ID.
+- `sort_by` (string): Field to sort by (`product_number`, `product_description`, etc.).
+- `order` (string): "asc" or "desc".
 
-### GET /equipment/int:id
+### GET /equipment/<int:id>
 
-Descripción: Obtiene un equipo específico.
+**Description:** Retrieves a specific piece of equipment.
 
 ### POST /equipment
 
-Descripción: Crea un nuevo equipo.
+**Description:** Creates new equipment.
 
-Body:
+**Body:**
 
-json
-
-<pre> {
+```json
+ {
   "product_number": "string",
   "product_description": "string",
   "company_program": "string",
   "price": "float",
   "created_by": "int"
-} </pre>
+} 
+```
 
-### PUT /equipment/int:id
+### PUT /equipment/<int:id>
 
-Descripción: Actualiza un equipo existente.
+**Description:** Updates existing equipment.
 
-### DELETE /equipment/int:id
+### DELETE /equipment/<int:id>
 
-Descripción: Elimina un equipo.
+**Description:** Deletes equipment.
 
 - - -
 
-# Endpoints de EquipmentItems
+# EquipmentItems Endpoints
 
 ### GET /equipment_items
 
-Descripción: Obtiene items de equipo con filtros avanzados.
+**Description:** Retrieves equipment items with advanced filters.
 
-Parámetros de consulta:
+**Query Parameters:**
 
--	solution_id (int): Filtrar por solución
--	product_number, product_name (string): Búsquedas parciales
--	qty, min_qty, max_qty (int): Filtros por cantidad
--	unit_price, min_unit_price, max_unit_price (float): Filtros por precio unitario
--	sort_by, order: Ordenamiento
+- `solution_id` (int): Filter by solution.
+- `product_number`, `product_name` (string): Partial match searches.
+- `qty`, `min_qty`, `max_qty` (int): Quantity range filters.
+- `unit_price`, `min_unit_price`, `max_unit_price` (float): Unit price range filters.
+- `sort_by`, `order`: Sorting options.
 
-### GET /equipment_items/int:id
+### GET /equipment_items/<int:id>
 
-Descripción: Obtiene un item específico.
+**Description:** Retrieves a specific item.
 
 ### POST /equipment_items
 
-Descripción: Crea un nuevo item de equipo.
+**Description:** Creates a new equipment item.
 
-### PUT /equipment_items/int:id
+### PUT /equipment_items/<int:id>
 
-Descripción: Actualiza un item existente.
+**Description:** Updates an existing item.
 
-### DELETE /equipment_items/int:id
+### DELETE /equipment_items/<int:id>
 
-Descripción: Elimina un item.
+**Description:** Deletes an item.
 
 - - -
-# Endpoints de POC
+
+# POC Endpoints
+
 ### GET /pocs
 
-Descripción: Obtiene POCs con filtros por fechas y estados.
+**Description:** Retrieves POCs (Proof of Concepts) with date and status filters.
 
-Parámetros de consulta:
+**Query Parameters:**
 
--	client_user_id (int): Filtrar por usuario cliente
--	business_justification (string): Búsqueda parcial
--	is_approved (boolean): Filtrar por aprobación
--	Filtros de fecha: completion_date, created_date, min_*_date, max_*_date
--	sort_by, order: Ordenamiento
+- `client_user_id` (int): Filter by client user ID.
+- `business_justification` (string): Partial match search.
+- `is_approved` (boolean): Filter by approval status.
+- **Date Filters:** `completion_date`, `created_date`, `min_*_date`, `max_*_date`.
+- `sort_by`, `order`: Sorting options.
 
-### GET /pocs/int:id
+### GET /pocs/<int:id>
 
-Descripción: Obtiene un POC específico.
+**Description:** Retrieves a specific POC.
 
 ### POST /pocs
 
-Descripción: Crea uno o varios POCs.
+**Description:** Creates one or multiple POCs.
 
-Body (JSON individual o array):
+**Body (Individual JSON or Array):**
 
-json
-
-<pre> {
-  "client_user_id": "int (requerido)",
+```json
+ {
+  "client_user_id": "int (required)",
   "business_justification": "string",
   "is_approved": "boolean",
   "completion_date": "date string",
   "created_date": "date string"
-} </pre>
+} 
+```
 
-### PUT /pocs/int:id
+### PUT /pocs/<int:id>
 
-Descripción: Actualiza un POC existente.
+**Description:** Updates an existing POC.
 
-### DELETE /pocs/int:id
+### DELETE /pocs/<int:id>
 
-Descripción: Elimina un POC.
+**Description:** Deletes a POC.
 
 - - -
-# Endpoints de POCEquipment
+
+# POCEquipment Endpoints
 
 ### GET /poc_equipment
 
-Descripción: Obtiene relaciones entre POCs y equipos.
+**Description:** Retrieves relationships between POCs and equipment.
 
-Parámetros de consulta:
+**Query Parameters:**
 
-- poc_id (int): Filtrar por POC
--	solution_id (int): Filtrar por solución
+- `poc_id` (int): Filter by POC ID.
+- `solution_id` (int): Filter by solution ID.
 
 ### POST /poc_equipment
 
-Descripción: Crea relaciones entre POCs y equipos.
+**Description:** Creates relationships between POCs and equipment.
 
-Body (JSON individual o array):
+**Body (Individual JSON or Array):**
 
-json
+```json
+ {
+  "poc_id": "int (required)",
+  "solution_id": "int (required)"
+} 
+```
 
-<pre> {
-  "poc_id": "int (requerido)",
-  "solution_id": "int (requerido)"
-} </pre>
+### DELETE /poc_equipment/<int:poc_id>/<int:solution_id>
 
-### DELETE /poc_equipment/int:poc_id/int:solution_id
-
-Descripción: Elimina una relación específica.
+**Description:** Deletes a specific relationship.
 
 - - -
-# Características Comunes
 
-### Validaciones Implementadas
+# Common Features
 
--	Campos requeridos según operación (POST vs PUT)
--	Formatos específicos: emails, nombres, precios
--	Unicidad: Evita duplicados en campos únicos
--	Existencia: Verifica referencias a IDs existentes
+### Implemented Validations
 
-### Manejo de Errores
--	400: Datos inválidos o faltantes
--	404: Recurso no encontrado
--	500: Errores internos del servidor
+- **Required Fields:** Based on the operation (POST vs. PUT).
+- **Specific Formats:** Validations for emails, names, and prices.
+- **Uniqueness:** Prevents duplicate entries in unique fields.
+- **Existence:** Verifies that referenced IDs exist in the database.
 
-### Características Avanzadas
--	Búsqueda parcial con ilike
--	Filtros por rangos (min/max)
--	Ordenamiento múltiple
+### Error Handling
+- **400:** Invalid or missing data.
+- **404:** Resource not found.
+- **500:** Internal server errors.
 
+### Advanced Features
+- **Partial Search:** Implemented using `ilike`.
+- **Range Filters:** Support for `min/max` filtering.
+- **Multiple Sorting:** Flexible ordering options.
